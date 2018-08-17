@@ -20,9 +20,10 @@
 {                   is a macro which accesses them. InitMbcsTable           }
 {                   initializes the table.                                  }
 {             1.1.5 Added __lstrxfrm, __lstrcoll, __lsetlocale.             }
-{             1.2.6 unit renamed and adapted to newest delphi (XE2 up)      }
-{             1.1.6 unit renamed and adapt to never delphi versions (XE2 up)}
-{                   Added __assert, _exp2, ___errno and some extra types    }
+{                                                                           }
+{             1.2.6 alexey.t:                                               }
+{                   Unit renamed and adapted to newest delphi (XE2 up)      }
+{                   Added __assert, _exp2, ___errno and some extra methods  }
 {                   remowed code existing in crtl unit                      }
 {                                                                           }
 { Copyright:  (c) 2006-2018 drs. Rudolph Velthuis / alexey.t                }
