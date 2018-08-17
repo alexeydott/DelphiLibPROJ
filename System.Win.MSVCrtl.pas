@@ -1,8 +1,45 @@
-{ Additional translations of the functions found in msvcrt.dll, as          }
+{                                                                           }
+{ File:       System.Win.MSVCRtl.pas                                        }
+{ Function:   Translations of the functions found in msvcrt.dll, as         }
 {             replacement for missing externals when a C object file is     }
 {             used in Delphi. That is also the reason why all functions     }
 {             have a leading underscore, and functions like _putc() have    }
 {             Integer parameters, instead of Char.                          }
+{ Language:   Delphi                                                        }
+{ Authors:     Rudolph Velthuis / alexey.t                                  }
+{ Versions:   1.0.0 Started with functions in msvcrt10.dll, 1997.           }
+{             1.1.0 Added msvcrt.dll v7.0 as dynamic imports.               }
+{             1.1.1 Added __fputc(), used by putc() macro.                  }
+{             1.1.2 Implemented fgetpos() and fsetpos() because of          }
+{                   differences between MSVC and BCB.                       }
+{             1.1.3 Added __streams and Streams, because getc() and         }
+{                   putc() and the depending getchar() and putchar() are    }
+{                   macros which access the level field of stdin or         }
+{                   stdout before they call any code.                       }
+{             1.1.4 Added __mbctype and MBCType, because _isleadbyte()      }
+{                   is a macro which accesses them. InitMbcsTable           }
+{                   initializes the table.                                  }
+{             1.1.5 Added __lstrxfrm, __lstrcoll, __lsetlocale.             }
+{             1.2.6 unit renamed and adapted to newest delphi (XE2 up)      }
+{             1.1.6 unit renamed and adapt to never delphi versions (XE2 up)}
+{                   Added __assert, _exp2, ___errno and some extra types    }
+{                   remowed code existing in crtl unit                      }
+{                                                                           }
+{ Copyright:  (c) 2006-2018 drs. Rudolph Velthuis / alexey.t                }
+{                                                                           }
+{ Disclaimer: This code is freeware. All rights are reserved.               }
+{             This code is provided as is, expressly without a warranty     }
+{             of any kind. You use it at your own risk.                     }
+{                                                                           }
+{             If you use this code, please credit me.                       }
+{                                                                           }
+
+{ TODO: add functions like _ftol(), which are RTL routines compiled by the
+        compiler. They are never explicitly called. Find other routines
+        like them.
+        Note that some of them use unconventional calling, e.g. _ftol()
+        passes a float on the FPU stack. }
+
 
 {$ALIGN OFF}      // Because of #pragma pack(push, 1)
 {$MINENUMSIZE 4}
