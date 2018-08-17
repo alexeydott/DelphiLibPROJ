@@ -107,7 +107,7 @@
         </DelphiCompile>
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="LibPROJApi.pas"/>
-        <DCCReference Include="System.Win.MSVCrtl.pas"/>
+        <DCCReference Include="MSVCrtl.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

@@ -18,7 +18,7 @@ function PJ_get_version_string(): string;
 implementation
 
 uses
-	SysUtils, Windows, Math, System.Win.MSVCrtl;
+	SysUtils, Windows, Math, MSVCrtl;
 
 const
 	PJ_RAD_TO_DEG = 57.295779513082320876798154814105000; //(1*180 / PI)
