@@ -164,10 +164,7 @@ function PJ_is_same_definition(p1,p2: Pointer): Integer;
 /// <param name="p">
 ///   coordinate system handle.
 /// </param>
-/// <param name="AndNil">
-///   set pointer to <b>«p»</b> nil
-/// </param>
-procedure PJ_free(p: Pointer; AndNil: Boolean = True);
+procedure PJ_free(p: Pointer);
 /// <summary>
 ///   get libproj version string
 /// </summary>
@@ -947,15 +944,10 @@ begin
 	end;
 end;
 
-{$HINTS OFF}
-// to awoid H2077 Value assigned to 'p' never used...
-procedure PJ_free(p: Pointer; AndNil: Boolean);
+procedure PJ_free(p: Pointer);
 begin
 	_pj_free(p);
-	if AndNil then
-		Pointer(p) := nil;
 end;
-{$HINTS ON}
 
 end.
 
