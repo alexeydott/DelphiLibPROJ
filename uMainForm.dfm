@@ -20,7 +20,7 @@ object Form1: TForm1
     Width = 121
     Height = 21
     TabOrder = 0
-    Text = '0'
+    Text = '58,724554'
   end
   object Edit2: TEdit
     Left = 56
@@ -28,7 +28,7 @@ object Form1: TForm1
     Width = 121
     Height = 21
     TabOrder = 1
-    Text = '0'
+    Text = '69,963443'
   end
   object Button1: TButton
     Left = 56

@@ -1,12 +1,22 @@
+/// <summary>
+///   plain api of libProj c library
+/// </summary>
+/// <remarks>
+///   currently using Proj4 api functions
+/// </remarks>
 unit LibPROJApi;
 
 
 interface
 
+type TPJ_LOG_FUNCTION =
+	procedure (app_data: pointer; level: integer; msg: Pointer) of object; cdecl;
+
 /// <summary>
 ///   This function converts a string representation of a coordinate system
 ///   definition into a projPJ object suitable for use with other API
-///   functions. On failure the function will return NULL and set pj_errno.
+///   functions. On failure the function will return NULL and set <see cref="LibPROJApi|PJ_strerrno(Integer)">
+///   pj_errno</see>.
 /// </summary>
 /// <param name="def">
 ///   The definition in the general form. <see href="https://github.com/OSGeo/proj.4/wiki/GenParms/">
@@ -18,41 +28,180 @@ interface
 /// </returns>
 /// <remarks>
 ///   Coordinate system objects allocated with pj_init_plus() should be
-///   deallocated with pj_free().
+///   deallocated with <see cref="LibPROJApi|PJ_free(Pointer,Boolean)">
+///   pj_free()</see>.
 /// </remarks>
 function PJ_init_plus(const def: string): Pointer;
-function PJ_is_latlon(p: Pointer): Boolean;
-function PJ_transform_point2D(src,dst: Pointer; var x,y: Double; conv_to_radials: Boolean): Integer; overload;
+/// <summary>
+///   Returns TRUE if input coordinate system object is geographic.
+/// </summary>
+/// <param name="p">
+///   input coordinate system handle.
+/// </param>
+function PJ_is_geographic(p: Pointer): Boolean;
+/// <summary>
+///   Returns TRUE if input coordinate system object is geocentric.
+/// </summary>
+/// <param name="p">
+///   input coordinate system handle. <br />
+/// </param>
+function PJ_is_geocentric(p: Pointer): Boolean;
+/// <summary>
+///   Return a projection handle defining the lat/long coordinate system on
+///   which a projection is based. If the coordinate system passed in is
+///   latlong, a clone of the same will be returned.
+/// </summary>
+/// <param name="p">
+///   input projection handle.
+/// </param>
+function PJ_latlong_from_proj(p: Pointer): Pointer;
 /// <param name="src">
-///   source (input) coordinate system.
+///   source (input) coordinate system handle.
 /// </param>
 /// <param name="dst">
-///   destination (output) coordinate system.
+///   destination (output) coordinate system handle.
 /// </param>
 /// <param name="x">
-///   x coordinate value
+///   x coordinate value.
 /// </param>
 /// <param name="y">
-///   y coordinate value <br />
+///   y coordinate value. <br />
 /// </param>
-/// <param name="conv_to_radials">
-///   true if x/y values in degrees
+/// <param name="angular">
+///   false if x/y values in degrees and source or dest coordinate system is geographic.
 /// </param>
 /// <returns>
 ///   The return is zero on success, or a PROJ.4 error code.
 /// </returns>
 /// <remarks>
 ///   If there is an overall failure, an error code will be returned from the
-///   function. Input values that are HUGE_VAL will not be transformed.
+///   function. Input value that are HUGE_VAL will not be transformed.
 /// </remarks>
-function PJ_transform_point2D(src,dst: Pointer; x,y: PDouble; conv_to_radials: Boolean): Integer; overload;
-function PJ_transform_points2D(src,dst: Pointer; x,y: PDouble; count: Integer; handle_degrees: Boolean): Integer;
+function PJ_transform_point2D(src,dst: Pointer; var x,y: Double; angular: Boolean): Integer; overload;
+/// <param name="src">
+///   source (input) coordinate system handle.
+/// </param>
+/// <param name="dst">
+///   destination (output) coordinate system handle.
+/// </param>
+/// <param name="x">
+///   x coordinate value.
+/// </param>
+/// <param name="y">
+///   y coordinate value. <br />
+/// </param>
+/// <param name="angular">
+///   false if x/y values in degrees.
+/// </param>
+/// <returns>
+///   The return is zero on success, or a PROJ.4 error code.
+/// </returns>
+/// <remarks>
+///   If there is an overall failure, an error code will be returned from the
+///   function. Input value that are HUGE_VAL will not be transformed.
+/// </remarks>
+function PJ_transform_point2D(src,dst: Pointer; x,y: PDouble; angular: Boolean): Integer; overload;
+/// <param name="src">
+///   source (input) coordinate system handle.
+/// </param>
+/// <param name="dst">
+///   destination (output) coordinate system handle.
+/// </param>
+/// <param name="x">
+///   pointer to first x coordinate value.
+/// </param>
+/// <param name="y">
+///   pointer to first y coordinate value. <br />
+/// </param>
+/// <param name="count">
+///   point counts.
+/// </param>
+/// <param name="angular">
+///   false if x/y values in degrees.
+/// </param>
+/// <returns>
+///   The return is zero on success, or a PROJ.4 error code.
+/// </returns>
+/// <remarks>
+///   If there is an overall failure, an error code will be returned from the
+///   function. Input value that are HUGE_VAL will not be transformed.
+/// </remarks>
+function PJ_transform_points2D(src,dst: Pointer; x,y: PDouble; count: Integer; angular: Boolean): Integer;
+/// <summary>
+///   Returns the PROJ.4 command string that would produce this definition
+///   expanded as much as possible. For instance +init= calls and +datum=
+///   definitions would be expanded.
+/// </summary>
+/// <param name="p">
+///   coordinate system handle.
+/// </param>
 function PJ_get_definition(p: Pointer): string;
+/// <summary>
+///   returns 0 if full definitions presented coordinate system handles is
+///   same. <br />
+/// </summary>
+/// <param name="p1">
+///   first coordinate system handle.
+/// </param>
+/// <param name="p2">
+///   second coordinate system handle. <br />
+/// </param>
+/// <returns>
+///   <para>
+///     -1 if error
+///   </para>
+///   <para>
+///     0 if definitions same
+///   </para>
+///   <para>
+///     1 if definitions not same <br />
+///   </para>
+/// </returns>
 function PJ_is_same_definition(p1,p2: Pointer): Integer;
-
+/// <summary>
+///   cleanup memory associated with libproj coordinate system object. <br />
+/// </summary>
+/// <param name="p">
+///   coordinate system handle.
+/// </param>
+/// <param name="AndNil">
+///   set pointer to <b>«p»</b> nil
+/// </param>
 procedure PJ_free(p: Pointer; AndNil: Boolean = True);
-
+/// <summary>
+///   get libproj version string
+/// </summary>
 function PJ_get_version_string(): string;
+/// <summary>
+///   get string description of libproj error code
+/// </summary>
+/// <param name="errno">
+///   libproj error code
+/// </param>
+function PJ_strerrno(errno: integer): string;
+/// <summary>
+///   Fetch the internal definition of the spheroid.
+/// </summary>
+/// <param name="p">
+///   coordinate system handle.
+/// </param>
+/// <param name="major_axis">
+///   value of major axis in meters
+/// </param>
+/// <param name="eccentricity_squared">
+///   square of eccentricity
+/// </param>
+/// <remarks>
+///   <para>
+///     You can compute "minor axis" from eccentricity_squared as:
+///   </para>
+///   <para>
+///     <i>b = a * sqrt(1 - e2)</i>
+///   </para>
+/// </remarks>
+function PJ_get_spheroid_defn(p: pointer; out major_axis, eccentricity_squared: Double): Boolean;
+
+function PJ_get_errno(): Integer;
 
 implementation
 
@@ -64,7 +213,8 @@ const
 	PJ_DEG_TO_RAD = 0.017453292519943295769236907684886;
 
 // obj\$(Platform)\$(Config)
-// links to external code
+
+// precompiled c code
 	{$REGION 'external declarations to avoid linker errors'}
   procedure _nad_cvt(); external;
   function _pj_sinu(p1: Pointer): Pointer; external;
@@ -598,58 +748,25 @@ const
 
 {$ENDREGION}
 
-function _pj_init_plus(const def: PAnsiChar): Pointer; cdecl; external name '_pj_init_plus';
-function _pj_is_latlong(p: Pointer): integer; cdecl; external name '_pj_is_latlong';
-procedure _pj_free(p: Pointer); cdecl; external name '_pj_free';
-/// <param name="src">
-///   source (input) coordinate system.
-/// </param>
-/// <param name="dst">
-///   destination (output) coordinate system.
-/// </param>
-/// <param name="point_count">
-///   the number of points to be processed (the size of the x/y/z arrays).
-/// </param>
-/// <param name="point_offset">
-///   the step size from value to value (measured in doubles) within the x/y/z
-///   arrays - normally 1 for a packed array. May be used to operate on xyz
-///   interleaved point arrays.
-/// </param>
-/// <param name="x">
-///   The array of X coordinate values passed as input, and modified in place
-///   for output.
-/// </param>
-/// <param name="y">
-///   The array of Y coordinate values passed as input, and modified in place
-///   for output.
-/// </param>
-/// <param name="z">
-///   Z coordinate values passed as input, and modified in place for output.
-///   Optionally may be NULL.
-/// </param>
-/// <returns>
-///   The return is zero on success, or a PROJ.4 error code.
-/// </returns>
-/// <remarks>
-///   The pj_transform() function transforms the passed in list of points from
-///   the source coordinate system to the destination coordinate system. Note
-///   that geographic locations need to be passed in radians, not decimal
-///   degrees, and will be returned similarly. The z array may be passed as
-///   NULL if Z values are not available. <br /><br />If there is an overall
-///   failure, an error code will be returned from the function. If individual
-///   points fail to transform - for instance due to being over the horizon -
-///   then those x/y/z values will be set to HUGE_VAL on return. Input values
-///   that are HUGE_VAL will not be transformed.
-/// </remarks>
-function _pj_transform(src,dst: Pointer; point_count,point_offset: integer; x,y,z: PDouble): Integer; cdecl; external name '_pj_transform';
-function _pj_get_def(p: Pointer): Pointer; cdecl; external name '_pj_get_def';
+	{$REGION 'Api calls'}
 
-//'pj_is_geocent'
-//'pj_latlong_from_proj'
+  function _pj_init_plus(const def: PAnsiChar): Pointer; cdecl; external name '_pj_init_plus';
+  function _pj_is_latlong(p: Pointer): integer; cdecl; external name '_pj_is_latlong';
+  function _pj_is_geocent(p: Pointer): integer; cdecl; external name '_pj_is_geocent';
+  function _pj_latlong_from_proj(p: Pointer): Pointer; cdecl; external name '_pj_latlong_from_proj';
+  procedure _pj_free(p: Pointer); cdecl; external name '_pj_free';
+  function _pj_transform(src,dst: Pointer; point_count,point_offset: integer; x,y,z: PDouble): Integer; cdecl; external name '_pj_transform';
+  function _pj_get_def(p: Pointer): Pointer; cdecl; external name '_pj_get_def';
+  function _pj_strerrno(errno: Integer): Pointer; cdecl; external name '_pj_strerrno';
+  function _pj_get_ctx(p: Pointer): Pointer; cdecl; external name '_pj_get_ctx';
+  procedure _pj_ctx_set_logger(ctx: pointer; logger: Pointer); cdecl; external name '_pj_ctx_set_logger';
+  function _pj_get_release(): Pointer; cdecl; external name '_pj_get_release';
+  function _pj_ctx_fgets(ctx: pointer; line: PByte; Size: Integer; _file: PInteger): PByte; cdecl; external;
+  procedure _pj_log(ctx: pointer; level: Integer; fmt: PAnsiChar); cdecl; external name '_pj_log'; varargs;
+	procedure _pj_get_spheroid_defn(p: pointer; major_axis: PDouble; eccentricity_squared: PDouble); cdecl; external name '_pj_get_spheroid_defn';
+	function _pj_get_errno_ref(): PInteger; cdecl; external name '_pj_get_errno_ref';
 
-function _pj_get_release(): Pointer; cdecl; external name '_pj_get_release';
-
-function _pj_ctx_fgets(ctx: pointer; line: PByte; Size: Integer; _file: PInteger): PByte; cdecl; external;
+{$ENDREGION 'Api calls'}
 
 //------------------------------------------------
 // helper functions
@@ -662,16 +779,62 @@ function StringToCStringPointer(Value: string): Pointer;
 begin
 	Result := TMarshal.AllocStringAsAnsi(Value).ToPointer;
 end;
+
 //------------------------------------------------
 
-function PJ_init_plus(const def: string): Pointer;
+procedure _default_stderr_log_handler(appdata: Pointer; level: Integer; msg: Pointer); cdecl;
+var
+	MsgText: string;
+
+	function LogLevelCodeToString(value: Integer): string;
+	begin
+		Result := '';
+		case value of
+			1: Result := 'libPROJ error: ';
+			2: Result := 'libPROJ debug: ';
+			3: Result := 'libPROJ trace: ';
+			4: Result := 'libPROJ tell: ';
+		end;
+	end;
 begin
-	Result := Pointer(_pj_init_plus( StringToCStringPointer( def ) ));
+	MsgText := CStringPointerToString(msg);
+	if MsgText <> '' then
+	begin
+
+		MsgText := LogLevelCodeToString(level) + MsgText;
+
+		OutputDebugString( PChar( MsgText ));
+	end;
 end;
 
-function PJ_is_latlon(p: Pointer): Boolean;
+function PJ_init_plus(const def: string): Pointer;
+var
+	ctx: Pointer;
+begin
+	Result := _pj_init_plus( StringToCStringPointer( def ) );
+ {$IfOpt D+}
+	if Result <> nil then
+	begin
+		ctx := _pj_get_ctx(Result);
+		if ctx <> nil then
+			_pj_ctx_set_logger(ctx,@_default_stderr_log_handler);
+	end;
+ {$ifend}
+end;
+
+function PJ_is_geographic(p: Pointer): Boolean;
 begin
 	Result := Boolean(_pj_is_latlong(p));
+end;
+
+function PJ_is_geocentric(p: Pointer): Boolean;
+begin
+	Result := Boolean(_pj_is_geocent(p));
+end;
+
+function PJ_latlong_from_proj(p: Pointer): Pointer;
+begin
+	Result := _pj_latlong_from_proj(p);
 end;
 
 function PJ_get_version_string(): string;
@@ -679,28 +842,45 @@ begin
 	Result := 'proj ' + CStringPointerToString(_pj_get_release());
 end;
 
-function PJ_transform_points2D(src,dst: Pointer; x,y: PDouble; count: Integer; handle_degrees: Boolean): Integer;
+function PJ_strerrno(errno: integer): string;
+begin
+	Result := CStringPointerToString(_pj_strerrno(errno));
+end;
+
+function PJ_get_spheroid_defn(p: pointer; out major_axis, eccentricity_squared: Double): Boolean;
+begin
+	Result := Assigned(p);
+	if Result then
+		_pj_get_spheroid_defn(p,@major_axis,@eccentricity_squared);
+end;
+
+function PJ_get_errno(): Integer;
+begin
+	Result := _pj_get_errno_ref()^;
+end;
+
+function PJ_transform_points2D(src,dst: Pointer; x,y: PDouble; count: Integer; angular: Boolean): Integer;
 var
 	degSrc, degDst: Boolean;
 	i: Integer;
 	_x,_y: PDouble;
 begin
 
-  Result := PJ_is_same_definition(src,dst);
+	Result := PJ_is_same_definition(src,dst);
 
-  if Result = 0 then
-    Exit;
+	if Result = 0 then
+		Exit;
 
-	if handle_degrees then
+	if not angular then
 	begin
-		degSrc := PJ_is_latlon(src);
-		degDst := PJ_is_latlon(dst);
+		degSrc := PJ_is_geographic(src);
+		degDst := PJ_is_geographic(dst);
 	end
 	else
 	begin
 		degSrc := False;
 		degDst := False;
-  end;
+	end;
 
 	if degSrc then
 	begin
@@ -737,34 +917,34 @@ begin
 end;
 
 function PJ_transform_point2D(src,dst: Pointer;
-	x,y: PDouble; conv_to_radials: Boolean): Integer;
+	x,y: PDouble; angular: Boolean): Integer;
 begin
-	Result := PJ_transform_points2D(src,dst,x,y,1,conv_to_radials);
+	Result := PJ_transform_points2D(src,dst,x,y,1,angular);
 end;
 
-function PJ_transform_point2D(src,dst: Pointer; var x,y: Double; conv_to_radials: Boolean): Integer;
+function PJ_transform_point2D(src,dst: Pointer; var x,y: Double; angular: Boolean): Integer;
 begin
-  Result := PJ_transform_point2D(src,dst,@x,@y,conv_to_radials);
+	Result := PJ_transform_point2D(src,dst,@x,@y,angular);
 end;
 
 function PJ_get_definition(p: Pointer): string;
 begin
-  Result := CStringPointerToString(_pj_get_def(p));
+	Result := CStringPointerToString(_pj_get_def(p));
 end;
 
 function PJ_is_same_definition(p1,p2: Pointer): Integer;
 var d1,d2: string;
 begin
-  Result := -1;
-  if (p1 <> nil) and (p2 <> nil) then
-  begin
-    d1 := PJ_get_definition(p1);
-    d2 := PJ_get_definition(p2);
-    if (d1 <> '') and (d2 <> '') and SameText(d1,d2) then
-      Result := 0
-    else
-      Result := 1;
-  end;
+	Result := -1;
+	if (p1 <> nil) and (p2 <> nil) then
+	begin
+		d1 := PJ_get_definition(p1);
+		d2 := PJ_get_definition(p2);
+		if (d1 <> '') and (d2 <> '') and SameText(d1,d2) then
+			Result := 0
+		else
+			Result := 1;
+	end;
 end;
 
 {$HINTS OFF}

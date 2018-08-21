@@ -80,7 +80,7 @@
         <AppEnableHighDPI>true</AppEnableHighDPI>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Build>1</VerInfo_Build>
+        <VerInfo_Build>16</VerInfo_Build>
         <DCC_UnitSearchPath>dcu\$(Platform)\$(Config);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -95,7 +95,7 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DCC_DcuOutput>dcu\$(Platform)\$(Config)</DCC_DcuOutput>
-        <VerInfo_Build>22</VerInfo_Build>
+        <VerInfo_Build>23</VerInfo_Build>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
