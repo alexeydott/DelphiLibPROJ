@@ -15,28 +15,37 @@ object Form1: TForm1
   PixelsPerInch = 96
   TextHeight = 13
   object Edit1: TEdit
-    Left = 56
-    Top = 48
+    Left = 8
+    Top = 8
     Width = 121
     Height = 21
     TabOrder = 0
     Text = '58,724554'
   end
   object Edit2: TEdit
-    Left = 56
-    Top = 75
+    Left = 8
+    Top = 43
     Width = 121
     Height = 21
     TabOrder = 1
     Text = '69,963443'
   end
   object Button1: TButton
-    Left = 8
-    Top = 171
+    Left = 135
+    Top = 25
     Width = 75
     Height = 25
     Caption = 'Button1'
     TabOrder = 2
     OnClick = Button1Click
+  end
+  object Button2: TButton
+    Left = 8
+    Top = 88
+    Width = 75
+    Height = 25
+    Caption = 'Button2'
+    TabOrder = 3
+    OnClick = Button2Click
   end
 end

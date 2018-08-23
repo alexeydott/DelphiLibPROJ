@@ -13,8 +13,10 @@ type
     Edit1: TEdit;
     Edit2: TEdit;
     Button1: TButton;
+    Button2: TButton;
 		procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+		procedure Button2Click(Sender: TObject);
   private
 		{ Private declarations }
 		FMgr: TProjectionsManager;
@@ -59,6 +61,35 @@ begin
   TransformPoint(S1,S2);
   Edit1.Text := S1;
   Edit2.Text := S2;
+end;
+
+procedure TForm1.Button2Click(Sender: TObject);
+var
+	W: TWKTDocument;
+	N: TWktNode;
+begin
+	W := TWKTDocument.Create();
+	try
+		W.LoadFromFile('C:\Develop\CVS_PROJECTS\gis_mgt\build\MapProject\PRJ\Moscow.prj');
+		if W.Find('projcs',N) then
+		begin
+			OutputDebugString(PChar(N.Keyword));
+			OutputDebugString(PChar(N.Attributes.CommaText));
+			if N.Find('GEOGCS',N) then
+			begin
+				OutputDebugString(PChar(N.Keyword));
+				OutputDebugString(PChar(N.Attributes.CommaText));
+				if N.Find('DATUM',N) then
+				begin
+					OutputDebugString(PChar(N.Keyword));
+					OutputDebugString(PChar(N.Attributes.CommaText));
+				end;
+			end;
+		end;
+		OutputDebugString(PChar(W.SaveToString(True)));
+	finally
+		FreeAndNil(W);
+	end;
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
