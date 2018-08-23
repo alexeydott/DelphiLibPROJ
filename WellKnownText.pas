@@ -4,27 +4,33 @@ unit WellKnownText;
 interface
 
 uses
-	Classes, SysUtils, Character, Generics.Collections;
+	Classes, SysUtils, Contnrs;
 
 type
 
 	TWktNode = class;
 
-	TWktNodeList = class(TObjectList<TWktNode>)
+	TWktNodeList = class(TObjectList)
+	private
+		function DoGetItem(Index: Integer): TWktNode;
+		procedure DoSetItem(Index: Integer; AObject: TWktNode);
 	public
-		function Find(const AKey: string): TWktNode; virtual;
-		function FindByAttributeName(const AKey, AAtributeName: string): TWktNode; virtual;
+		function Find(const AKey: string; out Dest: TWktNode): Boolean; virtual;
+		function FindByAttributeName(const AKey, AAtributeName: string; out Dest: TWktNode): Boolean; virtual;
+
+	 property Items[Index: Integer]: TWktNode read DoGetItem write DoSetItem; default;
 	end;
 
 	TWktNode = class(TWktNodeList)
 	private
+		FTreeDepth: Integer;
 		FKeyword: string;
 		FAttributes: TStrings;
 		FParentNode: TWktNode;
 		function GetAttributes: TStrings;
 		function GetAttributesCount: Integer;
+		function GetIndent(const IndentString: string): string;
 	protected
-		FLevel: Integer;
 		procedure AddAttribute(const AValue: string);
 		function GetAttribute(Index: Integer): string;
 		function AttibutesAsString: string;
@@ -34,6 +40,7 @@ type
 		function SaveToString(const PrettyPrint: Boolean): string;
 		procedure ParseStream(Stream: TStream); virtual;
 
+		property TreeDepth: Integer read FTreeDepth;
 		property Keyword: string read FKeyword;
 		property Parent: TWktNode read FParentNode;
 		property Attribute[Index: Integer]: string read GetAttribute;
@@ -104,10 +111,10 @@ end;
 
 constructor TWktNode.Create(AParent: TWktNode);
 begin
+	FTreeDepth := 0;
 	FParentNode := AParent;
-	FLevel := 0;
 	if FParentNode <> nil then
-		FLevel := FParentNode.FLevel + 1;
+		FTreeDepth := FParentNode.TreeDepth + 1;
 end;
 
 destructor TWktNode.Destroy;
@@ -141,10 +148,19 @@ begin
 	  Result := FAttributes.Count;
 end;
 
+function TWktNode.GetIndent(const IndentString: string): string;
+var
+	I: Integer;
+begin
+	Result := '';
+	for I := 0 to TreeDepth -1 do
+		Result := Result + IndentString;
+end;
+
 procedure TWktNode.ParseStream(Stream: TStream);
 var
 	CurrentChar: Char;
-	AtributeValue: string;
+	TempValue: string;
 	BracketOpened, QuoteOpened: Boolean;
 	LastCommaPos, CommaCount: Integer;
 	Child: TWktNode;
@@ -158,7 +174,7 @@ begin
 	QuoteOpened := False;
 	CommaCount := 0;
 	LastCommaPos := Stream.Position;
-	AtributeValue := '';
+	TempValue := '';
 	while Stream.Read(CurrentChar, 1) = 1 do
 	begin
 		case CurrentChar of
@@ -167,8 +183,8 @@ begin
 				  // node start
 					if BracketOpened then
 					begin
-						AddAttribute(AtributeValue);
-						AtributeValue := '';
+						AddAttribute(TempValue);
+						TempValue := '';
 						if CommaCount <> 0 then
 						begin
 							// New child
@@ -178,7 +194,6 @@ begin
 							Stream.Seek(LastCommaPos, soFromBeginning);
 							Child := TWktNode.Create(Self);
 							Add(Child);
-
 							Child.ParseStream(Stream);
 						end;
 					end
@@ -186,22 +201,22 @@ begin
 					begin
 						// Name, Attribute
 						BracketOpened := True;
-						FKeyword := AtributeValue;
-						AtributeValue := '';
+						FKeyword := TempValue;
+						TempValue := '';
 					end;
 				end;
 			WKT_VALUE_SEPARATOR:
 				begin
 					LastCommaPos := Stream.Position;
-					AddAttribute(AtributeValue);
-					AtributeValue := '';
+					AddAttribute(TempValue);
+					TempValue := '';
 					Inc(CommaCount);
 				end;
 			WKT_BRACKET_CLOSE:
 				begin
 					// End
-					AddAttribute(AtributeValue);
-					AtributeValue := '';
+					AddAttribute(TempValue);
+					TempValue := '';
 					Break;
 				end;
 
@@ -213,10 +228,10 @@ begin
 					QuoteOpened := not QuoteOpened;
 					if QuoteOpened then
 					begin
-						AtributeValue := CurrentChar;
+						TempValue := CurrentChar;
 						while (Stream.Read(CurrentChar, 1) = 1) do
 						begin
-							AtributeValue := AtributeValue + CurrentChar;
+							TempValue := TempValue + CurrentChar;
 							if CurrentChar = WKT_QUOTE_CHAR then
 							begin
 								QuoteOpened := False;
@@ -226,7 +241,7 @@ begin
 					end;
 				end;
 		else
-			AtributeValue := AtributeValue + CurrentChar;
+			TempValue := TempValue + CurrentChar;
 		end;
 	end;
 end;
@@ -234,29 +249,19 @@ end;
 function TWktNode.SaveToString(const PrettyPrint: Boolean): string;
 var
 	I: Integer;
-	NodeIdent: string;
 begin
-	Result := '';
-	if Count = 0 then
-		Exit;
-
 	Result := UpperCase(Keyword) + WKT_BRACKET_OPEN;
 
 	if AttributesCount > 0 then
 		Result := Result + AttibutesAsString;
 
-	if Count > 0 then
-	begin
-		if PrettyPrint and (FLevel > 0) then
-			NodeIdent := WKT_NEWLINE + StringOfChar(' ', FLevel*2)
-		else
-			NodeIdent := '';
-
-		for I := 0 to Count - 1 do
-			Result := Result + WKT_VALUE_SEPARATOR + Items[I].SaveToString(PrettyPrint);
-	end;
+	for I := 0 to Count - 1 do
+		Result := Result + WKT_VALUE_SEPARATOR + Items[I].SaveToString(PrettyPrint);
 
 	Result := Result + WKT_BRACKET_CLOSE;
+
+	if PrettyPrint then
+		Result := WKT_NEWLINE + GetIndent('  ') + Result;
 end;
 
 function TWktNode.AttibutesAsString: string;
@@ -275,12 +280,22 @@ end;
 
 { TWktNodeList }
 
-function TWktNodeList.Find(const AKey: string): TWktNode;
+function TWktNodeList.DoGetItem(Index: Integer): TWktNode;
+begin
+	Result := TWktNode(GetItem(Index));
+end;
+
+procedure TWktNodeList.DoSetItem(Index: Integer; AObject: TWktNode);
+begin
+	SetItem(Index,AObject);
+end;
+
+function TWktNodeList.Find(const AKey: string; out Dest: TWktNode): Boolean;
 var
 	I, DelimPos: Integer;
 	Keyword, Nested: string;
 begin
-	Result := nil;
+	Dest := nil;
 	DelimPos := FindChar(WKT_REVERSE_SOLIDUS, AKey, 1); // its full path n\n
 	if DelimPos <> 0 then
 	begin
@@ -294,29 +309,32 @@ begin
 	end;
 
 	for I := 0 to Count - 1 do
-		if CompareText(Items[I].Keyword, Keyword) = 0 then
-		begin
-			Result := Items[I];
-			Break;
-		end;
+	if CompareText(Items[I].Keyword, Keyword) = 0 then
+	begin
+		Dest := Items[I];
+		Break;
+	end;
 
-	if (Result <> nil) and (Nested <> '') then
-		Result := Result.Find(Nested);
+	Result := Assigned(Dest);
+
+	if Result and (Nested <> '') then
+		Result := Dest.Find(Nested,Dest);
 end;
 
-function TWktNodeList.FindByAttributeName(const AKey, AAtributeName: string): TWktNode;
+function TWktNodeList.FindByAttributeName(const AKey, AAtributeName: string; out Dest: TWktNode): Boolean;
 var
 	I: integer;
 begin
 	for I := 0 to Count - 1 do
 	begin
-		Result := Items[I];
-		if SameText(Result.Keyword, AKey) and
-			 (Result.AttributesCount > 0) and
-			 SameText(StripQuotes(Result.Attributes[0]), AAtributeName) then
-			Exit;
+		Dest := Items[I];
+		if SameText(Dest.Keyword, AKey) and
+			 (Dest.AttributesCount > 0) and
+			 SameText(StripQuotes(Dest.Attributes[0]), AAtributeName) then
+			 Exit(True);
 	end;
-  Result := nil;
+	Dest := nil;
+	Result := False;
 end;
 
 { TWKTDocument }
