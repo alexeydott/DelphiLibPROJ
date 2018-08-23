@@ -1,0 +1,11 @@
+
+~*~
+__history/*
+*.dcu
+*.Old
+*.local
+*.exe
+*.identcache
+*.stat
+*CVS*
+.cvsignore
