@@ -3,7 +3,7 @@ unit LibProj;
 interface
 
 uses
-	Classes, SysUtils, Generics.Collections,
+	Classes, SysUtils, SyncObjs, Generics.Collections,
 
 	LibProjApi;
 
@@ -47,7 +47,6 @@ type
 	protected
 		procedure CreateHandle(); stdcall;
 		procedure DestroyHandle(); stdcall;
-
 		function GetHandle: Pointer; stdcall;
 		procedure SetHandle(Value: Pointer); stdcall;
 		function GetOwner: TPersistent; override;
@@ -91,6 +90,8 @@ type
 
 	IProjectionsManager = interface(IUnknown)
 	['{85C50F1B-D9C8-4958-885E-3B4A9F2FB61A}']
+		procedure Changes; stdcall;
+		procedure Changed; stdcall;
 		function GetContainer(): TObject; stdcall;
 		function GetPointsTransformer: TPointsTransformer;
 		function GetProjectionByDefinition(const Defn: string): TProjection; stdcall;
@@ -109,6 +110,10 @@ type
 	private
 		FContainer: TDictionary<string,TProjection>;
 		FPointsTransformer: TPointsTransformer;
+		FGuard: TCriticalSection;
+		FChangesCount: Integer;
+		procedure Changes; stdcall;
+		procedure Changed; stdcall;
 	protected
 		function GetContainer: TObject; stdcall;
 		function GetPointsTransformer: TPointsTransformer;
@@ -118,65 +123,16 @@ type
 		function MakeNewProjectionFromDefn(const Defn: string; out proj: TProjection): Integer; stdcall;
 		function MakeNewProjectionFromEpsg(const Code: Integer; out proj: TProjection): Integer; stdcall;
 		function GetGeographic(Src: IProjection): IProjection;
+		function KnownProjections: TDictionary<string,TProjection>;
 	public
 		destructor Destroy(); override;
-		function KnownProjections: TDictionary<string,TProjection>;
 		property ProjectionByDefinition[const Defn: string]: TProjection read GetProjectionByDefinition;
 		property ProjectionByEpsgCode[const Code: Integer]: TProjection read GetProjectionByCode;
 
 		property PointsTransformer: TPointsTransformer read GetPointsTransformer implements IPointsTransformer;
 	end;
 
-
-	function LibProjDefnFromEpsgCode(const Code: Integer): string;
-
 implementation
-
-//--------------------------------------
-// utility functions
-
-function LibProjDefnFromEpsgCode(const Code: Integer): string;
-const
-	gk_tpl = '+proj=tmerc +lat_0=0 +lon_0=%d +k=1 +x_0=%d +y_0=%d +ellps=krass +units=m +no_defs';
-	utm_tpl = '+proj=utm +zone=%d +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
-var
-	GKZoneOffset: Integer;
-begin
-	case Code of
-    // Sphere Mercator ESRI:53004
-		53004: Result := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6371000 +b=6371000 +units=m +no_defs';
-    // Popular Visualisation CRS / Mercator
-		3785: Result := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
-		// WGS 84 / World Mercator
-		3395: Result := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
-		// NAD83
-		4269: Result := '+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs';
-		// WGS 84
-		4326: Result := '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs';
-		// Pulkovo 1995
-		2463..2491:
-		begin
-			GKZoneOffset := 21 + (Code - 2463) * 6;
-			if GKZoneOffset > 180 then
-				GKZoneOffset := GKZoneOffset - 360; // normalized always
-
-			Result := Format(gk_tpl,[GKZoneOffset, 500000, 0]);
-		end;
-		// Pulkovo 1942
-		2492..2522:
-		begin
-			GKZoneOffset := 9 + (Code - 2492) * 6;
-			if GKZoneOffset > 180 then
-				GKZoneOffset := GKZoneOffset - 360; // normalized always
-
-			Result := Format(gk_tpl,[GKZoneOffset, 500000, 0]);
-		end;
-    // UTM
-		32601..32660: Result := Format(utm_tpl, [Code - 32600]);
-	else
-    Result := '';
-  end;
-end;
 
 { TProjection }
 
@@ -188,8 +144,17 @@ end;
 procedure TProjection.CreateHandle();
 begin
 	DestroyHandle();
-
-	FHandle := PJ_init_plus(GetCreateDefinition);
+	if FOwner = nil then
+		FHandle := PJ_init_plus(GetCreateDefinition)
+	else
+	begin
+		FOwner.Changes;
+		try
+			FHandle := PJ_init_plus(GetCreateDefinition);
+		finally
+			FOwner.Changed;
+		end;
+	end;
 end;
 
 constructor TProjection.CreateOwned(AOwner: TProjectionsManager);
@@ -218,8 +183,16 @@ procedure TProjection.DestroyHandle;
 begin
 	if FHandle <> nil then
 	begin
-		PJ_free(FHandle);
-		FHandle := nil;
+		if FOwner <> nil then
+		begin
+			FOwner.Changes;
+			try
+				PJ_free(FHandle);
+				FHandle := nil;
+			finally
+				FOwner.Changed;
+			end;
+		end;
 	end;
 end;
 
@@ -310,9 +283,21 @@ procedure TProjection.SetHandle(Value: Pointer);
 begin
 	if (Value <> FHandle) then
 	begin
-	  DestroyHandle;
-
-    FHandle := Value;
+		if FOwner = nil then
+		begin
+			DestroyHandle;
+			FHandle := Value;
+		end
+		else
+		begin
+			FOwner.Changes;
+			try
+				DestroyHandle;
+				FHandle := Value;
+			finally
+				FOwner.Changed;
+			end;
+		end;
 	end;
 end;
 
@@ -335,11 +320,37 @@ end;
 
 { TProjectionsManager }
 
+procedure TProjectionsManager.Changed;
+begin
+	Dec(FChangesCount);
+
+	if FChangesCount = 0 then
+	begin
+		if FGuard <> nil then
+			FGuard.Leave;
+	end;
+end;
+
+procedure TProjectionsManager.Changes;
+begin
+	Inc(FChangesCount);
+
+	if FChangesCount = 1 then
+	begin
+		if FGuard = nil then
+			FGuard := TCriticalSection.Create;
+
+		FGuard.Enter;
+	end;
+end;
+
 destructor TProjectionsManager.Destroy;
 begin
-  FreeAndNil(FPointsTransformer);
+	FreeAndNil(FPointsTransformer);
+	Changes;
 	FreeAndNil(FContainer);
-
+	Changed;
+	FreeAndNil(FGuard);
 	inherited;
 end;
 
@@ -360,7 +371,7 @@ begin
 	begin
 		GeoDefn := PJ_get_definition( PJ_latlong_from_proj(Src.Handle));
 		if GeoDefn <> '' then
-			Result := ProjectionByDefinition[GeoDefn] as IProjection;
+			Result := ProjectionByDefinition[GeoDefn];
 	end;
 end;
 
@@ -392,6 +403,7 @@ begin
 	Result := -1;
 	if Defn <> '' then
 	begin
+		Changes;
 		proj := TProjection.CreateOwned(Self,Defn);
 		if proj.HandleValid then
 			Result := 0
@@ -401,6 +413,7 @@ begin
 
 			FreeAndNil(proj);
 		end;
+	  Changed;
 	end;
 end;
 
@@ -419,9 +432,14 @@ begin
 	Result := (Defn <> '') and KnownProjections.TryGetValue(Defn,Proj);
 	if not Result then
 	begin
-		Result := MakeNewProjectionFromDefn(Defn,Proj) = 0;
-		if Result then
-			KnownProjections.AddOrSetValue(Proj.GetCreateDefinition,Proj);
+		Changes;
+		try
+			Result := MakeNewProjectionFromDefn(Defn,Proj) = 0;
+			if Result then
+				KnownProjections.AddOrSetValue(Proj.GetCreateDefinition,Proj);
+		finally
+			Changed;
+    end;
 	end;
 end;
 

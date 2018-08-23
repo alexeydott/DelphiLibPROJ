@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
 	Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
 	Vcl.StdCtrls, Vcl.Samples.Spin,
-	LibProj;
+	LibProj, WellKnownText;
 
 type
   TForm1 = class(TForm)
@@ -35,7 +35,6 @@ implementation
 procedure TForm1.TransformPoint(var X,Y: string);
 var
 	_X,_Y: Double;
-//	P1,P2: Pointer;
 begin
 	if _X.TryParse(X,_X) and _X.TryParse(Y,_Y) then
   begin

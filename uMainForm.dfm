@@ -5,10 +5,10 @@ object Form1: TForm1
   ClientHeight = 281
   ClientWidth = 418
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
+  Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   OnCreate = FormCreate
@@ -31,8 +31,8 @@ object Form1: TForm1
     Text = '69,963443'
   end
   object Button1: TButton
-    Left = 56
-    Top = 102
+    Left = 8
+    Top = 171
     Width = 75
     Height = 25
     Caption = 'Button1'
