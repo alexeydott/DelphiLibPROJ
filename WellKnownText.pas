@@ -14,6 +14,7 @@ uses
 type
 
 	TWktNode = class;
+	TWKTDocument = class;
 
 	TWktNodeList = class(TObjectList)
 	private
@@ -62,6 +63,8 @@ type
 		procedure AddAttribute(const AValue: string);
 		function AttibutesAsString: string;
 		function GetAttribute(Index: Integer): string;
+		function GetKeyword(): string;
+		procedure SetKeyword(const Value: string);
 	public
 		constructor Create(AParent: TWktNode);
 		destructor Destroy(); override;
@@ -85,7 +88,7 @@ type
 		/// <summary>
 		///   node key word
 		/// </summary>
-		property Keyword: string read FKeyword;
+		property Keyword: string read GetKeyWord write SetKeyword;
 		/// <summary>
 		///   parent node
 		/// </summary>
@@ -98,7 +101,7 @@ type
 
 	TWKTDocument = class(TWktNodeList)
 	private
-		FRootNode: TWktNode;
+		FRoot: TWktNode;
 		function GetEmpty: Boolean;
 		function GetRoot: TWktNode;
 	public
@@ -145,6 +148,15 @@ begin
 	end;
 
 	Result := AValue;
+end;
+
+function StripEscapedChars(const AValue: string): string;
+begin
+	Result := AValue;
+	Result := StringReplace(Result,'\n','',[rfReplaceAll,rfIgnoreCase]);
+	Result := StringReplace(Result,'\t','',[rfReplaceAll,rfIgnoreCase]);
+	Result := StringReplace(Result,'\\','\',[rfReplaceAll]);
+	Result := StringReplace(Result,'\"','"',[rfReplaceAll]);
 end;
 
 constructor TWktNode.Create(AParent: TWktNode);
@@ -217,6 +229,11 @@ begin
 		Result := Result + IndentString;
 end;
 
+function TWktNode.GetKeyWord: string;
+begin
+  Result := FKeyword;
+end;
+
 procedure TWktNode.ParseStream(Stream: TStream);
 var
 	CurrentChar: Char;
@@ -241,15 +258,16 @@ begin
 					// node start
 					if BracketOpened then
 					begin
-						AddAttribute(TempValue);
+						AddAttribute(StripEscapedChars(TempValue));
 						TempValue := '';
 						if CommaCount <> 0 then
 						begin
-							// New child
-							if FAttributes.Count <> 0 then
-								FAttributes.Delete(FAttributes.Count - 1); // This is a sub-node not a Attribute
+              // This is a sub-node not a Attribute
+							if AttributesCount <> 0 then
+								Attributes.Delete(AttributesCount - 1);
 
 							Stream.Seek(LastCommaPos, soFromBeginning);
+              // New child
 							Child := TWktNode.Create(Self);
 							Add(Child);
 							Child.ParseStream(Stream);
@@ -259,21 +277,21 @@ begin
 					begin
 						// Name, Attribute
 						BracketOpened := True;
-						FKeyword := TempValue;
+						Keyword := StripEscapedChars(TempValue);
 						TempValue := '';
 					end;
 				end;
 			WKT_VALUE_SEPARATOR:
 				begin
 					LastCommaPos := Stream.Position;
-					AddAttribute(TempValue);
+					AddAttribute(StripEscapedChars(TempValue));
 					TempValue := '';
 					Inc(CommaCount);
 				end;
 			WKT_BRACKET_CLOSE:
 				begin
 					// End
-					AddAttribute(TempValue);
+					AddAttribute(StripEscapedChars(TempValue));
 					TempValue := '';
 					Break;
 				end;
@@ -320,6 +338,12 @@ begin
 
 	if PrettyPrint then
 		Result := WKT_NEWLINE + GetIndent('  ') + Result;
+end;
+
+procedure TWktNode.SetKeyword(const Value: string);
+begin
+	if not SameText(Value,FKeyword) then
+		FKeyword := Value;
 end;
 
 { TWktNodeList }
@@ -372,8 +396,8 @@ begin
 	for I := 0 to Count - 1 do
 	begin
 		Dest := Items[I];
-		if SameText(Dest.Keyword, AKey) and (Dest.AttributesCount > 0) and SameText(StripQuotes(Dest.Attributes[0]),
-			AAtributeName) then
+		if SameText(Dest.Keyword, AKey) and (Dest.AttributesCount > 0) and
+			 SameText(StripQuotes(Dest.Attributes[0]), AAtributeName) then
 			Exit(True);
 	end;
 	Dest := nil;
@@ -389,13 +413,13 @@ end;
 
 function TWKTDocument.GetRoot: TWktNode;
 begin
-	if FRootNode = nil then
+	if FRoot = nil then
 	begin
-		FRootNode := TWktNode.Create(nil);
-		Add(FRootNode);
+		FRoot := TWktNode.Create(nil);
+		Add(FRoot);
 	end;
 
-	Result := FRootNode;
+	Result := FRoot;
 end;
 
 procedure TWKTDocument.LoadFromFile(const AFilename: string);
@@ -403,7 +427,7 @@ var
 	S: TStream;
 begin
 	if not Empty then
-		FRootNode.Clear;
+		FRoot.Clear;
 
 	if FileExists(AFilename) then
 	begin
@@ -421,7 +445,7 @@ begin
 	if not Empty then
 		Root.Clear;
 
-	FRootNode.ParseStream(Stream);
+	FRoot.ParseStream(Stream);
 end;
 
 procedure TWKTDocument.LoadFromString(const AString: string);

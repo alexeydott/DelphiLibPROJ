@@ -200,7 +200,6 @@ function PJ_strerrno(errno: integer): string;
 /// </remarks>
 function PJ_get_spheroid_defn(p: pointer; out major_axis, eccentricity_squared: Double): Boolean;
 function PJ_get_errno(): Integer;
-function LibProjDefnFromEpsgCode(const Code: Integer): string;
 
 implementation
 
@@ -781,48 +780,7 @@ begin
 end;
 
 //--------------------------------------
-function LibProjDefnFromEpsgCode(const Code: Integer): string;
-const
-	gk_tpl = '+proj=tmerc +lat_0=0 +lon_0=%d +k=1 +x_0=%d +y_0=%d +ellps=krass +units=m +no_defs';
-	utm_tpl = '+proj=utm +zone=%d +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
-var
-	GKZoneOffset: Integer;
-begin
-	case Code of
-    // Sphere Mercator ESRI:53004
-		53004: Result := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6371000 +b=6371000 +units=m +no_defs';
-    // Popular Visualisation CRS / Mercator
-		3785: Result := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
-		// WGS 84 / World Mercator
-		3395: Result := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
-		// NAD83
-		4269: Result := '+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs';
-		// WGS 84
-		4326: Result := '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs';
-		// Pulkovo 1995
-		2463..2491:
-		begin
-			GKZoneOffset := 21 + (Code - 2463) * 6;
-			if GKZoneOffset > 180 then
-				GKZoneOffset := GKZoneOffset - 360; // normalized always
 
-			Result := Format(gk_tpl,[GKZoneOffset, 500000, 0]);
-		end;
-		// Pulkovo 1942
-		2492..2522:
-		begin
-			GKZoneOffset := 9 + (Code - 2492) * 6;
-			if GKZoneOffset > 180 then
-				GKZoneOffset := GKZoneOffset - 360; // normalized always
-
-			Result := Format(gk_tpl,[GKZoneOffset, 500000, 0]);
-		end;
-    // UTM
-		32601..32660: Result := Format(utm_tpl, [Code - 32600]);
-	else
-    Result := '';
-  end;
-end;
 
 //------------------------------------------------
 

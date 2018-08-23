@@ -5,7 +5,7 @@ interface
 uses
 	Classes, SysUtils, SyncObjs, Generics.Collections,
 
-	LibProjApi;
+	LibProjApi, LibProjProjections;
 
 type
 	TProjectionsManager = class;

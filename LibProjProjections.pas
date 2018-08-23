@@ -12,14 +12,58 @@ uses
 	;
 
 function LibProjSupportedProjections(): TStrings;
-
+function LibProjDefnFromEpsgCode(const Code: Integer): string;
 
 implementation
+
+function LibProjDefnFromEpsgCode(const Code: Integer): string;
+const
+	gk_tpl = '+proj=tmerc +lat_0=0 +lon_0=%d +k=1 +x_0=%d +y_0=%d +ellps=krass +units=m +no_defs';
+	utm_tpl = '+proj=utm +zone=%d +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
+var
+	GKZoneOffset: Integer;
+begin
+	case Code of
+    // Sphere Mercator ESRI:53004
+		53004: Result := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6371000 +b=6371000 +units=m +no_defs';
+    // Popular Visualisation CRS / Mercator
+		3785: Result := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
+		900913: Result := '+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs';
+		// WGS 84 / World Mercator
+		3395: Result := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
+		// NAD83
+		4269: Result := '+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs';
+		// WGS 84
+		4326: Result := '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs';
+		// Pulkovo 1995
+		2463..2491:
+		begin
+			GKZoneOffset := 21 + (Code - 2463) * 6;
+			if GKZoneOffset > 180 then
+				GKZoneOffset := GKZoneOffset - 360; // normalized always
+
+			Result := Format(gk_tpl,[GKZoneOffset, 500000, 0]);
+		end;
+		// Pulkovo 1942
+		2492..2522:
+		begin
+			GKZoneOffset := 9 + (Code - 2492) * 6;
+			if GKZoneOffset > 180 then
+				GKZoneOffset := GKZoneOffset - 360; // normalized always
+
+			Result := Format(gk_tpl,[GKZoneOffset, 500000, 0]);
+		end;
+    // UTM
+		32601..32660: Result := Format(utm_tpl, [Code - 32600]);
+	else
+    Result := '';
+  end;
+end;
 
 
 var
 	FSupportedProjections: TStrings;
-
+//http://cfconventions.org/wkt-proj-4.html
 function LibProjSupportedProjections(): TStrings;
 begin
 	if FSupportedProjections = nil then
@@ -184,6 +228,7 @@ begin
 			'wink2=Winkel II'+sLineBreak+
 			'wintri=Winkel Tripel';
 	end;
+
 	Result := FSupportedProjections;
 end;
 
