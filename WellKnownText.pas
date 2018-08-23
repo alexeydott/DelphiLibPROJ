@@ -227,10 +227,9 @@ var
 	NodeIdent: string;
 begin
 	Result := '';
-
 	if Count = 0 then
 		Exit;
-	Result := Keyword + WKT_BRACKET_OPEN;
+	Result := UpperCase(Keyword) + WKT_BRACKET_OPEN;
 
 	if (FAttributes <> nil) and (FAttributes.Count > 0) then
 		Result := Result + AttibutesAsString;
