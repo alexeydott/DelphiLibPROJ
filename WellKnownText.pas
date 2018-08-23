@@ -22,6 +22,7 @@ type
 		FAttributes: TStrings;
 		FParentNode: TWktNode;
 		function GetAttributes: TStrings;
+		function GetAttributesCount: Integer;
 	protected
 		FLevel: Integer;
 		procedure AddAttribute(const AValue: string);
@@ -37,6 +38,7 @@ type
 		property Parent: TWktNode read FParentNode;
 		property Attribute[Index: Integer]: string read GetAttribute;
 		property Attributes: TStrings read GetAttributes;
+		property AttributesCount: Integer read GetAttributesCount;
 	end;
 
 	TWKTDocument = class(TWktNodeList)
@@ -129,6 +131,14 @@ begin
 		FAttributes := TStringList.Create();
 
 	Result := FAttributes;
+end;
+
+function TWktNode.GetAttributesCount: Integer;
+begin
+	if FAttributes = nil then
+		Result := 0
+	else
+	  Result := FAttributes.Count;
 end;
 
 procedure TWktNode.ParseStream(Stream: TStream);
@@ -229,9 +239,10 @@ begin
 	Result := '';
 	if Count = 0 then
 		Exit;
+
 	Result := UpperCase(Keyword) + WKT_BRACKET_OPEN;
 
-	if (FAttributes <> nil) and (FAttributes.Count > 0) then
+	if AttributesCount > 0 then
 		Result := Result + AttibutesAsString;
 
 	if Count > 0 then
@@ -295,20 +306,16 @@ end;
 
 function TWktNodeList.FindByAttributeName(const AKey, AAtributeName: string): TWktNode;
 var
-	I, J: integer;
+	I: integer;
 begin
 	for I := 0 to Count - 1 do
 	begin
 		Result := Items[I];
-		if SameText(Result.Keyword, AKey) then
-		begin
-			for J := 0 to Result.Attributes.Count -1 do
-			begin
-				if SameText(StripQuotes(Result.Attributes[J]), AAtributeName) then
-					Exit;
-			end;
-		end;
-  end;
+		if SameText(Result.Keyword, AKey) and
+			 (Result.AttributesCount > 0) and
+			 SameText(StripQuotes(Result.Attributes[0]), AAtributeName) then
+			Exit;
+	end;
   Result := nil;
 end;
 
