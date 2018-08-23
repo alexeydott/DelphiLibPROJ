@@ -48,4 +48,12 @@ object Form1: TForm1
     TabOrder = 3
     OnClick = Button2Click
   end
+  object ComboBox1: TComboBox
+    Left = 144
+    Top = 152
+    Width = 145
+    Height = 21
+    TabOrder = 4
+    Text = 'ComboBox1'
+  end
 end

@@ -9,6 +9,8 @@ unit LibPROJApi;
 
 interface
 
+uses Classes, SysUtils;
+
 type TPJ_LOG_FUNCTION =
 	procedure (app_data: pointer; level: integer; msg: Pointer) of object; cdecl;
 
@@ -198,12 +200,12 @@ function PJ_strerrno(errno: integer): string;
 /// </remarks>
 function PJ_get_spheroid_defn(p: pointer; out major_axis, eccentricity_squared: Double): Boolean;
 function PJ_get_errno(): Integer;
-
 function LibProjDefnFromEpsgCode(const Code: Integer): string;
+
 implementation
 
 uses
-	SysUtils, Windows, Math, MSVCrtl;
+	Windows, Math, MSVCrtl;
 
 const
 	PJ_RAD_TO_DEG = 57.295779513082320876798154814105000; //(1*180 / PI)
@@ -225,7 +227,7 @@ const
   procedure _nad_ctable2_load(); external;
   procedure _nad_ctable2_init(); external;
   procedure _nad_ctable_init(); external;
-  function _pj_ctx_ftell(): DWORD; external;
+  function _pj_ctx_ftell(): Cardinal; external;
   procedure _pj_gridinfo_free( ct: Pointer; var Pointer); external;
   procedure _pj_gridinfo_init; external;
   procedure _pj_datum_set; external;
@@ -763,6 +765,7 @@ const
 	procedure _pj_get_spheroid_defn(p: pointer; major_axis: PDouble; eccentricity_squared: PDouble); cdecl; external name '_pj_get_spheroid_defn';
 	function _pj_get_errno_ref(): PInteger; cdecl; external name '_pj_get_errno_ref';
 
+	function _proj_list_operations(): Pointer; cdecl; external name '_proj_list_operations';
 {$ENDREGION 'Api calls'}
 
 //------------------------------------------------
@@ -844,7 +847,7 @@ begin
 
 		MsgText := LogLevelCodeToString(level) + MsgText;
 
-		OutputDebugString( PChar( MsgText ));
+		//OutputDebugString( PChar( MsgText ));
 	end;
 end;
 

@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
 	Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
 	Vcl.StdCtrls, Vcl.Samples.Spin,
-	LibProj, WellKnownText;
+	LibProj,LibProjProjections, WellKnownText, Vcl.Grids, Vcl.ValEdit;
 
 type
   TForm1 = class(TForm)
@@ -14,10 +14,11 @@ type
     Edit2: TEdit;
     Button1: TButton;
     Button2: TButton;
+    ComboBox1: TComboBox;
 		procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
 		procedure Button2Click(Sender: TObject);
-  private
+	private
 		{ Private declarations }
 		FMgr: TProjectionsManager;
 		FFrom: IProjection;
@@ -54,8 +55,14 @@ end;
 
 procedure TForm1.Button1Click(Sender: TObject);
 var
-  S1,S2: string;
+	S1,S2: string;
+	I: Integer;
 begin
+	for I := 0 to LibProjSupportedProjections.Count -1 do
+	begin
+		ComboBox1.Items.Add(LibProjSupportedProjections.ValueFromIndex[I]);
+	end;
+
   S1 := Edit1.Text;
   S2 := Edit2.Text;
   TransformPoint(S1,S2);

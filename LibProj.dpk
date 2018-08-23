@@ -36,6 +36,7 @@ contains
   LibPROJApi in 'LibPROJApi.pas',
   MSVCrtl in 'MSVCrtl.pas',
   LibProj in 'LibProj.pas',
-  WellKnownText in 'WellKnownText.pas';
+  WellKnownText in 'WellKnownText.pas',
+  LibProjProjections in 'LibProjProjections.pas';
 
 end.

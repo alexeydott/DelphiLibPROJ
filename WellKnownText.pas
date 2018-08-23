@@ -1,5 +1,10 @@
+/// <summary>
+///   Reader for WKT format
+/// </summary>
+/// <seealso href="http://www.geoapi.org/2.0/javadoc/org/opengis/referencing/doc-files/WKT.html">
+///   see also
+/// </seealso>
 unit WellKnownText;
-// http://www.geoapi.org/2.0/javadoc/org/opengis/referencing/doc-files/WKT.html
 
 interface
 
@@ -15,9 +20,33 @@ type
 		function DoGetItem(Index: Integer): TWktNode;
 		procedure DoSetItem(Index: Integer; AObject: TWktNode);
 	public
+		/// <param name="AKey">
+		///   node keyword
+		/// </param>
+		/// <returns>
+		///   true if success and dest &lt;&gt; nil
+		/// </returns>
+		/// <remarks>
+		///   use "\" symbol for specify full path to node eg PROJCS\GEOCS
+		/// </remarks>
 		function Find(const AKey: string; out Dest: TWktNode): Boolean; virtual;
+		/// <summary>
+		///   find node by attribute name
+		/// </summary>
+		/// <param name="AKey">
+		///   node keyword
+		/// </param>
+		/// <param name="AAtributeName">
+		///   attribute name
+		/// </param>
+		/// <param name="Dest">
+		///   result
+		/// </param>
+		/// <returns>
+		///   true if success
+		/// </returns>
 		function FindByAttributeName(const AKey, AAtributeName: string; out Dest: TWktNode): Boolean; virtual;
-	 property Items[Index: Integer]: TWktNode read DoGetItem write DoSetItem; default;
+		property Items[Index: Integer]: TWktNode read DoGetItem write DoSetItem; default;
 	end;
 
 	TWktNode = class(TWktNodeList)
@@ -36,13 +65,34 @@ type
 	public
 		constructor Create(AParent: TWktNode);
 		destructor Destroy(); override;
+		/// <summary>
+		///   load from stream
+		/// </summary>
 		procedure ParseStream(Stream: TStream); virtual;
+		/// <summary>
+		///   save to string
+		/// </summary>
+		/// <param name="PrettyPrint">
+		///   pretty print
+		/// </param>
 		function SaveToString(const PrettyPrint: Boolean): string;
 		property Attribute[Index: Integer]: string read GetAttribute;
+		/// <summary>
+		///   list of attributes (0 is name)
+		/// </summary>
 		property Attributes: TStrings read GetAttributes;
 		property AttributesCount: Integer read GetAttributesCount;
+		/// <summary>
+		///   node key word
+		/// </summary>
 		property Keyword: string read FKeyword;
+		/// <summary>
+		///   parent node
+		/// </summary>
 		property Parent: TWktNode read FParentNode;
+		/// <summary>
+		///   node tree depth
+		/// </summary>
 		property TreeDepth: Integer read FTreeDepth;
 	end;
 
@@ -58,10 +108,10 @@ type
 		procedure SaveToFile(const AFilename: string);
 		function SaveToStream(AStream: TStream): Integer;
 		function SaveToString(PrettyPrint: Boolean): string;
-
 		property Empty: Boolean read GetEmpty;
 		property Root: TWktNode read GetRoot;
 	end;
+
 implementation
 
 const
@@ -163,7 +213,7 @@ var
 	I: Integer;
 begin
 	Result := '';
-	for I := 0 to TreeDepth -1 do
+	for I := 0 to TreeDepth - 1 do
 		Result := Result + IndentString;
 end;
 
@@ -175,9 +225,7 @@ var
 	LastCommaPos, CommaCount: Integer;
 	Child: TWktNode;
 begin
-	if not Assigned(Stream) or
-		(Stream.Size = 0) or
-		(Stream.Position = Stream.Size) then
+	if not Assigned(Stream) or (Stream.Size = 0) or (Stream.Position = Stream.Size) then
 		Exit;
 
 	BracketOpened := False;
@@ -283,7 +331,7 @@ end;
 
 procedure TWktNodeList.DoSetItem(Index: Integer; AObject: TWktNode);
 begin
-	SetItem(Index,AObject);
+	SetItem(Index, AObject);
 end;
 
 function TWktNodeList.Find(const AKey: string; out Dest: TWktNode): Boolean;
@@ -305,29 +353,28 @@ begin
 	end;
 
 	for I := 0 to Count - 1 do
-	if CompareText(Items[I].Keyword, Keyword) = 0 then
-	begin
-		Dest := Items[I];
-		Break;
-	end;
+		if CompareText(Items[I].Keyword, Keyword) = 0 then
+		begin
+			Dest := Items[I];
+			Break;
+		end;
 
 	Result := Assigned(Dest);
 
 	if Result and (Nested <> '') then
-		Result := Dest.Find(Nested,Dest);
+		Result := Dest.Find(Nested, Dest);
 end;
 
 function TWktNodeList.FindByAttributeName(const AKey, AAtributeName: string; out Dest: TWktNode): Boolean;
 var
-	I: integer;
+	I: Integer;
 begin
 	for I := 0 to Count - 1 do
 	begin
 		Dest := Items[I];
-		if SameText(Dest.Keyword, AKey) and
-			 (Dest.AttributesCount > 0) and
-			 SameText(StripQuotes(Dest.Attributes[0]), AAtributeName) then
-			 Exit(True);
+		if SameText(Dest.Keyword, AKey) and (Dest.AttributesCount > 0) and SameText(StripQuotes(Dest.Attributes[0]),
+			AAtributeName) then
+			Exit(True);
 	end;
 	Dest := nil;
 	Result := False;
@@ -360,7 +407,7 @@ begin
 
 	if FileExists(AFilename) then
 	begin
-		S := TFileStream.Create(AFilename,fmOpenRead);
+		S := TFileStream.Create(AFilename, fmOpenRead);
 		try
 			LoadFromStream(S);
 		finally
@@ -399,7 +446,7 @@ begin
 	begin
 		S := TFileStream.Create(AFilename, fmCreate);
 		try
-			S.Write(BytesOf(Str),ByteLength(Str));
+			S.Write(BytesOf(Str), ByteLength(Str));
 		finally
 			FreeAndNil(S);
 		end;
@@ -413,7 +460,7 @@ begin
 	Result := AStream.Position;
 	S := TStringStream.Create(SaveToString(False));
 	try
-		AStream.CopyFrom(S,Self.Count);
+		AStream.CopyFrom(S, Self.Count);
 
 		Result := AStream.Position - Result;
 	finally
