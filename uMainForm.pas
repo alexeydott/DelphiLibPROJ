@@ -69,27 +69,34 @@ var
 	N: TWktNode;
 begin
 	W := TWKTDocument.Create();
-	try
-		W.LoadFromFile('C:\Develop\CVS_PROJECTS\gis_mgt\build\MapProject\PRJ\Moscow.prj');
-		if W.Find('projcs',N) then
-		begin
-			OutputDebugString(PChar(N.Keyword));
-			OutputDebugString(PChar(N.Attributes.CommaText));
-			if N.Find('GEOGCS',N) then
-			begin
-				OutputDebugString(PChar(N.Keyword));
-				OutputDebugString(PChar(N.Attributes.CommaText));
-				if N.Find('DATUM',N) then
+		with TOpenDialog.Create(Self) do
+		try
+			if not Execute(Self.Handle) then
+				Exit;
+			try
+				W.LoadFromFile(FileName);
+				if W.Find('projcs',N) then
 				begin
 					OutputDebugString(PChar(N.Keyword));
 					OutputDebugString(PChar(N.Attributes.CommaText));
+					if N.Find('GEOGCS',N) then
+					begin
+						OutputDebugString(PChar(N.Keyword));
+						OutputDebugString(PChar(N.Attributes.CommaText));
+						if N.Find('DATUM',N) then
+						begin
+							OutputDebugString(PChar(N.Keyword));
+							OutputDebugString(PChar(N.Attributes.CommaText));
+						end;
+					end;
 				end;
+				OutputDebugString(PChar(W.SaveToString(True)));
+			finally
+				FreeAndNil(W);
 			end;
+		finally
+			Free;
 		end;
-		OutputDebugString(PChar(W.SaveToString(True)));
-	finally
-		FreeAndNil(W);
-	end;
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
@@ -98,7 +105,6 @@ begin
 
 	FFrom := FMgr.ProjectionByDefinition['+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'];
 	FTo := FMgr.ProjectionByDefinition['+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'];
-
 end;
 
 end.

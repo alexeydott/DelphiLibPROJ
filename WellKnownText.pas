@@ -17,56 +17,51 @@ type
 	public
 		function Find(const AKey: string; out Dest: TWktNode): Boolean; virtual;
 		function FindByAttributeName(const AKey, AAtributeName: string; out Dest: TWktNode): Boolean; virtual;
-
 	 property Items[Index: Integer]: TWktNode read DoGetItem write DoSetItem; default;
 	end;
 
 	TWktNode = class(TWktNodeList)
 	private
-		FTreeDepth: Integer;
-		FKeyword: string;
 		FAttributes: TStrings;
+		FKeyword: string;
 		FParentNode: TWktNode;
+		FTreeDepth: Integer;
 		function GetAttributes: TStrings;
 		function GetAttributesCount: Integer;
 		function GetIndent(const IndentString: string): string;
 	protected
 		procedure AddAttribute(const AValue: string);
-		function GetAttribute(Index: Integer): string;
 		function AttibutesAsString: string;
+		function GetAttribute(Index: Integer): string;
 	public
 		constructor Create(AParent: TWktNode);
 		destructor Destroy(); override;
-		function SaveToString(const PrettyPrint: Boolean): string;
 		procedure ParseStream(Stream: TStream); virtual;
-
-		property TreeDepth: Integer read FTreeDepth;
-		property Keyword: string read FKeyword;
-		property Parent: TWktNode read FParentNode;
+		function SaveToString(const PrettyPrint: Boolean): string;
 		property Attribute[Index: Integer]: string read GetAttribute;
 		property Attributes: TStrings read GetAttributes;
 		property AttributesCount: Integer read GetAttributesCount;
+		property Keyword: string read FKeyword;
+		property Parent: TWktNode read FParentNode;
+		property TreeDepth: Integer read FTreeDepth;
 	end;
 
 	TWKTDocument = class(TWktNodeList)
 	private
 		FRootNode: TWktNode;
-		function GetRoot: TWktNode;
 		function GetEmpty: Boolean;
+		function GetRoot: TWktNode;
 	public
 		procedure LoadFromFile(const AFilename: string);
 		procedure LoadFromStream(Stream: TStream);
 		procedure LoadFromString(const AString: string);
-
-		function SaveToString(PrettyPrint: Boolean): string;
-		function SaveToStream(AStream: TStream): Integer;
 		procedure SaveToFile(const AFilename: string);
+		function SaveToStream(AStream: TStream): Integer;
+		function SaveToString(PrettyPrint: Boolean): string;
 
 		property Empty: Boolean read GetEmpty;
 		property Root: TWktNode read GetRoot;
 	end;
-
-
 implementation
 
 const
@@ -98,15 +93,8 @@ begin
 			Exit;
 		end;
 	end;
+
 	Result := AValue;
-end;
-
-{ TWktNode }
-
-procedure TWktNode.AddAttribute(const AValue: string);
-begin
-	if (AValue <> '') then
-		Attributes.Add(AValue);
 end;
 
 constructor TWktNode.Create(AParent: TWktNode);
@@ -122,6 +110,28 @@ begin
 	FreeAndNil(FAttributes);
 
 	inherited;
+end;
+
+{ TWktNode }
+
+procedure TWktNode.AddAttribute(const AValue: string);
+begin
+	if (AValue <> '') then
+		Attributes.Add(AValue);
+end;
+
+function TWktNode.AttibutesAsString: string;
+var
+	I: Integer;
+begin
+	Result := '';
+	for I := 0 to Attributes.Count - 1 do
+	begin
+		if Result <> '' then
+			Result := Result + WKT_VALUE_SEPARATOR + Attributes[I]
+		else
+			Result := Result + Attributes[I]
+	end;
 end;
 
 function TWktNode.GetAttribute(Index: Integer): string;
@@ -145,7 +155,7 @@ begin
 	if FAttributes = nil then
 		Result := 0
 	else
-	  Result := FAttributes.Count;
+		Result := FAttributes.Count;
 end;
 
 function TWktNode.GetIndent(const IndentString: string): string;
@@ -180,7 +190,7 @@ begin
 		case CurrentChar of
 			WKT_BRACKET_OPEN:
 				begin
-				  // node start
+					// node start
 					if BracketOpened then
 					begin
 						AddAttribute(TempValue);
@@ -264,20 +274,6 @@ begin
 		Result := WKT_NEWLINE + GetIndent('  ') + Result;
 end;
 
-function TWktNode.AttibutesAsString: string;
-var
-	I: Integer;
-begin
-	Result := '';
-	for I := 0 to Attributes.Count - 1 do
-	begin
-		if Result <> '' then
-			Result := Result + WKT_VALUE_SEPARATOR + Attributes[I]
-		else
-			Result := Result + Attributes[I]
-	end;
-end;
-
 { TWktNodeList }
 
 function TWktNodeList.DoGetItem(Index: Integer): TWktNode;
@@ -292,15 +288,15 @@ end;
 
 function TWktNodeList.Find(const AKey: string; out Dest: TWktNode): Boolean;
 var
-	I, DelimPos: Integer;
+	I, PathDelimPos: Integer;
 	Keyword, Nested: string;
 begin
 	Dest := nil;
-	DelimPos := FindChar(WKT_REVERSE_SOLIDUS, AKey, 1); // its full path n\n
-	if DelimPos <> 0 then
+	PathDelimPos := FindChar(WKT_REVERSE_SOLIDUS, AKey, 1); // its full path n\n
+	if PathDelimPos <> 0 then
 	begin
-		Keyword := Copy(AKey, 1, DelimPos - 1);
-		Nested := Copy(AKey, DelimPos + 1, MaxInt);
+		Keyword := Copy(AKey, 1, PathDelimPos - 1);
+		Nested := Copy(AKey, PathDelimPos + 1, MaxInt);
 	end
 	else
 	begin
@@ -341,7 +337,7 @@ end;
 
 function TWKTDocument.GetEmpty: Boolean;
 begin
-  Result := Root.Count = 0;
+	Result := Root.Count = 0;
 end;
 
 function TWKTDocument.GetRoot: TWktNode;
@@ -366,7 +362,7 @@ begin
 	begin
 		S := TFileStream.Create(AFilename,fmOpenRead);
 		try
-      LoadFromStream(S);
+			LoadFromStream(S);
 		finally
 			FreeAndNil(S);
 		end;
@@ -387,16 +383,16 @@ var
 begin
 	S := TStringStream.Create(AString);
 	try
-    LoadFromStream(S);
+		LoadFromStream(S);
 	finally
 		FreeAndNil(S);
-  end;
+	end;
 end;
 
 procedure TWKTDocument.SaveToFile(const AFilename: string);
 var
 	Str: string;
-  S: TStream;
+	S: TStream;
 begin
 	Str := SaveToString(False);
 	if Str <> '' then
@@ -407,7 +403,7 @@ begin
 		finally
 			FreeAndNil(S);
 		end;
-  end;
+	end;
 end;
 
 function TWKTDocument.SaveToStream(AStream: TStream): Integer;
@@ -422,7 +418,7 @@ begin
 		Result := AStream.Position - Result;
 	finally
 		FreeAndNil(S);
-  end;
+	end;
 end;
 
 function TWKTDocument.SaveToString(PrettyPrint: Boolean): string;
