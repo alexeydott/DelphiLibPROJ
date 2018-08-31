@@ -26,6 +26,7 @@ type
 		function GetSpheroidDefinition(out a,b,e2: Double): Boolean; stdcall;
 		function GetCreateDefinition: string; stdcall;
 		function GetDefinition: string; stdcall;
+		function GetWKTDefinition(const PrettyPrint: Boolean): string; stdcall;
 		function GetHandle: Pointer; stdcall;
 		procedure SetHandle(Value: Pointer); stdcall;
 		function GetIsGeocraphic(): Boolean; stdcall;
@@ -44,6 +45,7 @@ type
 		FOwner: TProjectionsManager;
 		FOwnGeoProjection: Boolean;
 		procedure SetDefinition(const Value: string);
+		function GetWKTDefinition(const PrettyPrint: Boolean): string; stdcall;
 	protected
 		procedure CreateHandle(); stdcall;
 		procedure DestroyHandle(); stdcall;
@@ -263,6 +265,11 @@ begin
 	end
 	else
 		b := a.NegativeInfinity;
+end;
+
+function TProjection.GetWKTDefinition(const PrettyPrint: Boolean): string;
+begin
+	Result := LibProjDefnToWKTProjection(Definition,PrettyPrint);
 end;
 
 function TProjection.HandleValid: Boolean;

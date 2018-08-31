@@ -31,8 +31,8 @@ object Form1: TForm1
     Text = '69,963443'
   end
   object Button1: TButton
-    Left = 135
-    Top = 25
+    Left = 170
+    Top = 108
     Width = 75
     Height = 25
     Caption = 'Button1'
@@ -40,20 +40,35 @@ object Form1: TForm1
     OnClick = Button1Click
   end
   object Button2: TButton
-    Left = 8
-    Top = 88
+    Left = 135
+    Top = 17
     Width = 75
     Height = 25
     Caption = 'Button2'
     TabOrder = 3
     OnClick = Button2Click
   end
-  object ComboBox1: TComboBox
-    Left = 144
-    Top = 152
-    Width = 145
-    Height = 21
+  object Memo1: TMemo
+    Left = 0
+    Top = 136
+    Width = 418
+    Height = 145
+    Align = alBottom
+    Lines.Strings = (
+      'Memo1')
     TabOrder = 4
-    Text = 'ComboBox1'
+    ExplicitLeft = 8
+    ExplicitTop = 128
+    ExplicitWidth = 402
+  end
+  object Edit3: TEdit
+    Left = 8
+    Top = 86
+    Width = 402
+    Height = 21
+    TabOrder = 5
+    Text = 
+      '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +to' +
+      'wgs84=0,0,0,0,0,0,0 +units=m +no_defs'
   end
 end

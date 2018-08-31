@@ -14,7 +14,8 @@ type
     Edit2: TEdit;
     Button1: TButton;
     Button2: TButton;
-    ComboBox1: TComboBox;
+		Memo1: TMemo;
+    Edit3: TEdit;
 		procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
 		procedure Button2Click(Sender: TObject);
@@ -56,37 +57,41 @@ end;
 procedure TForm1.Button1Click(Sender: TObject);
 var
 	S1,S2: string;
-	I: Integer;
+	I,J: Integer;
 begin
-	for I := 0 to LibProjSupportedProjections.Count -1 do
-	begin
-		ComboBox1.Items.Add(LibProjSupportedProjections.ValueFromIndex[I]);
-	end;
-
-  S1 := Edit1.Text;
-  S2 := Edit2.Text;
-  TransformPoint(S1,S2);
-  Edit1.Text := S1;
-  Edit2.Text := S2;
+//  S1 := Edit1.Text;
+//  S2 := Edit2.Text;
+//  TransformPoint(S1,S2);
+//  Edit1.Text := S1;
+//  Edit2.Text := S2;
+  Memo1.Text := LibProjDefnToWKTProjection(Edit3.Text,True);
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);
 var
-	W: TWKTDocument;
+	W: TWKTCRSDefinition;
 	N: TWktNode;
 begin
-	W := TWKTDocument.Create();
+	W := TWKTCRSDefinition.Create(nil);
 		with TOpenDialog.Create(Self) do
 		try
 			if not Execute(Self.Handle) then
 				Exit;
 			try
 				W.LoadFromFile(FileName);
-				if W.Find('projcs',N) then
+
+				if not W.Empty then
 				begin
-					OutputDebugString(PChar(N.Keyword));
-					OutputDebugString(PChar(N.Attributes.CommaText));
-					if N.Find('GEOGCS',N) then
+					OutputDebugString(PChar(W.Keyword));
+					OutputDebugString(PChar(W.Attributes.CommaText));
+
+					if W.Find('DATUM',N) then
+					begin
+						OutputDebugString(PChar(N.Keyword));
+						OutputDebugString(PChar(N.Attributes.CommaText));
+					end;
+
+					if W.Find('GEOGCS',N) then
 					begin
 						OutputDebugString(PChar(N.Keyword));
 						OutputDebugString(PChar(N.Attributes.CommaText));

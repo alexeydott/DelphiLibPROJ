@@ -204,7 +204,8 @@ function PJ_get_errno(): Integer;
 implementation
 
 uses
-	Windows, Math, MSVCrtl;
+	{$IFDEF MSWINDOWS}Windows, {$ENDIF}
+	Math, MSVCrtl;
 
 const
 	PJ_RAD_TO_DEG = 57.295779513082320876798154814105000; //(1*180 / PI)
@@ -555,18 +556,18 @@ const
   procedure _pj_ctx_fopen; external;
   procedure _pj_apply_vgridshift; external;
   procedure _pj_apply_gridshift_2; external;
-  procedure _pj_init_plus_ctx; external;
+	procedure _pj_init_plus_ctx; external;
   procedure _proj_mdist_ini; external;
   procedure _proj_mdist; external;
   procedure _proj_inv_mdist; external;
 {$ENDREGION}
 
 	{$REGION 'projections related declarations'}
-
-  {$LINK 'PJ_aea.obj'}
-  {$LINK 'PJ_aeqd.obj'}
-  {$LINK 'PJ_airy.obj'}
-  {$LINK 'PJ_aitoff.obj'}
+{$IFDEF WIN32}
+	{$LINK 'PJ_aea.obj'}
+	{$LINK 'PJ_aeqd.obj'}
+	{$LINK 'PJ_airy.obj'}
+	{$LINK 'PJ_aitoff.obj'}
   {$LINK 'PJ_august.obj'}
   {$LINK 'PJ_axisswap.obj'}
   {$LINK 'PJ_bacon.obj'}
@@ -676,11 +677,128 @@ const
   {$LINK 'PJ_wag7.obj'}
   {$LINK 'PJ_wink1.obj'}
   {$LINK 'PJ_wink2.obj'}
-  {$LINK 'proj_etmerc.obj'}
+	{$LINK 'proj_etmerc.obj'}
+{$ELSE}
+  {$LINK 'PJ_aea.o'}
+  {$LINK 'PJ_aeqd.o'}
+  {$LINK 'PJ_airy.o'}
+  {$LINK 'PJ_aitoff.o'}
+  {$LINK 'PJ_august.o'}
+  {$LINK 'PJ_axisswap.o'}
+  {$LINK 'PJ_bacon.o'}
+  {$LINK 'PJ_bipc.o'}
+  {$LINK 'PJ_boggs.o'}
+  {$LINK 'PJ_bonne.o'}
+  {$LINK 'PJ_calcofi.o'}
+  {$LINK 'PJ_cart.o'}
+  {$LINK 'PJ_cass.o'}
+  {$LINK 'PJ_cc.o'}
+  {$LINK 'PJ_ccon.o'}
+  {$LINK 'PJ_cea.o'}
+  {$LINK 'PJ_chamb.o'}
+  {$LINK 'PJ_collg.o'}
+  {$LINK 'PJ_comill.o'}
+  {$LINK 'PJ_crast.o'}
+  {$LINK 'PJ_deformation.o'}
+  {$LINK 'PJ_denoy.o'}
+  {$LINK 'PJ_eck1.o'}
+  {$LINK 'PJ_eck2.o'}
+  {$LINK 'PJ_eck3.o'}
+  {$LINK 'PJ_eck4.o'}
+  {$LINK 'PJ_eck5.o'}
+  {$LINK 'PJ_eqc.o'}
+  {$LINK 'PJ_eqdc.o'}
+  {$LINK 'PJ_fahey.o'}
+  {$LINK 'PJ_fouc_s.o'}
+  {$LINK 'PJ_gall.o'}
+  {$LINK 'PJ_geoc.o'}
+  {$LINK 'PJ_geos.o'}
+  {$LINK 'PJ_gins8.o'}
+  {$LINK 'PJ_gnom.o'}
+  {$LINK 'PJ_gn_sinu.o'}
+  {$LINK 'PJ_goode.o'}
+  {$LINK 'PJ_igh.o'}
+  {$LINK 'PJ_gstmerc.o'}
+  {$LINK 'PJ_hammer.o'}
+  {$LINK 'PJ_hatano.o'}
+  {$LINK 'PJ_helmert.o'}
+  {$LINK 'PJ_hgridshift.o'}
+  {$LINK 'PJ_horner.o'}
+  {$LINK 'PJ_isea.o'}
+  {$LINK 'PJ_imw_p.o'}
+  {$LINK 'PJ_krovak.o'}
+  {$LINK 'PJ_labrd.o'}
+  {$LINK 'PJ_laea.o'}
+  {$LINK 'PJ_lagrng.o'}
+  {$LINK 'PJ_larr.o'}
+  {$LINK 'PJ_lask.o'}
+  {$LINK 'PJ_latlong.o'}
+  {$LINK 'PJ_lcca.o'}
+  {$LINK 'PJ_lcc.o'}
+  {$LINK 'PJ_loxim.o'}
+  {$LINK 'PJ_lsat.o'}
+  {$LINK 'PJ_misrsom.o'}
+  {$LINK 'PJ_mbt_fps.o'}
+  {$LINK 'PJ_mbtfpp.o'}
+  {$LINK 'PJ_mbtfpq.o'}
+  {$LINK 'PJ_merc.o'}
+  {$LINK 'PJ_mill.o'}
+  {$LINK 'PJ_mod_ster.o'}
+  {$LINK 'PJ_moll.o'}
+  {$LINK 'PJ_molodensky.o'}
+  {$LINK 'PJ_natearth.o'}
+  {$LINK 'PJ_natearth2.o'}
+  {$LINK 'PJ_nell.o'}
+  {$LINK 'PJ_nell_h.o'}
+  {$LINK 'PJ_nocol.o'}
+  {$LINK 'PJ_nsper.o'}
+  {$LINK 'PJ_nzmg.o'}
+  {$LINK 'PJ_ob_tran.o'}
+  {$LINK 'PJ_ocea.o'}
+  {$LINK 'PJ_oea.o'}
+  {$LINK 'PJ_omerc.o'}
+  {$LINK 'PJ_ortho.o'}
+  {$LINK 'PJ_patterson.o'}
+  {$LINK 'PJ_pipeline.o'}
+  {$LINK 'PJ_poly.o'}
+  {$LINK 'PJ_putp2.o'}
+  {$LINK 'PJ_putp3.o'}
+  {$LINK 'PJ_putp4p.o'}
+  {$LINK 'PJ_putp5.o'}
+  {$LINK 'PJ_putp6.o'}
+  {$LINK 'PJ_qsc.o'}
+  {$LINK 'PJ_robin.o'}
+  {$LINK 'PJ_rpoly.o'}
+  {$LINK 'PJ_sch.o'}
+  {$LINK 'PJ_sconics.o'}
+  {$LINK 'PJ_somerc.o'}
+  {$LINK 'PJ_sterea.o'}
+  {$LINK 'PJ_stere.o'}
+  {$LINK 'PJ_sts.o'}
+  {$LINK 'PJ_tcc.o'}
+  {$LINK 'PJ_tcea.o'}
+  {$LINK 'PJ_times.o'}
+  {$LINK 'PJ_tmerc.o'}
+  {$LINK 'PJ_tpeqd.o'}
+  {$LINK 'PJ_unitconvert.o'}
+  {$LINK 'PJ_urm5.o'}
+  {$LINK 'PJ_urmfps.o'}
+  {$LINK 'PJ_vandg.o'}
+  {$LINK 'PJ_vandg2.o'}
+  {$LINK 'PJ_vandg4.o'}
+  {$LINK 'PJ_vgridshift.o'}
+  {$LINK 'PJ_wag2.o'}
+  {$LINK 'PJ_wag3.o'}
+  {$LINK 'PJ_wag7.o'}
+  {$LINK 'PJ_wink1.o'}
+  {$LINK 'PJ_wink2.o'}
+  {$LINK 'proj_etmerc.o'}
+{$ENDIF}
+
 {$ENDREGION}
 
 	{$REGION 'proj core functions'}
-
+{$IFDEF WIN32}
 	{$LINK 'aasincos.obj'}
   {$LINK 'adjlon.obj'}
   {$LINK 'bchgen.obj'}
@@ -743,7 +861,70 @@ const
   {$LINK 'rtodms.obj'}
   {$LINK 'vector1.obj'}
   {$LINK 'pj_strtod.obj'}
-
+{$ELSE}
+  {$LINK 'aasincos.o'}
+  {$LINK 'adjlon.o'}
+  {$LINK 'bchgen.o'}
+  {$LINK 'bch2bps.o'}
+  {$LINK 'biveval.o'}
+  {$LINK 'dmstor.o'}
+  {$LINK 'emess.o'}
+  {$LINK 'geocent.o'}
+  {$LINK 'geodesic.o'}
+  {$LINK 'mk_cheby.o'}
+  {$LINK 'nad_cvt.o'}
+  {$LINK 'nad_init.o'}
+  {$LINK 'nad_intr.o'}
+  {$LINK 'pj_apply_gridshift.o'}
+  {$LINK 'pj_apply_vgridshift.o'}
+  {$LINK 'pj_auth.o'}
+  {$LINK 'pj_ctx.o'}
+  {$LINK 'pj_fileapi.o'}
+  {$LINK 'pj_datum_set.o'}
+  {$LINK 'pj_datums.o'}
+  {$LINK 'pj_deriv.o'}
+  {$LINK 'pj_ell_set.o'}
+  {$LINK 'pj_ellps.o'}
+  {$LINK 'pj_errno.o'}
+  {$LINK 'pj_factors.o'}
+  {$LINK 'pj_fwd.o'}
+  {$LINK 'pj_gauss.o'}
+  {$LINK 'pj_gc_reader.o'}
+  {$LINK 'pj_geocent.o'}
+  {$LINK 'pj_gridcatalog.o'}
+  {$LINK 'pj_gridinfo.o'}
+  {$LINK 'pj_gridlist.o'}
+  {$LINK 'PJ_healpix.o'}
+  {$LINK 'pj_init.o'}
+  {$LINK 'pj_initcache.o'}
+  {$LINK 'pj_inv.o'}
+  {$LINK 'pj_list.o'}
+  {$LINK 'pj_log.o'}
+  {$LINK 'pj_malloc.o'}
+  {$LINK 'pj_math.o'}
+  {$LINK 'pj_mlfn.o'}
+  {$LINK 'pj_msfn.o'}
+  {$LINK 'pj_mutex.o'}
+  {$LINK 'proj_4D_api.o'}
+  {$LINK 'pj_internal.o'}
+  {$LINK 'pj_open_lib.o'}
+  {$LINK 'pj_param.o'}
+  {$LINK 'pj_phi2.o'}
+  {$LINK 'pj_pr_list.o'}
+  {$LINK 'pj_qsfn.o'}
+  {$LINK 'pj_release.o'}
+  {$LINK 'pj_strerrno.o'}
+  {$LINK 'pj_transform.o'}
+  {$LINK 'pj_tsfn.o'}
+  {$LINK 'pj_units.o'}
+  {$LINK 'pj_utils.o'}
+  {$LINK 'pj_zpoly1.o'}
+  {$LINK 'proj_mdist.o'}
+  {$LINK 'proj_rouss.o'}
+  {$LINK 'rtodms.o'}
+  {$LINK 'vector1.o'}
+	{$LINK 'pj_strtod.o'}
+{$ENDIF}
 {$ENDREGION}
 
 	{$REGION 'Api calls'}
@@ -774,7 +955,7 @@ begin
 	Result := TMarshal.ReadStringAsAnsi(TPtrWrapper.Create(Value));
 end;
 
-function StringToCStringPointer(Value: string): Pointer;
+function StringToCStringPointer(const Value: string): Pointer;
 begin
 	Result := TMarshal.AllocStringAsAnsi(Value).ToPointer;
 end;
