@@ -6,7 +6,7 @@ unit LibProjProjections;
 interface
 
 uses
-	Classes, SysUtils, Contnrs, Math,
+	Classes, SysUtils, Math,
 	WKTProjections;
 
 type
@@ -813,8 +813,10 @@ var
 	end;
 
 	procedure FetchProjectionUnits();
+  const
+    cDefUnitsName = 'Meter';
 	begin
-		FProjUnits := 'Meter';
+		FProjUnits := cDefUnitsName;
 		FFProjUnitsFactor := '1';
 
 		if TryFindProjPairValue(ProjPairs,'units',FProjUnits,'m') then

@@ -9,3 +9,7 @@ __history/*
 *.stat
 *CVS*
 .cvsignore
+crs/*
+c_source/*
+obj/5.1/*
+obj/5.2/*

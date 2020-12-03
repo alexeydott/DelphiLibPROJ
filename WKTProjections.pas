@@ -9,7 +9,7 @@ unit WKTProjections;
 interface
 
 uses
-	Classes,Types,SysUtils, Contnrs;
+	Classes, Types, SysUtils, Contnrs;
 
 type
 
@@ -50,7 +50,7 @@ type
 		///   true if success
 		/// </returns>
 		function FindByAttributeName(const AKey, AAtributeName: string; out Dest: TWktNode): Boolean; virtual;
-		property Items[Index: Integer]: TWktNode read DoGetItem write DoSetItem; default;
+	 	property Items[Index: Integer]: TWktNode read DoGetItem write DoSetItem; default;
 	end;
 
 	TWktNode = class(TWktNodeList)
@@ -577,7 +577,7 @@ function TWktNode.SaveToString(const PrettyPrint: Boolean): string;
 var
 	I: Integer;
 begin
-	if Keyword <> '' then
+	if Keyword = '' then
 		Exit('');
 
 	Result := UpperCase(Keyword) + WKT_BRACKET_OPEN;
@@ -617,7 +617,7 @@ function TWktNodeList.DoGetItem(Index: Integer): TWktNode;
 begin
 	Result := TWktNode(GetItem(Index));
 end;
-
+//
 procedure TWktNodeList.DoSetItem(Index: Integer; AObject: TWktNode);
 begin
 	SetItem(Index, AObject);

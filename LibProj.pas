@@ -5,15 +5,17 @@ interface
 uses
 	Classes, SysUtils, SyncObjs, Generics.Collections,
 
-	LibProjApi, LibProjProjections;
+	LibProjProjections;
 
 type
 	TProjectionsManager = class;
+  TPointsTransformer = class;
 
 	IProjection = interface(IUnknown)
 	['{EE6FB2E9-9327-46E3-A0FF-2A55AF324498}']
 		procedure CreateHandle(); stdcall;
 		procedure DestroyHandle(); stdcall;
+    procedure HandleNeeded; stdcall;
 		/// <param name="a">
 		///   MajorAxis
 		/// </param>
@@ -37,7 +39,7 @@ type
 		property Handle: Pointer read GetHandle write SetHandle;
 	end;
 
-	TProjection = class(TInterfacedPersistent,IProjection)
+	TProjection = class(TInterfacedObject,IProjection)
 	private
 		FSourceDefn: string;
 		FGeoProjection: IProjection;
@@ -46,12 +48,14 @@ type
 		FOwnGeoProjection: Boolean;
 		procedure SetDefinition(const Value: string);
 		function GetWKTDefinition(const PrettyPrint: Boolean): string; stdcall;
+    constructor Create; overload;
 	protected
 		procedure CreateHandle(); stdcall;
 		procedure DestroyHandle(); stdcall;
+    procedure HandleNeeded; stdcall;
 		function GetHandle: Pointer; stdcall;
 		procedure SetHandle(Value: Pointer); stdcall;
-		function GetOwner: TPersistent; override;
+		function GetOwner: TPersistent;
 		function GetSpheroidDefinition(out a,b,e2: Double): Boolean; stdcall;
 		function GetCreateDefinition: string; stdcall;
 		function GetDefinition: string; stdcall;
@@ -78,11 +82,11 @@ type
 		function TransformPointXY(const Src,Dst: IProjection; var X,Y: Double; AngularUnits: Boolean): Boolean; stdcall;
 	end;
 
-	TPointsTransformer = class(TInterfacedPersistent,IPointsTransformer)
+	TPointsTransformer = class(TInterfacedObject,IPointsTransformer)
 	private
 		FOwner: TProjectionsManager;
 	protected
-		function GetOwner: TPersistent; override;
+		function GetOwner: TPersistent;
 	public
 		constructor CreateOwned(AOwner: TProjectionsManager);
     destructor Destroy(); override;
@@ -95,46 +99,53 @@ type
 		procedure Changes; stdcall;
 		procedure Changed; stdcall;
 		function GetContainer(): TObject; stdcall;
-		function GetPointsTransformer: TPointsTransformer;
-		function GetProjectionByDefinition(const Defn: string): TProjection; stdcall;
-		function GetProjectionByCode(const EpsgCode: Integer): TProjection; stdcall;
+		function GetPointsTransformer: IPointsTransformer;
+		function GetProjectionByDefinition(const Defn: string): IProjection; stdcall;
+		function GetProjectionByCode(const EpsgCode: Integer): IProjection; stdcall;
 		function GetGeographic(Src: IProjection): IProjection;
-		function TryGetProjection(const Defn: string; out Proj: TProjection): Boolean; stdcall;
-		function MakeNewProjectionFromDefn(const Defn: string; out proj: TProjection): Integer; stdcall;
-		function MakeNewProjectionFromEpsg(const Code: Integer; out proj: TProjection): Integer; stdcall;
+		function TryGetProjection(const Defn: string; out Proj: IProjection): Boolean; stdcall;
+		function MakeNewProjectionFromDefn(const Defn: string; out proj: IProjection): Integer; stdcall;
+		function MakeNewProjectionFromEpsg(const Code: Integer; out proj: IProjection): Integer; stdcall;
 
-		property ProjectionByDefinition[const Defn: string]: TProjection read GetProjectionByDefinition;
-		property ProjectionByEpsgCode[const Code: Integer]: TProjection read GetProjectionByCode;
+		property ProjectionByDefinition[const Defn: string]: IProjection read GetProjectionByDefinition;
+		property ProjectionByEpsgCode[const Code: Integer]: IProjection read GetProjectionByCode;
 	end;
 
-	TProjectionsManager = class(TComponent,
-		IProjectionsManager,IPointsTransformer)
+	TProjectionsManager = class(TComponent, IProjectionsManager)
 	private
-		FContainer: TDictionary<string,TProjection>;
-		FPointsTransformer: TPointsTransformer;
+		FContainer: TDictionary<string,IProjection>;
+		FPointsTransformer: IPointsTransformer;
 		FGuard: TCriticalSection;
-		FChangesCount: Integer;
+		[volatile] FChangesCount: Integer;
 		procedure Changes; stdcall;
 		procedure Changed; stdcall;
 	protected
 		function GetContainer: TObject; stdcall;
-		function GetPointsTransformer: TPointsTransformer;
-		function GetProjectionByDefinition(const Defn: string): TProjection; stdcall;
-		function GetProjectionByCode(const EpsgCode: Integer): TProjection; stdcall;
-		function TryGetProjection(const Defn: string; out Proj: TProjection): Boolean; stdcall;
-		function MakeNewProjectionFromDefn(const Defn: string; out proj: TProjection): Integer; stdcall;
-		function MakeNewProjectionFromEpsg(const Code: Integer; out proj: TProjection): Integer; stdcall;
+		function GetPointsTransformer: IPointsTransformer;
+		function GetProjectionByDefinition(const Defn: string): IProjection; stdcall;
+		function GetProjectionByCode(const EpsgCode: Integer): IProjection; stdcall;
+		function TryGetProjection(const Defn: string; out Proj: IProjection): Boolean; stdcall;
+		function MakeNewProjectionFromDefn(const Defn: string; out proj: IProjection): Integer; stdcall;
+		function MakeNewProjectionFromEpsg(const Code: Integer; out proj: IProjection): Integer; stdcall;
 		function GetGeographic(Src: IProjection): IProjection;
-		function KnownProjections: TDictionary<string,TProjection>;
+		function KnownProjections: TDictionary<string,IProjection>;
+    { IProjectionsManager }
+		property PointsTransformer: IPointsTransformer read GetPointsTransformer;
 	public
 		destructor Destroy(); override;
-		property ProjectionByDefinition[const Defn: string]: TProjection read GetProjectionByDefinition;
-		property ProjectionByEpsgCode[const Code: Integer]: TProjection read GetProjectionByCode;
 
-		property PointsTransformer: TPointsTransformer read GetPointsTransformer implements IPointsTransformer;
+    { IPointsTransformer }
+		function TransformPointsXY(const Src,Dst: IProjection; var X,Y: Double; Count: Integer; AngularUnits: Boolean): Boolean; stdcall;
+		function TransformPointXY(const Src,Dst: IProjection; var X,Y: Double; AngularUnits: Boolean): Boolean; stdcall;
+
+		property ProjectionByDefinition[const Defn: string]: IProjection read GetProjectionByDefinition;
+		property ProjectionByEpsgCode[const Code: Integer]: IProjection read GetProjectionByCode;
 	end;
 
 implementation
+
+uses
+  LibProjApi;
 
 { TProjection }
 
@@ -143,20 +154,30 @@ begin
 	CreateOwned(nil,ADefn);
 end;
 
+constructor TProjection.Create;
+begin
+  inherited Create;
+end;
+
 procedure TProjection.CreateHandle();
 begin
 	DestroyHandle();
-	if FOwner = nil then
-		FHandle := PJ_init_plus(GetCreateDefinition)
-	else
-	begin
-		FOwner.Changes;
-		try
-			FHandle := PJ_init_plus(GetCreateDefinition);
-		finally
-			FOwner.Changed;
-		end;
-	end;
+//  try
+    if FOwner = nil then
+      FHandle := PJ_init_plus(GetCreateDefinition)
+    else
+    begin
+      FOwner.Changes;
+      try
+        FHandle := PJ_init_plus(GetCreateDefinition);
+      finally
+        FOwner.Changed;
+      end;
+    end;
+//  except
+//    on E: Exception do
+//
+//  end;
 end;
 
 constructor TProjection.CreateOwned(AOwner: TProjectionsManager);
@@ -166,7 +187,7 @@ end;
 
 constructor TProjection.CreateOwned(AOwner: TProjectionsManager; const ADefn: string);
 begin
-	inherited Create();
+	Create();
 	FGeoProjection := nil;
 	FOwner := AOwner;
 	FSourceDefn := ADefn;
@@ -187,12 +208,12 @@ begin
 	begin
 		if FOwner <> nil then
 		begin
-			FOwner.Changes;
+      FOwner.Changes;
 			try
 				PJ_free(FHandle);
 				FHandle := nil;
 			finally
-				FOwner.Changed;
+        FOwner.Changed;
 			end;
 		end;
 	end;
@@ -272,9 +293,15 @@ begin
 	Result := LibProjDefnToWKTProjection(Definition,PrettyPrint);
 end;
 
+procedure TProjection.HandleNeeded;
+begin
+  if not HandleValid then
+    CreateHandle;
+end;
+
 function TProjection.HandleValid: Boolean;
 begin
-  Result := Assigned(Handle)
+  Result := Assigned(FHandle)
 end;
 
 procedure TProjection.SetDefinition(const Value: string);
@@ -318,11 +345,18 @@ function TProjection.TransformPoints(Dst: IProjection; var X, Y: Double; Count: 
 var
 	Transformer: IPointsTransformer;
 begin
-	Result := Self.HandleValid and Assigned(FOwner) and
-		FOwner.GetInterface(IPointsTransformer,Transformer);
+	Result := Self.HandleValid and Assigned(Dst) and Dst.HandleValid;
+  if Result then
+  begin
+    if not Assigned(FOwner) then
+      Transformer := TPointsTransformer.Create()
+    else
+      Transformer := FOwner.PointsTransformer;
 
-	if Result then
 		Result := Transformer.TransformPointsXY(Self,Dst,X,Y,Count,AngularUnits);
+  end;
+
+
 end;
 
 { TProjectionsManager }
@@ -353,10 +387,13 @@ end;
 
 destructor TProjectionsManager.Destroy;
 begin
-	FreeAndNil(FPointsTransformer);
 	Changes;
-	FreeAndNil(FContainer);
-	Changed;
+  try
+    FPointsTransformer := nil;
+    FreeAndNil(FContainer);
+  finally
+    Changed;
+  end;
 	FreeAndNil(FGuard);
 	inherited;
 end;
@@ -364,7 +401,7 @@ end;
 function TProjectionsManager.GetContainer: TObject;
 begin
 	if FContainer = nil then
-		FContainer := TObjectDictionary<string, TProjection>.Create([doOwnsValues]);
+		FContainer := TObjectDictionary<string, IProjection>.Create([]);
 
 	Result := FContainer;
 end;
@@ -382,7 +419,7 @@ begin
 	end;
 end;
 
-function TProjectionsManager.GetPointsTransformer: TPointsTransformer;
+function TProjectionsManager.GetPointsTransformer: IPointsTransformer;
 begin
 	if FPointsTransformer = nil then
 		FPointsTransformer := TPointsTransformer.CreateOwned(Self);
@@ -390,64 +427,82 @@ begin
 	Result := FPointsTransformer;
 end;
 
-function TProjectionsManager.GetProjectionByCode(const EpsgCode: Integer): TProjection;
+function TProjectionsManager.GetProjectionByCode(const EpsgCode: Integer): IProjection;
 begin
 	Result := GetProjectionByDefinition(LibProjDefnFromEpsgCode(EpsgCode));
 end;
 
-function TProjectionsManager.GetProjectionByDefinition(const Defn: string): TProjection;
+function TProjectionsManager.GetProjectionByDefinition(const Defn: string): IProjection;
 begin
 	TryGetProjection(Defn,Result);
 end;
 
-function TProjectionsManager.KnownProjections: TDictionary<string, TProjection>;
+function TProjectionsManager.KnownProjections: TDictionary<string, IProjection>;
 begin
-	Result := TDictionary<string, TProjection>(GetContainer);
+	Result := TDictionary<string, IProjection>(GetContainer);
 end;
 
-function TProjectionsManager.MakeNewProjectionFromDefn(const Defn: string; out proj: TProjection): Integer;
+function TProjectionsManager.MakeNewProjectionFromDefn(const Defn: string; out proj: IProjection): Integer;
 begin
 	Result := -1;
 	if Defn <> '' then
 	begin
 		Changes;
-		proj := TProjection.CreateOwned(Self,Defn);
-		if proj.HandleValid then
-			Result := 0
-		else
-		begin
-			Result := PJ_get_errno();
+    try
+      proj := TProjection.CreateOwned(Self,Defn);
+      proj.HandleNeeded;
 
-			FreeAndNil(proj);
-		end;
-	  Changed;
+      if proj.HandleValid then
+        Result := 0
+      else
+      begin
+        Result := PJ_get_errno();
+        if Result = 0 then // unknown error or exception false
+          Result := -1;
+        proj := nil;
+      end;
+    finally
+      Changed;
+    end;
 	end;
 end;
 
-function TProjectionsManager.MakeNewProjectionFromEpsg(const Code: Integer; out proj: TProjection): Integer;
+function TProjectionsManager.MakeNewProjectionFromEpsg(const Code: Integer; out proj: IProjection): Integer;
 begin
 	Result := -1;
 	if TryGetProjection(LibProjDefnFromEpsgCode(Code),proj) then
 		Result := 0;
 end;
 
+function TProjectionsManager.TransformPointsXY(const Src, Dst: IProjection;
+  var X, Y: Double; Count: Integer; AngularUnits: Boolean): Boolean;
+begin
+  Result := PointsTransformer.TransformPointsXY(Src, Dst,x,y,count,AngularUnits);
+end;
+
+function TProjectionsManager.TransformPointXY(const Src, Dst: IProjection;
+  var X, Y: Double; AngularUnits: Boolean): Boolean;
+begin
+  Result := PointsTransformer.TransformPointXY(Src, Dst,x,y,AngularUnits);
+end;
+
 function TProjectionsManager.TryGetProjection(const Defn: string;
-	out Proj: TProjection): Boolean;
+	out Proj: IProjection): Boolean;
 begin
 	Proj := nil;
+  Changes;
+  try
+	  Result := (Defn <> '') and KnownProjections.TryGetValue(Defn,Proj);
+    if not Result then
+    begin
+      Result := MakeNewProjectionFromDefn(Defn,Proj) = 0;
 
-	Result := (Defn <> '') and KnownProjections.TryGetValue(Defn,Proj);
-	if not Result then
-	begin
-		Changes;
-		try
-			Result := MakeNewProjectionFromDefn(Defn,Proj) = 0;
-			if Result then
-				KnownProjections.AddOrSetValue(Proj.GetCreateDefinition,Proj);
-		finally
-			Changed;
+      if Result then
+        KnownProjections.AddOrSetValue(Proj.GetCreateDefinition,Proj);
     end;
-	end;
+  finally
+    Changed;
+  end;
 end;
 
 { TPointsTransformer }

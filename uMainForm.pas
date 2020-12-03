@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
 	Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
 	Vcl.StdCtrls, Vcl.Samples.Spin,
-	LibProj,LibProjProjections, WKTProjections, Vcl.Grids, Vcl.ValEdit;
+	LibProj,LibProjProjections, WellKnownText, Vcl.Grids, Vcl.ValEdit;
 
 type
   TForm1 = class(TForm)
