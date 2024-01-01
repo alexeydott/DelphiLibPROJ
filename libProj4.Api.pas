@@ -340,6 +340,7 @@ function {$IFDEF WIN64}localeconv{$ELSE}_localeconv{$ENDIF}: plconv; cdecl; exte
 function {$IFDEF WIN64}sprintf{$ELSE}_sprintf{$ENDIF}(buf: Pointer; format: PAnsiChar { args } ): Integer; cdecl; varargs; external msvcrtdll name 'sprintf';
 function {$IFDEF WIN64}fprintf{$ELSE}_fprintf{$ENDIF}(fHandle: Pointer; format: PAnsiChar { args } ): Integer; cdecl; varargs; external msvcrtdll name 'fprintf';
 function {$IFDEF WIN64}vsprintf{$ELSE}_vsprintf{$ENDIF}(s: PAnsiChar; const format: PAnsiChar; ap: Pointer): Integer; cdecl; external msvcrtdll name 'vsprintf';
+function {$IFDEF WIN64}putchar{$ELSE}_putchar{$ENDIF}(c: Integer): Integer; cdecl; external msvcrtdll name 'putchar';
 
 // {$ifdef WIN64}{$LINK fprintf_win64}{$else}{$LINK fprintf_win32}{$endif}
 // {$ifdef WIN64}{$LINK sprintf_win64}{$else}{$LINK sprintf_win32}{$endif}
@@ -1294,6 +1295,30 @@ begin
     Result := Double.NaN
   else
     Result := x - (y * System.Round(x /Result));
+end;
+
+function {$IFDEF WIN64}__get_std_stream{$ELSE}___get_std_stream{$ENDIF}(num: Cardinal): Pointer; cdecl;
+begin
+  Result := Pointer(GetStdHandle(num));
+end;
+
+function {$IFDEF WIN64}_sinh{$ELSE}__sinh{$ENDIF}(const x: Double): Double; cdecl;
+begin
+  if x.IsNan or x.IsInfinity then
+    Result := x
+  else
+    Result := System.Math.sinh(x);
+end;
+
+function {$IFDEF WIN64}_cosh{$ELSE}__cosh{$ENDIF}(const x: Double): Double; cdecl;
+begin
+  if x.IsInfinity then
+    Result := Double.PositiveInfinity
+  else
+  if x.IsNan then
+    Result := Double.NaN
+  else
+    Result := System.Math.CosH(x);
 end;
 
 
@@ -3041,4 +3066,5 @@ projlib_init_globals;
 finalization
 projlib_final_globals;
 end.
+
 

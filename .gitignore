@@ -13,4 +13,7 @@ crs/*
 c_source/*
 obj/5.1/*
 obj/5.2/*
+dcu/*
+*.user
+*.user
 *.user

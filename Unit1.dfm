@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'proj controls demo'
-  ClientHeight = 481
-  ClientWidth = 576
+  ClientHeight = 633
+  ClientWidth = 610
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -39,7 +39,7 @@ object Form1: TForm1
   object PROJ4CRSSelector1: TPROJ4CRSSelector
     AlignWithMargins = True
     Left = 24
-    Top = 40
+    Top = 37
     Width = 409
     Height = 23
     Style = csDropDownList
@@ -48,6 +48,7 @@ object Form1: TForm1
     TabOrder = 1
     TextHint = 'Not Selected'
     Editor = PROJ4CRSParametersEditor1
+    Manager = PROJ4ProjectionsManager1
   end
   object PROJ4CRSParametersEditor1: TPROJ4CRSParametersEditor
     Left = 24
@@ -78,5 +79,18 @@ object Form1: TForm1
     Caption = 'test edit CRS dlg'
     TabOrder = 4
     OnClick = Button2Click
+  end
+  object Button3: TButton
+    Left = 24
+    Top = 464
+    Width = 528
+    Height = 25
+    Caption = 'test CRS to CRS'
+    TabOrder = 5
+    OnClick = Button2Click
+  end
+  object PROJ4ProjectionsManager1: TPROJ4ProjectionsManager
+    Left = 120
+    Top = 520
   end
 end

@@ -105,7 +105,7 @@ type
   [ComponentPlatformsAttribute(pidWin32 or pidWin64)]
   TPROJ4CRSSelector = class(TComboBox)
   private
-    FManager: TProjectionsManager;
+    FManager: TPROJ4ProjectionsManager;
     FEditor: TPROJ4CRSParametersEditor;
     FHintWnd: THintWindow;
     FKnownCRS: TArray<TPair<string, string>>;
@@ -135,7 +135,7 @@ type
     property SelectedCRSDefn: string read GetSelectedCRSDefn write SetSelectedCRSDefn;
   published
     property Editor: TPROJ4CRSParametersEditor read FEditor write FEditor;
-    property Manager: TProjectionsManager read FManager write FManager;
+    property Manager: TPROJ4ProjectionsManager read FManager write FManager;
   end;
 
 function Proj4DefininionQuery(const ADefinition: string): string;

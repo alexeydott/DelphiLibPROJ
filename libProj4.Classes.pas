@@ -12,7 +12,10 @@ uses
   System.Generics.Collections, libProj4.Types, libProj4.Intf;
 
 type
-  TProjection = class(TContainedObject, IProjection)
+  IProjection = libProj4.Intf.IProjection;
+  IProjectionsManager = libProj4.Intf.IProjectionsManager;
+
+  TPROJ4Projection = class(TContainedObject, IProjection)
   private
     FProj4Defn: string;
     FProj4LastError: string;
@@ -36,7 +39,7 @@ type
      procedure Init; virtual;
      procedure DeInit; virtual;
      procedure SetDefaults; virtual;
-    function IsEquals(Obj: TProjection): Boolean; overload;
+    function IsEquals(Obj: TPROJ4Projection): Boolean; overload;
   public
     constructor Create(Controller: IProjectionsManager); overload;
     constructor Create(Controller: IProjectionsManager; const AHandle: TPJ); overload;
@@ -61,16 +64,16 @@ type
     property Handle: TPJ read GetHandle;
   end;
 
-  TProjectionsManager = class(TComponent, IProjectionsManager)
+  TPROJ4ProjectionsManager = class(TComponent, IProjectionsManager)
   private
-  class var FGLobalInstance: TProjectionsManager;
+  class var FGLobalInstance: TPROJ4ProjectionsManager;
   var
     FLock: TCriticalSection;
     [volatile] FLockCounter: Integer;
     FContext: TPJCtx;
-    FList: TThreadList<TPair<string, TProjection>>;
+    FList: TThreadList<TPair<string, TPROJ4Projection>>;
     FSearchPaths: string;
-    procedure ListNotify(Sender: TObject; const Item: TPair<string,TProjection>; Action: TCollectionNotification);
+    procedure ListNotify(Sender: TObject; const Item: TPair<string,TPROJ4Projection>; Action: TCollectionNotification);
     procedure Lock;
     procedure Unlock;
     procedure CreateContext;
@@ -80,7 +83,7 @@ type
     function FindIndex(const Defn: string): Integer;
     procedure Init; virtual;
     procedure DeInit; virtual;
-    function RegisterProjection(const AProjection: TProjection): Integer;
+    function RegisterProjection(const AProjection: TPROJ4Projection): Integer;
     procedure ChangeDefinition(AOld,ANew: string);
     function GetProjectionByDefinition(const ADefn: string): IProjection; virtual;
     function GetProjectionByCode(const EpsgCode: Integer): IProjection;
@@ -101,6 +104,8 @@ type
     property SearchPaths: string read FSearchPaths write SetSearchPaths;
   end;
 
+  procedure Register;
+
 implementation
 
 uses
@@ -109,7 +114,7 @@ uses
 var
   Wgs84Geodesic: libProj4.Types.TGeodesic;
 
-procedure TProjection.AfterConstruction;
+procedure TPROJ4Projection.AfterConstruction;
 begin
   inherited;
   FLock := TCriticalSection.Create;
@@ -121,7 +126,7 @@ begin
   end;
 end;
 
-procedure TProjection.BeforeDestruction;
+procedure TPROJ4Projection.BeforeDestruction;
 begin
   Lock;
   try
@@ -133,7 +138,7 @@ begin
   inherited;
 end;
 
-constructor TProjection.Create(Controller: IProjectionsManager; const ADefn: string);
+constructor TPROJ4Projection.Create(Controller: IProjectionsManager; const ADefn: string);
 begin
   if ADefn.IsEmpty then
     raise EEmptyProjectionDefinition.Create('empty projection definition');
@@ -141,20 +146,20 @@ begin
   FProj4Defn := ADefn;
 end;
 
-constructor TProjection.Create(Controller: IProjectionsManager; const AHandle: TPJ);
+constructor TPROJ4Projection.Create(Controller: IProjectionsManager; const AHandle: TPJ);
 begin
   Create(Controller);
   FHandle := AHandle;
 end;
 
-constructor TProjection.Create(Controller: IProjectionsManager);
+constructor TPROJ4Projection.Create(Controller: IProjectionsManager);
 begin
   inherited Create(Controller);
   FLockCounter := 0;
   SetDefaults;
 end;
 
-procedure TProjection.CreateHandle;
+procedure TPROJ4Projection.CreateHandle;
 begin
   Lock;
   try
@@ -167,7 +172,7 @@ begin
   end;
 end;
 
-procedure TProjection.DestroyHandle;
+procedure TPROJ4Projection.DestroyHandle;
 begin
   Lock;
   try
@@ -177,29 +182,29 @@ begin
   end;
 end;
 
-function TProjection.DumpParams(var ADest: TArray<TPJParamRec>): Integer;
+function TPROJ4Projection.DumpParams(var ADest: TArray<TPJParamRec>): Integer;
 begin
   Result := LibProjParseParamsString(Proj4Definition,ADest);
 end;
 
-function TProjection.IsEquals(const PJ: IProjection): Boolean;
+function TPROJ4Projection.IsEquals(const PJ: IProjection): Boolean;
 begin
-  Result := Assigned(PJ) and IsEquals(TProjection(PJ));
+  Result := Assigned(PJ) and IsEquals(TPROJ4Projection(PJ));
 end;
 
-function TProjection.IsEquals(Obj: TProjection): Boolean;
+function TPROJ4Projection.IsEquals(Obj: TPROJ4Projection): Boolean;
 begin
-  Result := Assigned(Obj) and Self.HandleAllocated and Obj.HandleAllocated and SameText(Self.ToString, TProjection(Obj).ToString);
+  Result := Assigned(Obj) and Self.HandleAllocated and Obj.HandleAllocated and SameText(Self.ToString, TPROJ4Projection(Obj).ToString);
 end;
 
-function TProjection.Equals(Obj: TObject): Boolean;
+function TPROJ4Projection.Equals(Obj: TObject): Boolean;
 begin
-  Result := inherited Equals(Obj) and Assigned(Self) and Assigned(Obj) and (Obj is TProjection);
+  Result := inherited Equals(Obj) and Assigned(Self) and Assigned(Obj) and (Obj is TPROJ4Projection);
   if Result then
-    Result := IsEquals(TProjection(Obj))
+    Result := IsEquals(TPROJ4Projection(Obj))
 end;
 
-function TProjection.Geographic: IProjection;
+function TPROJ4Projection.Geographic: IProjection;
 var
   latLong: TPJ;
 begin
@@ -208,7 +213,7 @@ begin
     if (FGeoProjection = nil) then
     begin
       if GetLatLong(Self.Handle,latLong) then
-        FGeoProjection := TProjection.Create(Manager, latLong);
+        FGeoProjection := TPROJ4Projection.Create(Manager, latLong);
     end;
 
     Result := FGeoProjection;
@@ -217,17 +222,17 @@ begin
   end;
 end;
 
-function TProjection.GetDefaultParams: string;
+function TPROJ4Projection.GetDefaultParams: string;
 begin
    Result := ''; //todo// LibProjProjectionAllowedParams(Handle.Id);
 end;
 
-function TProjection.GetDisplayName: string;
+function TPROJ4Projection.GetDisplayName: string;
 begin
   Result := Handle.Id;
 end;
 
-function TProjection.GetHandle: TPJ;
+function TPROJ4Projection.GetHandle: TPJ;
 begin
   Lock;
   try
@@ -238,29 +243,29 @@ begin
   end;
 end;
 
-function TProjection.GetParamDisplayName(const AParam: string): string;
+function TPROJ4Projection.GetParamDisplayName(const AParam: string): string;
 begin
   Result := LibProjParamDisplayName(AParam);
 end;
 
-function TProjection.HandleAllocated: Boolean;
+function TPROJ4Projection.HandleAllocated: Boolean;
 begin
   Result := FHandle <> nil;
 end;
 
-procedure TProjection.Init;
+procedure TPROJ4Projection.Init;
 begin
   Lock;
   try
     CreateHandle;
     if Assigned(Controller) then
-      TProjectionsManager(Manager).RegisterProjection(Self);
+      TPROJ4ProjectionsManager(Manager).RegisterProjection(Self);
   finally
     Unlock;
   end;
 end;
 
-function TProjection.IsGeocentric: Boolean;
+function TPROJ4Projection.IsGeocentric: Boolean;
 begin
   Lock;
   try
@@ -270,7 +275,7 @@ begin
   end;
 end;
 
-function TProjection.IsGeographic: Boolean;
+function TPROJ4Projection.IsGeographic: Boolean;
 begin
   Lock;
   try
@@ -280,18 +285,18 @@ begin
   end;
 end;
 
-procedure TProjection.Lock;
+procedure TPROJ4Projection.Lock;
 begin
   if TInterlocked.Increment(FLockCounter) = 1 then
     FLock.Enter;
 end;
 
-function TProjection.Manager: IProjectionsManager;
+function TPROJ4Projection.Manager: IProjectionsManager;
 begin
   Result := IProjectionsManager(Controller);
 end;
 
-function TProjection.MapinfoDefinition: string;
+function TPROJ4Projection.MapinfoDefinition: string;
 begin
   Result := ''; // todo implementMe!!!
 
@@ -309,7 +314,7 @@ begin
   end;
 end;
 
-function TProjection.Proj4Definition: string;
+function TPROJ4Projection.Proj4Definition: string;
 begin
   Lock;
   try
@@ -322,14 +327,14 @@ begin
   end;
 end;
 
-procedure TProjection.SetDefaults;
+procedure TPROJ4Projection.SetDefaults;
 begin
   FToMeters := Double.NaN;
   FProj4Defn := '';
   FHandle := nil;
 end;
 
-procedure TProjection.SetProj4Definition(const Value: string);
+procedure TPROJ4Projection.SetProj4Definition(const Value: string);
 begin
   Lock;
   try
@@ -344,7 +349,7 @@ begin
   end;
 end;
 
-function TProjection.SpheroidDefinition(var a,b,e2: Double): Boolean;
+function TPROJ4Projection.SpheroidDefinition(var a,b,e2: Double): Boolean;
 begin
   Lock;
   try
@@ -354,7 +359,7 @@ begin
   end;
 end;
 
-function TProjection.ToMetersFactor: Double;
+function TPROJ4Projection.ToMetersFactor: Double;
 begin
   Lock;
   try
@@ -367,32 +372,32 @@ begin
   end;
 end;
 
-function TProjection.ToString: string;
+function TPROJ4Projection.ToString: string;
 begin
   Result := Proj4Definition;
 end;
 
-function TProjection.TransformPoint(Dst: IProjection; var X,Y: Double; AngularUnits: Boolean = False): Boolean;
+function TPROJ4Projection.TransformPoint(Dst: IProjection; var X,Y: Double; AngularUnits: Boolean = False): Boolean;
 begin
   Result := Assigned(Controller);
   if Result then
-    Result := TProjectionsManager(Manager).TransformPoint(Self,Dst,X,Y,AngularUnits);
+    Result := TPROJ4ProjectionsManager(Manager).TransformPoint(Self,Dst,X,Y,AngularUnits);
 end;
 
-function TProjection.TransformPoints(Dst: IProjection;  const X,Y: PDouble; Count: Integer; AngularUnits: Boolean): Boolean;
+function TPROJ4Projection.TransformPoints(Dst: IProjection;  const X,Y: PDouble; Count: Integer; AngularUnits: Boolean): Boolean;
 begin
   Result := Assigned(Controller);
   if Result then
     Result := Manager.TransformPoints(Self,Dst,X,Y,Count,AngularUnits);
 end;
 
-procedure TProjection.UnLock;
+procedure TPROJ4Projection.UnLock;
 begin
   if TInterlocked.Decrement(FLockCounter) = 0 then
     FLock.Leave;
 end;
 
-procedure TProjection.Deinit;
+procedure TPROJ4Projection.Deinit;
 begin
   Lock;
   try
@@ -403,7 +408,7 @@ begin
   end;
 end;
 
-function TProjection.WKTDefinition(const PrettyPrint: Boolean): string;
+function TPROJ4Projection.WKTDefinition(const PrettyPrint: Boolean): string;
 begin
   Lock;
   try
@@ -413,23 +418,23 @@ begin
   end;
 end;
 
-procedure TProjectionsManager.AfterConstruction;
+procedure TPROJ4ProjectionsManager.AfterConstruction;
 begin
   inherited;
   Init;
 end;
 
-procedure TProjectionsManager.BeforeDestruction;
+procedure TPROJ4ProjectionsManager.BeforeDestruction;
 begin
   inherited;
   DeInit;
 end;
 
-procedure TProjectionsManager.ChangeDefinition(AOld, ANew: string);
+procedure TPROJ4ProjectionsManager.ChangeDefinition(AOld, ANew: string);
 var
   i,j: Integer;
-  lst: TList<TPair<string,TProjection>>;
-  item: TPair<string, TProjection>;
+  lst: TList<TPair<string,TPROJ4Projection>>;
+  item: TPair<string, TPROJ4Projection>;
 begin
   if AOld.IsEmpty or ANew.IsEmpty or SameText(AOld,ANew) then
     Exit;
@@ -467,7 +472,7 @@ begin
 
 end;
 
-function TProjectionsManager.ComputeGeodeticPolygon(const yLats, xLons: TArray<Double>; var AArea,APerimeter: Double; Reversed: Boolean; Signed: Boolean): Boolean;
+function TPROJ4ProjectionsManager.ComputeGeodeticPolygon(const yLats, xLons: TArray<Double>; var AArea,APerimeter: Double; Reversed: Boolean; Signed: Boolean): Boolean;
 var p: TGeodesicPolygon;
 begin
   p := GeodesicPolygonCreate(Wgs84Geodesic,yLats, xLons);
@@ -477,7 +482,7 @@ begin
   if not Result or APerimeter.IsInfinity or APerimeter.IsNan then APerimeter := 0;
 end;
 
-function TProjectionsManager.Context: TPJCtx;
+function TPROJ4ProjectionsManager.Context: TPJCtx;
 begin
   Lock;
   try
@@ -488,7 +493,7 @@ begin
   end;
 end;
 
-procedure TProjectionsManager.CreateContext;
+procedure TPROJ4ProjectionsManager.CreateContext;
 begin
   Lock;
   try
@@ -499,14 +504,14 @@ begin
   end;
 end;
 
-procedure TProjectionsManager.DeInit;
+procedure TPROJ4ProjectionsManager.DeInit;
 begin
   FreeAndNil(FList);
   DestroyContext;
   FreeAndNil(FLock);
 end;
 
-procedure TProjectionsManager.DestroyContext;
+procedure TPROJ4ProjectionsManager.DestroyContext;
 begin
   Lock;
   try
@@ -516,9 +521,9 @@ begin
   end;
 end;
 
-function TProjectionsManager.FindIndex(const Defn: string): Integer;
+function TPROJ4ProjectionsManager.FindIndex(const Defn: string): Integer;
 var
-  lst: TList<TPair<string, TProjection>>;
+  lst: TList<TPair<string, TPROJ4Projection>>;
 begin
   if Defn <> '' then
   begin
@@ -536,13 +541,13 @@ begin
   Result := -1;
 end;
 
-function TProjectionsManager.GetGeodeticDistance(const Lat1, Lon1, Lat2, Lon2: Double): Double;
+function TPROJ4ProjectionsManager.GetGeodeticDistance(const Lat1, Lon1, Lat2, Lon2: Double): Double;
 var azi12,azi21: Double;
 begin
   GeodesicInverse(Wgs84Geodesic,Lat1, Lon1, Lat2, Lon2, Result,azi12,azi21);
 end;
 
-function TProjectionsManager.GetGeodeticPolygonArea(const yLats, xLons: TArray<Double>; var AArea, APerimeter: Double): Boolean;
+function TPROJ4ProjectionsManager.GetGeodeticPolygonArea(const yLats, xLons: TArray<Double>; var AArea, APerimeter: Double): Boolean;
 begin
   GeodesicPolygonArea(Wgs84Geodesic, yLats, xLons, AArea, APerimeter);
   Result := (AArea > 0) and not AArea.IsNan and not AArea.IsInfinity;
@@ -553,18 +558,18 @@ begin
   end;
 end;
 
-function TProjectionsManager.GetProjectionByCode(const EpsgCode: Integer): IProjection;
+function TPROJ4ProjectionsManager.GetProjectionByCode(const EpsgCode: Integer): IProjection;
 begin
   Result := GetProjectionByDefinition(LibProjDefnFromEpsgCode(EpsgCode));
 end;
 
-function TProjectionsManager.GetProjectionByDefinition(const ADefn: string): IProjection;
+function TPROJ4ProjectionsManager.GetProjectionByDefinition(const ADefn: string): IProjection;
 label
   DefnEmpty;
 var
   defn: string;
-  lst: TList<TPair<string, TProjection>>;
-  item: TPair<string, TProjection>;
+  lst: TList<TPair<string, TPROJ4Projection>>;
+  item: TPair<string, TPROJ4Projection>;
 begin
   Result := nil;
   // handle wkt projectrion strings
@@ -585,30 +590,30 @@ begin
         Exit;
       end;
     end;
-    Result := TProjection.Create(Self,defn);
+    Result := TPROJ4Projection.Create(Self,defn);
   finally
     FList.UnlockList;
   end;
 end;
 
-class function TProjectionsManager.GlobalInstance: IProjectionsManager;
+class function TPROJ4ProjectionsManager.GlobalInstance: IProjectionsManager;
 begin
   if FGLobalInstance = nil then
-    FGLobalInstance := TProjectionsManager.Create(nil);
+    FGLobalInstance := TPROJ4ProjectionsManager.Create(nil);
 
   Result := FGLobalInstance;
 end;
 
-procedure TProjectionsManager.Init;
+procedure TPROJ4ProjectionsManager.Init;
 begin
   FLock := TCriticalSection.Create;
   CreateContext;
-  FList := TThreadList<TPair<string,TProjection>>.Create;
+  FList := TThreadList<TPair<string,TPROJ4Projection>>.Create;
   FList.LockList.OnNotify := ListNotify;
   FList.UnlockList;
 end;
 
-procedure TProjectionsManager.ListNotify(Sender: TObject; const Item: TPair<string, TProjection>; Action: TCollectionNotification);
+procedure TPROJ4ProjectionsManager.ListNotify(Sender: TObject; const Item: TPair<string, TPROJ4Projection>; Action: TCollectionNotification);
 begin
   case Action of
     cnRemoved:
@@ -618,18 +623,18 @@ begin
   end;
 end;
 
-procedure TProjectionsManager.Lock;
+procedure TPROJ4ProjectionsManager.Lock;
 begin
   if TInterlocked.Increment(FLockCounter) = 1 then
     FLock.Enter;
 end;
 
-function TProjectionsManager.RegisterProjection(const AProjection: TProjection): Integer;
+function TPROJ4ProjectionsManager.RegisterProjection(const AProjection: TPROJ4Projection): Integer;
 var
   defn: string;
   i: Integer;
-  item: TPair<string, TProjection>;
-  lst: TList<TPair<string, TProjection>>;
+  item: TPair<string, TPROJ4Projection>;
+  lst: TList<TPair<string, TPROJ4Projection>>;
 begin
   Result := -1;
   if not Assigned(AProjection) then
@@ -666,7 +671,7 @@ begin
   end;
 end;
 
-procedure TProjectionsManager.SetSearchPaths(const Value: string);
+procedure TPROJ4ProjectionsManager.SetSearchPaths(const Value: string);
 begin
   if FSearchPaths <> Value then
   begin
@@ -675,7 +680,7 @@ begin
   end;
 end;
 
-function TProjectionsManager.TransformPoint(const Src, Dst: IProjection; var X, Y: Double; AngularUnits: Boolean): Boolean;
+function TPROJ4ProjectionsManager.TransformPoint(const Src, Dst: IProjection; var X, Y: Double; AngularUnits: Boolean): Boolean;
 var
   x_,y_: Double;
 begin
@@ -689,35 +694,40 @@ begin
   end;
 end;
 
-function TProjectionsManager.TransformPoints(const Src, Dst: IProjection; const X, Y: PDouble; Count: Integer; AngularUnits: Boolean): Boolean;
+function TPROJ4ProjectionsManager.TransformPoints(const Src, Dst: IProjection; const X, Y: PDouble; Count: Integer; AngularUnits: Boolean): Boolean;
 begin
   Result := Assigned(Src) and Assigned(Dst) {and Assigned(Src.Handle) and Assigned(dst.Handle) } and Assigned(X) and Assigned(Y) and (Count > 0);
   if not Result then Exit;
     Result := libProj4.Api.TransformPoints2D(Src.Handle,Dst.Handle,X,Y, Count, AngularUnits) = 0;
 end;
 
-function TProjectionsManager.TransformPointsXY(const Src,Dst: IProjection; const X,Y: PDouble; Count: Integer): Boolean;
+function TPROJ4ProjectionsManager.TransformPointsXY(const Src,Dst: IProjection; const X,Y: PDouble; Count: Integer): Boolean;
 begin
   Result := TransformPoints(Src,Dst,X,Y,Count,False);
 end;
 
-function TProjectionsManager.TransformPointXY(const Src, Dst: IProjection; var X, Y: Double): Boolean;
+function TPROJ4ProjectionsManager.TransformPointXY(const Src, Dst: IProjection; var X, Y: Double): Boolean;
 begin
   Result := TransformPoint(Src, Dst,X,Y,False);
 end;
 
-procedure TProjectionsManager.Unlock;
+procedure TPROJ4ProjectionsManager.Unlock;
 begin
   if TInterlocked.Decrement(FLockCounter) = 0 then
     FLock.Leave;
 end;
 
+procedure Register;
+begin
+  RegisterComponents('Proj4',[TPROJ4ProjectionsManager]);
+end;
+
 initialization
   GeodesicInit(Wgs84Geodesic, 6378137,1/298.257223563);
 
-  TProjectionsManager.FGLobalInstance := TProjectionsManager.Create(nil);
+  TPROJ4ProjectionsManager.FGLobalInstance := TPROJ4ProjectionsManager.Create(nil);
 
 finalization
-  FreeAndNil(TProjectionsManager.FGLobalInstance);
+  FreeAndNil(TPROJ4ProjectionsManager.FGLobalInstance);
 
 end.

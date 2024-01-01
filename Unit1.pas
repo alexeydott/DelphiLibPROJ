@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
-  libProj4.Controls.VCL;
+  libProj4.Classes, libProj4.Controls.VCL;
 
 type
   TForm1 = class(TForm)
@@ -16,6 +16,8 @@ type
     Button2: TButton;
     Label1: TLabel;
     Label2: TLabel;
+    Button3: TButton;
+    PROJ4ProjectionsManager1: TPROJ4ProjectionsManager;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure CheckBox1Click(Sender: TObject);
@@ -41,12 +43,20 @@ begin
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);
+const cLatWgs = 55.755864;
+      cLonWgs = 37.617698;
 var
-  s: string;
+  wgs,osm: IProjection;
+  osmX,osmY: double;
 begin
-  s := PROJ4CRSParametersEditor1.CRSDefinition;
-  if Proj4ParametersEditDlg(s) then
-    PROJ4CRSParametersEditor1.CRSDefinition := s;
+  wgs := PROJ4ProjectionsManager1.ProjectionByEpsgCode[4326];
+  osm := PROJ4ProjectionsManager1.ProjectionByEpsgCode[900913];
+  osmX := cLatWgs;
+  osmY := cLonWgs;
+  if PROJ4ProjectionsManager1.TransformPointXY(wgs,osm,osmX,osmY) then
+  begin
+    PROJ4ProjectionsManager1.TransformPointXY(osm,wgs, osmX, osmY);
+  end;
 end;
 
 procedure TForm1.CheckBox1Click(Sender: TObject);
