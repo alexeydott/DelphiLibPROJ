@@ -1,0 +1,47 @@
+package libProj4;
+
+{$R *.res}
+{$R *.dcr}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'PROJ4 - generic coordinate transformation library for delphi'}
+{$IMPLICITBUILD ON}
+
+requires
+  rtl,
+  vcl;
+
+contains
+  libProj4.Api in 'libProj4.Api.pas',
+  libProj4.Classes in 'libProj4.Classes.pas',
+  libProj4.Controls.VCL in 'libProj4.Controls.VCL.pas',
+  libProj4.Intf in 'libProj4.Intf.pas',
+  libProj4.Projections in 'libProj4.Projections.pas',
+  libProj4.Projections.EPSG in 'libProj4.Projections.EPSG.pas',
+  libProj4.Projections.LCRS in 'libProj4.Projections.LCRS.pas',
+  libProj4.Types in 'libProj4.Types.pas',
+  libProj4.WellKnownText in 'libProj4.WellKnownText.pas';
+
+end.
