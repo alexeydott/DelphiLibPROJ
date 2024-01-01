@@ -1,8 +1,9 @@
 object Form1: TForm1
   Left = 0
   Top = 0
-  ClientHeight = 679
-  ClientWidth = 1089
+  Caption = 'proj controls demo'
+  ClientHeight = 481
+  ClientWidth = 576
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -10,19 +11,35 @@ object Form1: TForm1
   Font.Name = 'Segoe UI'
   Font.Style = []
   TextHeight = 15
-  object CheckBox1: TCheckBox
+  object Label1: TLabel
     Left = 24
-    Top = 24
-    Width = 97
+    Top = 16
+    Width = 54
+    Height = 15
+    Caption = 'select CRS'
+  end
+  object Label2: TLabel
+    Left = 24
+    Top = 80
+    Width = 83
+    Height = 15
+    Caption = 'CRS parameters'
+  end
+  object CheckBox1: TCheckBox
+    Left = 439
+    Top = 43
+    Width = 113
     Height = 17
-    Caption = 'CheckBox1'
+    Caption = 'display crs hints'
+    Checked = True
+    State = cbChecked
     TabOrder = 0
     OnClick = CheckBox1Click
   end
   object PROJ4CRSSelector1: TPROJ4CRSSelector
     AlignWithMargins = True
     Left = 24
-    Top = 72
+    Top = 40
     Width = 409
     Height = 23
     Style = csDropDownList
@@ -35,7 +52,7 @@ object Form1: TForm1
   object PROJ4CRSParametersEditor1: TPROJ4CRSParametersEditor
     Left = 24
     Top = 101
-    Width = 409
+    Width = 528
     Height = 244
     Caption = 'PROJ4CRSParametersEditor1'
     Ctl3D = False
@@ -45,20 +62,20 @@ object Form1: TForm1
     StyleName = 'Windows'
   end
   object Button1: TButton
-    Left = 46
-    Top = 392
-    Width = 75
+    Left = 24
+    Top = 376
+    Width = 528
     Height = 25
-    Caption = 'enter CRS'
+    Caption = 'test input enter CRS dlg'
     TabOrder = 3
     OnClick = Button1Click
   end
   object Button2: TButton
-    Left = 152
-    Top = 392
-    Width = 75
+    Left = 24
+    Top = 424
+    Width = 528
     Height = 25
-    Caption = 'edit CRS'
+    Caption = 'test edit CRS dlg'
     TabOrder = 4
     OnClick = Button2Click
   end

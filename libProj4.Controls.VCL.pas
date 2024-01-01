@@ -656,9 +656,11 @@ var
 begin
   Dlg := TForm.Create(nil);
   try
-    Dlg.PopupMode := pmAuto;
-//    Dlg.Font.Size := Application.DefaultFont.Size;
+    Dlg.Font.Size := Application.DefaultFont.Size;
+    Dlg.PopupMode := pmExplicit;
     Dlg.Ctl3D := False;
+    Dlg.PopupParent := Screen.ActiveCustomForm;
+    Dlg.Position := poMainFormCenter;
     Dlg.Constraints.MinWidth := Dlg.Width -5;
     if ADefinition <> '' then
     begin

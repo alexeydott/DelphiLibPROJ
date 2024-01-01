@@ -14,10 +14,91 @@ uses
 	System.Types, System.Classes, System.SysUtils, System.Math,
   libProj4.Types;
 
+// START resource string wizard section
+resourcestring
+  rsPROJ4_GenParam_a_Caption = {$ifndef __proj_ru_explain}'Semimajor radius of the ellipsoid axis in meters'{$else}'Радиус большой полуоси (м.)'{$endif};
+  rsPROJ4_GenParam_b_Caption = {$ifndef __proj_ru_explain}'Semiminor radius of the ellipsoid axis'{$else}'Радиус малой полуоси (м.)'{$endif};
+  rsPROJ4_GenParam_k_0_Caption = {$ifndef __proj_ru_explain}'Scaling factor'{$else}'Масштабный коэффициент'{$endif};
+  rsPROJ4_GenParam_lat_0_Caption = {$ifndef __proj_ru_explain}'Latitude of origin'{$else}'Центральная параллель'{$endif};
+  rsPROJ4_GenParam_lat_1_Caption = {$ifndef __proj_ru_explain}'First standard parallel'{$else}'Стандартная псевдопараллель 1'{$endif};
+  rsPROJ4_GenParam_lat_2_Caption = {$ifndef __proj_ru_explain}'Second standard parallel'{$else}'Стандартная псевдопараллель 2'{$endif};
+  rsPROJ4_GenParam_lat_ts_Caption = {$ifndef __proj_ru_explain}'Latitude of true scale. Defines the latitude where scale is not distorted'{$else}'Широта центра'{$endif};
+  rsPROJ4_GenParam_lon_0_Caption = {$ifndef __proj_ru_explain}'Central meridian'{$else}'Центральный меридиан'{$endif};
+  rsPROJ4_GenParam_lonc_Caption = {$ifndef __proj_ru_explain}'Longitude of rotational pole point'{$else}'Долгота начальной точки'{$endif};
+  rsPROJ4_GenParam_x_0_Caption = {$ifndef __proj_ru_explain}'False easting'{$else}'Смещение по долготе'{$endif};
+  rsPROJ4_GenParam_y_0_Caption = {$ifndef __proj_ru_explain}'False northing'{$else}'Смещение по широте'{$endif};
+		// Additional Projection Parameters'
+  rsPROJ4_GenParam_alpha_Caption = {$ifndef __proj_ru_explain}'azimuth'{$else}'Азимут начальной линии'{$endif};
+  rsPROJ4_GenParam_azi_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_belgium_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_beta_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_czech_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_gamma_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_ellps_Caption = {$ifndef __proj_ru_explain} 'The name of a built-in ellipsoid definition. If not set default value is "WGS84"'{$else}'Имя встроенного определения эллипсоида. Если не задано, значение по умолчанию - "WGS84"'{$endif};
+  rsPROJ4_GenParam_datum_Caption = {$ifndef __proj_ru_explain} ''{$else}'Имя датума'{$endif};
+  rsPROJ4_GenParam_guam_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_f_Caption = {$ifndef __proj_ru_explain} ''{$else}'Сжатие (f)'{$endif};
+  rsPROJ4_GenParam_h_Caption = {$ifndef __proj_ru_explain} 'satellite_height'{$else}'Высота спутника'{$endif};
+  rsPROJ4_GenParam_lat_b_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_lat_t_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_lon_1_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_lon_2_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_lsat_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_m_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_MBig_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_n_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_no_defs_Caption = {$ifndef __proj_ru_explain} ''{$else}'Игнорировать значения по умолчанию'{$endif};
+  rsPROJ4_GenParam_no_cut_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_no_off_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_no_rot_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_ns_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_o_alpha_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_o_lat_1_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_o_lat_2_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_o_lat_c_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_o_lat_p_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_o_lon_1_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_o_lon_2_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_o_lon_c_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_o_lon_p_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_o_proj_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_proj_Caption = {$ifndef __proj_ru_explain} ''{$else}'Название проекции'{$endif};
+  rsPROJ4_GenParam_over_Caption = {$ifndef __proj_ru_explain} 'Allow longitude output outside -180 to 180 range, disables wrapping'{$else}'Не ограничивать по долготе'{$endif};
+  rsPROJ4_GenParam_p_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_path_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_q_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_R_Caption = {$ifndef __proj_ru_explain} 'Radius of the sphere, given in meters. If used in conjunction with <ellps>, param <R> takes precedence.'{$else}'Радиус сферы, заданный в метрах. Если используется в сочетании с <ellps>, параметр <R> имеет приоритет'{$endif};
+    // ellipsoid spherification paramerets
+  rsPROJ4_GenParam_R_A_Caption = {$ifndef __proj_ru_explain} 'Sphere with the same surface area as the ellipsoid'{$else}''{$endif};
+  rsPROJ4_GenParam_R_V_Caption = {$ifndef __proj_ru_explain} 'Sphere with same volume as ellipsoid'{$else}''{$endif};
+  rsPROJ4_GenParam_R_a_mean_Caption = {$ifndef __proj_ru_explain} 'R_a = (a + b)/2)'{$else}''{$endif};
+  rsPROJ4_GenParam_R_g_Caption = {$ifndef __proj_ru_explain} 'R = sqrt(a*b)'{$else}''{$endif};
+  rsPROJ4_GenParam_R_h_Caption = {$ifndef __proj_ru_explain} 'R = 2*a*b/(a+b)'{$else}''{$endif};
+  rsPROJ4_GenParam_R_lat_a_Caption = {$ifndef __proj_ru_explain} 'Arithmetic mean of of the corresponding ellipsoid at given latitude.'{$else}''{$endif};
+  rsPROJ4_GenParam_R_lat_g_Caption = {$ifndef __proj_ru_explain} 'Geometric mean of of the corresponding ellipsoid at given latitude.'{$else}''{$endif};
+    //
+  rsPROJ4_GenParam_rot_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_rf_Caption = {$ifndef __proj_ru_explain} ''{$else}'Обратное сжатие (1/f)'{$endif};
+  rsPROJ4_GenParam_s_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_sym_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_t_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+
+  rsPROJ4_GenParam_theta_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_to_meter_Caption = {$ifndef __proj_ru_explain} ''{$else}'Коэфициент перевода в метры'{$endif};
+  rsPROJ4_GenParam_vto_meter_Caption = {$ifndef __proj_ru_explain} 'Vertical plane coordinate scaling.'{$else}''{$endif}; // Internal unit
+  rsPROJ4_GenParam_towgs84_Caption = {$ifndef __proj_ru_explain} ''{$else}'Параметры перехода к WGS84'{$endif};
+  rsPROJ4_GenParam_tilt_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_units_Caption = {$ifndef __proj_ru_explain} ''{$else}'Единицы проекции'{$endif};
+  rsPROJ4_GenParam_vopt_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_W_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_westo_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
+  rsPROJ4_GenParam_zone_Caption = {$ifndef __proj_ru_explain} 'Select which UTM zone to use. Can be a value between 1-60.'{$else}'Задает зону UTM. Допустимые значения в диапазоне 1-60.'{$endif};
+// END resource string wizard section
+
+
 type
 	ENotSupportedProjection = class(ENotSupportedException)end;
 
-type
   TProjectionInfo = record
     Key: string;
     Name: string;
@@ -515,35 +596,35 @@ const
 		(pjKey:'wintri'; wktName: 'Winkel_Tripel'; Description: 'Winkel Tripel'; DisplayCaption: '')
 	 );
 
- pjParamsListMax = 79;
+ pjParamsListMax = 80;
  pjParamsList: array[0..pjParamsListMax] of TpjParam =
  (
 		// General Projection Parameters'; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
-    (pjKey:'a'; wktName: ''; Description: 'Радиус большой полуоси (м.)'; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
-    (pjKey:'b'; wktName: ''; Description: 'Радиус малой полуоси (м.)'; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
-		(pjKey:'k_0'; wktName: 'scale_factor'; Description: 'Масштабный коэффициент'; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'k'; wktName: 'scale_factor'; Description: 'Масштабный коэффициент'; paramGroup: PJ_PARAM_GROUP_GENERAL), //deprecated
-		(pjKey:'lat_0'; wktName: 'latitude_of_origin'; Description: 'Долгота центра'; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'lat_0'; wktName: 'latitude_of_center'; Description: 'Долгота центра'; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'lat_0'; wktName: 'central_parallel'; Description: 'Центральная параллель'; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'lat_1'; wktName: 'standard_parallel_1'; Description: 'Стандартная псевдопараллель 1'; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'lat_2'; wktName: 'standard_parallel_2'; Description: 'Стандартная псевдопараллель 2'; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'lat_ts'; wktName: 'latitude_of_origin'; Description: 'Широта центра'; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'lon_0'; wktName: 'central_meridian'; Description: 'Центральный меридиан'; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'lon_0'; wktName: 'longitude_of_center'; Description: 'Долгота начальной точки'; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'lonc'; wktName: 'longitude_of_center'; Description: 'Долгота начальной точки'; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'x_0'; wktName: 'false_easting'; Description: 'Смещение по долготе'; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'y_0'; wktName: 'false_northing'; Description: 'Смещение по широте'; paramGroup: PJ_PARAM_GROUP_GENERAL),
+    (pjKey:'a'; wktName: ''; Description: rsPROJ4_GenParam_a_Caption; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
+    (pjKey:'b'; wktName: ''; Description: rsPROJ4_GenParam_b_Caption; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
+		(pjKey:'k_0'; wktName: 'scale_factor'; Description: rsPROJ4_GenParam_k_0_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'k'; wktName: 'scale_factor'; Description: rsPROJ4_GenParam_k_0_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL), //deprecated
+		(pjKey:'lat_0'; wktName: 'latitude_of_origin'; Description: rsPROJ4_GenParam_lat_0_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'lat_0'; wktName: 'latitude_of_center'; Description: rsPROJ4_GenParam_lon_0_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'lat_0'; wktName: 'central_parallel'; Description: rsPROJ4_GenParam_lon_0_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'lat_1'; wktName: 'standard_parallel_1'; Description: rsPROJ4_GenParam_lat_1_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'lat_2'; wktName: 'standard_parallel_2'; Description: rsPROJ4_GenParam_lat_2_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'lat_ts'; wktName: 'latitude_of_origin'; Description: rsPROJ4_GenParam_lat_ts_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'lon_0'; wktName: 'central_meridian'; Description: rsPROJ4_GenParam_lon_0_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'lon_0'; wktName: 'longitude_of_center'; Description: rsPROJ4_GenParam_lonc_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'lonc'; wktName: 'longitude_of_center'; Description: rsPROJ4_GenParam_lonc_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'x_0'; wktName: 'false_easting'; Description: rsPROJ4_GenParam_x_0_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'y_0'; wktName: 'false_northing'; Description: rsPROJ4_GenParam_y_0_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
 		// Additional Projection Parameters'; paramGroup: 0),
-		(pjKey:'alpha'; wktName: 'azimuth'; Description: 'Азимут начальной линии'; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'azi'; wktName: ''; Description: ''; paramGroup: 0),
-		(pjKey:'belgium'; wktName: ''; Description: ''; paramGroup: 0),
+		(pjKey:'alpha'; wktName: 'azimuth'; Description: rsPROJ4_GenParam_alpha_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'azi'; wktName: ''; Description: rsPROJ4_GenParam_azi_Caption; paramGroup: 0),
+		(pjKey:'belgium'; wktName: ''; Description: rsPROJ4_GenParam_belgium_Caption; paramGroup: 0),
 		(pjKey:'beta'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'czech'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'gamma'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'e'; wktName: ''; Description: 'Эксцентриситет'; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
 		(pjKey:'es'; wktName: ''; Description: 'Квадрат эксцентриситета'; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
-		(pjKey:'ellps'; wktName: ''; Description: 'Эллипсоид'; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
+		(pjKey:'ellps'; wktName: ''; Description: rsPROJ4_GenParam_ellps_Caption; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
 		(pjKey:'geoc'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'datum'; wktName: ''; Description: 'Имя датума'; paramGroup: PJ_PARAM_GROUP_DATUM),
 		(pjKey:'guam'; wktName: ''; Description: ''; paramGroup: 0),
@@ -557,7 +638,7 @@ const
 		(pjKey:'m'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'M'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'n'; wktName: ''; Description: ''; paramGroup: 0),
-		(pjKey:'no_defs'; wktName: ''; Description: 'Игнорировать значения по умолчанию'; paramGroup: 0),
+		(pjKey:'no_defs'; wktName: ''; Description: rsPROJ4_GenParam_no_defs_Caption; paramGroup: 0),
 		(pjKey:'no_cut'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'no_off'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'no_rot'; wktName: ''; Description: ''; paramGroup: 0),
@@ -572,36 +653,37 @@ const
 		(pjKey:'o_lon_c'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'o_lon_p'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'o_proj'; wktName: ''; Description: ''; paramGroup: 0),
-		(pjKey:'proj'; wktName: ''; Description: 'Название проекции'; paramGroup: 0),
-		(pjKey:'over'; wktName: ''; Description: 'Не ограничивать по долготе'; paramGroup: 0), // Allow longitude output outside -180 to 180 range, disables wrapping
+		(pjKey:'proj'; wktName: ''; Description: rsPROJ4_GenParam_proj_Caption; paramGroup: 0),
+		(pjKey:'over'; wktName: ''; Description: rsPROJ4_GenParam_over_Caption; paramGroup: 0),
 		(pjKey:'p'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'path'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'q'; wktName: ''; Description: ''; paramGroup: 0),
-		(pjKey:'R'; wktName: ''; Description: 'Радиус сферы'; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
+		(pjKey:'R'; wktName: ''; Description: rsPROJ4_GenParam_R_Caption; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
     // ellipsoid spherification paramerets
-		(pjKey:'R_A'; wktName: ''; Description: ''; paramGroup: PJ_PARAM_GROUP_ELLIPSOID), // Sphere with the same surface area as the ellipsoid
-		(pjKey:'R_V'; wktName: ''; Description: ''; paramGroup: PJ_PARAM_GROUP_ELLIPSOID), // Sphere with same volume as ellipsoid
-		(pjKey:'R_a'; wktName: ''; Description: ''; paramGroup: PJ_PARAM_GROUP_ELLIPSOID), //R_a = (a + b)/2)
-		(pjKey:'R_g'; wktName: ''; Description: ''; paramGroup: PJ_PARAM_GROUP_ELLIPSOID), // R = sqrt(a*b)
-		(pjKey:'R_h'; wktName: ''; Description: ''; paramGroup: PJ_PARAM_GROUP_ELLIPSOID), // R = 2*a*b/(a+b)
-		(pjKey:'R_lat_a'; wktName: ''; Description: ''; paramGroup: PJ_PARAM_GROUP_ELLIPSOID), // Arithmetic mean of of the corresponding ellipsoid at given latitude.
-		(pjKey:'R_lat_g'; wktName: ''; Description: ''; paramGroup: PJ_PARAM_GROUP_ELLIPSOID), // Geometric mean of of the corresponding ellipsoid at given latitude.
+		(pjKey:'R_A'; wktName: ''; Description: rsPROJ4_GenParam_R_A_Caption; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
+		(pjKey:'R_V'; wktName: ''; Description: rsPROJ4_GenParam_R_V_Caption; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
+		(pjKey:'R_a'; wktName: ''; Description: rsPROJ4_GenParam_R_a_mean_Caption; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
+		(pjKey:'R_g'; wktName: ''; Description: ''; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
+		(pjKey:'R_h'; wktName: ''; Description: ''; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
+		(pjKey:'R_lat_a'; wktName: ''; Description: rsPROJ4_GenParam_R_lat_a_Caption; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
+		(pjKey:'R_lat_g'; wktName: ''; Description: rsPROJ4_GenParam_R_lat_g_Caption; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
     //
 		(pjKey:'rot'; wktName: ''; Description: ''; paramGroup: 0),
-		(pjKey:'rf'; wktName: ''; Description: 'Обратное сжатие (1/f)'; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
+		(pjKey:'rf'; wktName: ''; Description: rsPROJ4_GenParam_rf_Caption; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
 		(pjKey:'s'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'sym'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'t'; wktName: ''; Description: ''; paramGroup: 0),
     (pjKey:'th'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'theta'; wktName: ''; Description: ''; paramGroup: 0),
-		(pjKey:'to_meter'; wktName: ''; Description: 'Коэфициент перевода в метры'; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'vto_meter'; wktName: ''; Description: ''), // Vertical plane coordinate scaling. Internal unit
-		(pjKey:'towgs84'; wktName: ''; Description: 'Параметры перехода к WGS84'; paramGroup: PJ_PARAM_GROUP_DATUM),
+		(pjKey:'to_meter'; wktName: ''; Description: rsPROJ4_GenParam_to_meter_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'vto_meter'; wktName: ''; Description: rsPROJ4_GenParam_vto_meter_Caption), // Vertical plane coordinate scaling. Internal unit
+		(pjKey:'towgs84'; wktName: ''; Description: rsPROJ4_GenParam_towgs84_Caption; paramGroup: PJ_PARAM_GROUP_DATUM),
 		(pjKey:'tilt'; wktName: ''; Description: ''; paramGroup: 0),
-		(pjKey:'units'; wktName: ''; Description: 'Единицы проекции'; paramGroup: 0),
+		(pjKey:'units'; wktName: ''; Description: rsPROJ4_GenParam_units_Caption; paramGroup: 0),
 		(pjKey:'vopt'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'W'; wktName: ''; Description: ''; paramGroup: 0),
-		(pjKey:'westo'; wktName: ''; Description: ''; paramGroup: 0)
+		(pjKey:'westo'; wktName: ''; Description: ''; paramGroup: 0),
+    (pjKey:'zone'; wktName: ''; Description: rsPROJ4_GenParam_zone_Caption; paramGroup: 0)
 	);
 
 type
@@ -1729,7 +1811,7 @@ begin
 
 
     AParams[Result].Name := pjParamsList[i].pjKey;
-    AParams[Result].DisplayName := pjParamsList[i].Description;
+    AParams[Result].DisplayName := AParams[Result].Name;
     if AParams[Result].DisplayName = '' then
       AParams[Result].DisplayName := AParams[Result].Name;
 
@@ -1921,6 +2003,7 @@ initialization
     'webmerc=R,x_0,y_0,axis';
 
   FProjParamExplain := TStringList.Create(dupAccept,False,True);
+  FProjParamExplain.StrictDelimiter := True;
   FProjParamExplain.Text :=
 {$ifndef __proj_ru_explain}
     'lat_1=First standard parallel.'+sLinebreak+
@@ -1957,11 +2040,11 @@ initialization
     'south=Sets the second standard parallel to 90°S. When the flag is off the secondstandard parallel is set to 90°N.'+sLinebreak+
     'lsat=Landsat satellite used for the projection. Value between 1 and 5.'+sLinebreak+
     'path=Selected path of satellite. Value between 1 and 253 when param +lsat isset to 1,2 or 3, otherwise valid input is between 1 and 233.'+sLinebreak+
-    'o_proj="Oblique projection. In addition to specifying an oblique projection, how to rotate the projection should be specified.'+sLineBreak+
+    '"o_proj="Oblique projection. In addition to specifying an oblique projection, how to rotate the projection should be specified.'+sLineBreak+
       'This is done in one of three ways:'+sLineBreak+
       ' - Define a new pole;'+sLineBreak+
       ' - Rotate the projection about a given point'+sLineBreak+
-      ' - Define a new "equator" spanned by two points on the sphere."'+sLinebreak+
+      ' - Define a new "equator" spanned by two points on the sphere.""'+sLinebreak+
     'o_lat_p=Latitude of the North pole of the unrotated source CRS, expressed in the rotated geographic CRS.'+sLinebreak+
     'o_lon_p=Longitude of the North pole of the unrotated source CRS, expressed in the rotated geographic CRS.Rotate about point'+sLinebreak+
     'o_alpha=Angle to rotate the projection with.'+sLinebreak+

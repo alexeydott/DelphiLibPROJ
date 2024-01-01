@@ -14,6 +14,8 @@ type
     PROJ4CRSParametersEditor1: TPROJ4CRSParametersEditor;
     Button1: TButton;
     Button2: TButton;
+    Label1: TLabel;
+    Label2: TLabel;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure CheckBox1Click(Sender: TObject);
