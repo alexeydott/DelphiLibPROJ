@@ -63,6 +63,7 @@ type
     FParamsMenuItems: TArray<TMenuItem>;
     FPopupMenu: TPopupMenu;
     FOmmittedParams: TStringDynArray;
+    FOnChange: TNotifyEvent;
     function DisplayNameToParam(const ADisplayName: string): string;
     procedure DoOnEditorGetPickList(Sender: TObject; const KeyName: string; Values: TStrings);
     procedure DoOnEditorMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
@@ -81,19 +82,24 @@ type
     function ParamNameExist(const AParamName: string): Boolean;
     procedure SetCRSDefinition(const Value: string);
     procedure SetParamProps(const ADisplayName: string; AProps: TPJParamProps);
+    procedure HandleEditorStringsChange(Sender: TObject);
   protected
     function ParamDescription(const AParamName: string): string; virtual;
     procedure CreateControls; virtual;
     procedure ParseDefinition; virtual;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure Loaded; override;
     destructor Destroy(); override;
     function CellHeight: Integer;
     function ParameterCount: Integer;
-    property AutoSize;
-
+  published
     property CRSDefinition: string read GetCRSDefinition write SetCRSDefinition;
     property OmittedParams: TStringDynArray read FOmmittedParams write FOmmittedParams;
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+    // from tpanel
+    property ShowCaption default False;
+    property Visible;
   end;
 
   [ComponentPlatformsAttribute(pidWin32 or pidWin64)]
@@ -150,24 +156,13 @@ begin
   if AOwner is TWinControl then
     Parent := TWinControl(AOwner);
   Ctl3D := False;
-  AutoSize := True;
-  {$if compilerversion >= 34.0}
-  StyleName := 'Windows';
-  {$ifend}
+//  AutoSize := True;
   Width := 380;
   Height := 130;
-  LibProjKnownParams(FKnownParams);
-  FOmmittedParams := TStringDynArray.Create('proj');
-  CreateControls;
 end;
 
 destructor TPROJ4CRSParametersEditor.Destroy;
 begin
-  // FEditor.CustomHint.Free;
-  FPopupMenu.OnPopup := nil;
-  FMIDelete.OnClick := nil;
-  FEditor.OnGetPickList := nil;
-  FEditor.OnMouseMove := nil;
   inherited;
 end;
 
@@ -184,76 +179,99 @@ begin
 end;
 
 procedure TPROJ4CRSParametersEditor.CreateControls;
+
+  procedure UpdateFontSize(VLE: TValueListEditor; Value: integer);
+  var
+    factor: single;
+  begin
+    if Value = 0 then
+      Value := Application.DefaultFont.Size;
+    VLE.Font.Size := Value;
+    Value := Abs(VLE.Font.Height);
+//      factor := (18{DefaultRowHeight in VCL} * VLE.ScaleFactor)/Value // ??? adt ??? if creating in runtime ScaleFactor = 1
+    factor := (18{DefaultRowHeight in VCL} * GetCurrentPPIScreen(Self)/96)/Value;
+    Value := Round(Value*factor);
+    VLE.DefaultRowHeight := Value;
+  end;
 begin
-  FPopupMenu := TPopupMenu.Create(Self);
-  FPopupMenu.AutoHotkeys := maManual;
+  if FPopupMenu = nil then
+  begin
+    FPopupMenu := TPopupMenu.Create(Self);
+    FPopupMenu.AutoHotkeys := maManual;
 
-  FParamsMenuItemsGroups[PJ_PARAM_GROUP_GENERAL] := TMenuItem.Create(FPopupMenu);
-  FParamsMenuItemsGroups[PJ_PARAM_GROUP_GENERAL].Tag := cMIParamsTag;
-  FParamsMenuItemsGroups[PJ_PARAM_GROUP_GENERAL].Caption := rsPROJ4_CommonParams_Caption;
+    FParamsMenuItemsGroups[PJ_PARAM_GROUP_GENERAL] := TMenuItem.Create(FPopupMenu);
+    FParamsMenuItemsGroups[PJ_PARAM_GROUP_GENERAL].Tag := cMIParamsTag;
+    FParamsMenuItemsGroups[PJ_PARAM_GROUP_GENERAL].Caption := rsPROJ4_CommonParams_Caption;
 
-  FParamsMenuItemsGroups[PJ_PARAM_GROUP_ELLIPSOID] := TMenuItem.Create(FPopupMenu);
-  FParamsMenuItemsGroups[PJ_PARAM_GROUP_ELLIPSOID].Tag := cMIParamsTag;
-  FParamsMenuItemsGroups[PJ_PARAM_GROUP_ELLIPSOID].Caption := rsPROJ4_EllipsoidsParams_Caption;
+    FParamsMenuItemsGroups[PJ_PARAM_GROUP_ELLIPSOID] := TMenuItem.Create(FPopupMenu);
+    FParamsMenuItemsGroups[PJ_PARAM_GROUP_ELLIPSOID].Tag := cMIParamsTag;
+    FParamsMenuItemsGroups[PJ_PARAM_GROUP_ELLIPSOID].Caption := rsPROJ4_EllipsoidsParams_Caption;
 
-  FParamsMenuItemsGroups[PJ_PARAM_GROUP_DATUM] := TMenuItem.Create(FPopupMenu);
-  FParamsMenuItemsGroups[PJ_PARAM_GROUP_DATUM].Tag := cMIParamsTag;
-  FParamsMenuItemsGroups[PJ_PARAM_GROUP_DATUM].Caption := rsPROJ4_DatumsParams_Caption;
+    FParamsMenuItemsGroups[PJ_PARAM_GROUP_DATUM] := TMenuItem.Create(FPopupMenu);
+    FParamsMenuItemsGroups[PJ_PARAM_GROUP_DATUM].Tag := cMIParamsTag;
+    FParamsMenuItemsGroups[PJ_PARAM_GROUP_DATUM].Caption := rsPROJ4_DatumsParams_Caption;
 
-  FParamsMenuItemsGroups[PJ_PARAM_GROUP_OTHER] := TMenuItem.Create(FPopupMenu);
-  FParamsMenuItemsGroups[PJ_PARAM_GROUP_OTHER].Tag := cMIParamsTag;
-  FParamsMenuItemsGroups[PJ_PARAM_GROUP_OTHER].Caption := rsPROJ4_OtherParaps_Caption;
+    FParamsMenuItemsGroups[PJ_PARAM_GROUP_OTHER] := TMenuItem.Create(FPopupMenu);
+    FParamsMenuItemsGroups[PJ_PARAM_GROUP_OTHER].Tag := cMIParamsTag;
+    FParamsMenuItemsGroups[PJ_PARAM_GROUP_OTHER].Caption := rsPROJ4_OtherParaps_Caption;
 
-  FParamsMenuItemsGroups[PJ_PARAM_GROUP_ELLIPSOID].Add(FParamsMenuItemsGroups[PJ_PARAM_GROUP_DATUM]);
+    FParamsMenuItemsGroups[PJ_PARAM_GROUP_ELLIPSOID].Add(FParamsMenuItemsGroups[PJ_PARAM_GROUP_DATUM]);
 
-  // FPopupMenu.OnClose := DoOnEditorPopupMenuClose;
-  FPopupMenu.OnPopup := DoOnEditorPopupMenuPopup;
+    // FPopupMenu.OnClose := DoOnEditorPopupMenuClose;
+    FPopupMenu.OnPopup := DoOnEditorPopupMenuPopup;
 
-  FMIAdd := TMenuItem.Create(FPopupMenu);
-  FMIAdd.Caption := rsPROJ4_Add_Caption;
-  FMIAdd.Hint := rsPROJ4_AddParameter_Caption;
-  FMIAdd.Tag := cMIAddTag;
-  FMIAdd.OnClick := DoOnEditorPopupMenuClick;
+    FMIAdd := TMenuItem.Create(FPopupMenu);
+    FMIAdd.Caption := rsPROJ4_Add_Caption;
+    FMIAdd.Hint := rsPROJ4_AddParameter_Caption;
+    FMIAdd.Tag := cMIAddTag;
+    FMIAdd.OnClick := DoOnEditorPopupMenuClick;
 
-  FMIDelete := TMenuItem.Create(FPopupMenu);
-  FMIDelete.Caption := rsPROJ4_Delete_Caption;
-  FMIDelete.Hint := rsPROJ4_DeleteParameter_Caption;
-  FMIDelete.Tag := cMIDeleteTag;
-  FMIDelete.OnClick := DoOnEditorPopupMenuClick;
+    FMIDelete := TMenuItem.Create(FPopupMenu);
+    FMIDelete.Caption := rsPROJ4_Delete_Caption;
+    FMIDelete.Hint := rsPROJ4_DeleteParameter_Caption;
+    FMIDelete.Tag := cMIDeleteTag;
+    FMIDelete.OnClick := DoOnEditorPopupMenuClick;
 
-  FPopupMenu.Items.Add([FMIAdd, VCL.Menus.NewLine, FMIDelete]);
+    FPopupMenu.Items.Add([FMIAdd, VCL.Menus.NewLine, FMIDelete]);
+  end;
 
-  FButtonsPnl := TPanel.Create(Self);
-  FButtonsPnl.Align := alBottom;
-  FButtonsPnl.BevelOuter := bvNone;
-  FButtonsPnl.Name := 'FButtonsPnl';
-  FButtonsPnl.AutoSize := True;
-  FButtonsPnl.Visible := False;
+  if FButtonsPnl = nil then
+  begin
+    FButtonsPnl := TPanel.Create(Self);
+    FButtonsPnl.Align := alBottom;
+    FButtonsPnl.BevelOuter := bvNone;
+    FButtonsPnl.Name := 'FButtonsPnl';
+    FButtonsPnl.AutoSize := True;
+    FButtonsPnl.Visible := False;
+  end;
 
-  FEditorPnl := TPanel.Create(Self);
-  FEditorPnl.Parent := Self;
-  FEditorPnl.BevelOuter := bvNone;
-  FEditorPnl.Name := 'FEditorPnl';
-  FEditorPnl.Caption := '';
-  FEditorPnl.Align := alClient;
+  if FEditorPnl = nil then
+  begin
+    FEditorPnl := TPanel.Create(Self);
+    FEditorPnl.Parent := Self;
+    FEditorPnl.BevelOuter := bvNone;
+    FEditorPnl.Name := 'FEditorPnl';
+    FEditorPnl.Caption := '';
+    FEditorPnl.Align := alClient;
+  end;
 
-  FEditor := TValueListEditor.Create(Self);
-  FEditor.PopupMenu := FPopupMenu;
-  FEditor.Parent := FEditorPnl;
-  FEditor.Align := alClient;
-  FEditor.FixedColor := clActiveCaption;
-  {$if compilerversion >= 34.0}
-  FEditor.StyleName := 'Windows';
-  {$ifend}
-  FEditor.Options := [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goEditing, goAlwaysShowEditor, goThumbTracking, goFixedHotTrack];
-  // FEditor.CustomHint := TProjectionHint.Create(nil);
-  // FEditor.CustomHint.Style := bhsBalloon;
-  FEditor.Hint := '';
-  FEditor.ShowHint := True;
-  FEditor.OnGetPickList := DoOnEditorGetPickList;
-  FEditor.OnMouseMove := DoOnEditorMouseMove;
+  if FEditor = nil then
+  begin
+    FEditor := TValueListEditor.Create(Self);
+    FEditor.PopupMenu := FPopupMenu;
+    FEditor.Parent := FEditorPnl;
+    FEditor.Align := alClient;
+    FEditor.FixedColor := clActiveCaption;
+    FEditor.Options := [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goEditing, goAlwaysShowEditor, goThumbTracking, goFixedHotTrack];
+    FEditor.Hint := '';
+    FEditor.ShowHint := True;
+    FEditor.OnGetPickList := DoOnEditorGetPickList;
+    FEditor.OnMouseMove := DoOnEditorMouseMove;
+    FEditor.TitleCaptions.Text := rsPROJ4_Parameter_Caption + sLineBreak + rsPROJ4_Value_Caption;
+    FEditor.OnStringsChange := HandleEditorStringsChange;
 
-  FEditor.TitleCaptions.Text := rsPROJ4_Parameter_Caption + sLineBreak + rsPROJ4_Value_Caption;
+    UpdateFontSize(FEditor,0);
+  end;
 end;
 
 function TPROJ4CRSParametersEditor.DisplayNameToParam(const ADisplayName: string): string;
@@ -469,11 +487,24 @@ begin
     Result := FEditor.Strings.ValueFromIndex[i];
 end;
 
+procedure TPROJ4CRSParametersEditor.HandleEditorStringsChange(Sender: TObject);
+begin
+  if Assigned(FOnChange) then FOnChange(Self);
+end;
+
 function TPROJ4CRSParametersEditor.KnownParamIndexFromMenuItemTag(ATag: Integer): Integer;
 begin
   Result := ATag - cMIParamsTag;
   if Result > Length(FKnownParams) then
     Result := -1;
+end;
+
+procedure TPROJ4CRSParametersEditor.Loaded;
+begin
+  inherited;
+  FOmmittedParams := TStringDynArray.Create('proj');
+  LibProjKnownParams(FKnownParams);
+  CreateControls;
 end;
 
 function TPROJ4CRSParametersEditor.MouseToEditorCell(const P: TPoint): TPoint;
@@ -556,6 +587,7 @@ var
 begin
 
   FAllowedParams := nil;
+  CreateControls;
   FEditor.Strings.Clear;
   FAllowedParams := nil;
 
@@ -625,10 +657,7 @@ begin
   Dlg := TForm.Create(nil);
   try
     Dlg.PopupMode := pmAuto;
-  {$if compilerversion >= 34.0}
-    Dlg.StyleName := 'Windows';
-  {$ifend}
-    Dlg.Font.Size := -Application.DefaultFont.Size;
+//    Dlg.Font.Size := Application.DefaultFont.Size;
     Dlg.Ctl3D := False;
     Dlg.Constraints.MinWidth := Dlg.Width -5;
     if ADefinition <> '' then
@@ -669,6 +698,7 @@ begin
       crsEditor.OmittedParams := []
     else
       crsEditor.OmittedParams := ['proj'];
+
     crsEditor.Left := 0;
     crsEditor.Top := 0;
     crsEditor.Width := Dlg.Width;

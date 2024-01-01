@@ -3,7 +3,7 @@
         <ProjectGuid>{8CDDE40E-1E3B-47D7-A2F2-E533409289A7}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
-        <Projects Include="Project1.dproj">
+        <Projects Include="libProj4.Controls.demo.dproj">
             <Dependencies/>
         </Projects>
         <Projects Include="libProj4.dproj">
@@ -17,14 +17,14 @@
             <Default.Personality/>
         </BorlandProject>
     </ProjectExtensions>
-    <Target Name="Project1">
-        <MSBuild Projects="Project1.dproj"/>
+    <Target Name="libProj4_Controls_demo">
+        <MSBuild Projects="libProj4.Controls.demo.dproj"/>
     </Target>
-    <Target Name="Project1:Clean">
-        <MSBuild Projects="Project1.dproj" Targets="Clean"/>
+    <Target Name="libProj4_Controls_demo:Clean">
+        <MSBuild Projects="libProj4.Controls.demo.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="Project1:Make">
-        <MSBuild Projects="Project1.dproj" Targets="Make"/>
+    <Target Name="libProj4_Controls_demo:Make">
+        <MSBuild Projects="libProj4.Controls.demo.dproj" Targets="Make"/>
     </Target>
     <Target Name="libProj4">
         <MSBuild Projects="libProj4.dproj"/>
@@ -36,13 +36,13 @@
         <MSBuild Projects="libProj4.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="Project1;libProj4"/>
+        <CallTarget Targets="libProj4_Controls_demo;libProj4"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="Project1:Clean;libProj4:Clean"/>
+        <CallTarget Targets="libProj4_Controls_demo:Clean;libProj4:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="Project1:Make;libProj4:Make"/>
+        <CallTarget Targets="libProj4_Controls_demo:Make;libProj4:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
