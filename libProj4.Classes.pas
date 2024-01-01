@@ -14,6 +14,10 @@ uses
 type
   IProjection = libProj4.Intf.IProjection;
   IProjectionsManager = libProj4.Intf.IProjectionsManager;
+  EProj4Error = libProj4.Types.EProj4Error;
+  TGeodesic = libProj4.Types.TGeodesic;
+  TGeodesicLine = libProj4.Types.TGeodesicLine;
+  TGeodesicPolygon = libProj4.Types.TGeodesicPolygon;
 
   TPROJ4Projection = class(TContainedObject, IProjection)
   private

@@ -6,7 +6,7 @@ SET OBJPATH=%ROOTDIR%c_src
 DEL /Q %OBJPATH%\*.o
 
 SET PLATFORM=_win64
-SET SYSINCLUDE=-isystem %BCCROOT%\include\ -isystem %BCCROOT%\include\dinkumware64\ -isystem %BCCROOT%\include\windows\sdk\ -isystem %BCCROOT%\include\windows\crtl\
+SET SYSINCLUDE=-isystem %BCCROOT%\include\ -isystem %BCCROOT%\include\dinkumware64\ -isystem %BCCROOT%\include\windows\crtl\ -isystem %BCCROOT%\include\windows\sdk\ -isystem %BCCROOT%\include\windows\rtl\
 
 SET DEFINES=-D NDEBUG -DUSEPACKAGES -DMUTEX_win32 -DHAVE_STR_ERROR=1
 SET BCC=bcc64.exe -cc1 %DEFINES% %SYSINCLUDE% -fborland-extensions -fdiagnostics-format borland -nobuiltininc -nostdsysteminc -triple x86_64-pc-win32-elf -emit-obj -fexceptions -fcxx-exceptions -fseh -munwind-tables -fno-common -fno-spell-checking -fno-use-cxa-atexit -x c -std=c99 -O2 -fmath-errno -sys-header-deps -tM -mcdecl
