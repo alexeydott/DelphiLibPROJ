@@ -6,7 +6,8 @@ interface
 {$ENDIF}
 
 {$I 'libProj4.config.inc'}
-
+{$IFDEF USER_DEFINES_INC}{$I user_defines.inc}{$ENDIF}
+{$ifdef __proj4mappl}{$I ..\mappl_config.inc}{$endif}
 uses
   {$IFDEF MSWINDOWS}
   Winapi.Windows,
@@ -30,7 +31,7 @@ type
     function Definition: string;
   end;
 
-  TPJhelper = record helper for {$ifndef _proj_api_deepdive}TPJ_t{$else}TPJconsts_t{$endif}
+  TPJhelper = record helper for {$ifndef __proj_api_deepdive}TPJ_t{$else}TPJconsts_t{$endif}
   public
     function Id: string;
     function Description: string;
@@ -39,7 +40,7 @@ type
     function IsGeographic: LongBool;
     function IsGeocentric: LongBool;
     function GetToMetersFactor: Double;
-    function GetSpheroidInfo(var a, e2: Double): Boolean;
+    function GetSpheroidInfo(var a, es: Double): Boolean;
   end;
 
   TGeodesicPolygonHelper = record helper for TGeodesicPolygon
@@ -175,6 +176,8 @@ type
 {$ENDREGION}
 
 {$REGION 'proj api adaptation'}
+function PJ_DegToRad(const angle_in_degrees: Double): Double;
+function PJ_RadToDeg(const angle_in_radians: Double): Double;
 
 function CreatePJContext(const AUserData: TObject): TPJCtx;
 procedure FreePJContext(var ACxt: TPJCtx);
@@ -194,11 +197,13 @@ function GetPJInfo(const pPJ: TPJ; var info: TPJProjInfo): Boolean;
 /// get latlong projection
 function GetLatLong(const APJ: TPJ; var LatLong: TPJ): Boolean;
 /// GEt
-function GetSpheroidInfo(const APJ: TPJ; var a: Double; var b: Double; var e2: Double): Boolean{$ifndef __proj_no_inline_code}; inline{$endif};
+function GetSpheroidInfo(const APJ: TPJ; var a: Double; var b: Double; var es: Double): Boolean{$ifndef __proj_no_inline_code}; inline{$endif};
 /// transform series of points
 function TransformPoints2D(src, dst: TPJ; const x, y: PDouble; count: Integer; angular: Boolean): Integer;
 /// transform 1 point
 function TransformPoint2D(src, dst: TPJ; var x, y: Double; angular: Boolean): Integer;
+function GetPJFactors(P: TPJ; const Lon, Lat: Double): TPJFactors; overload;
+function GetPJFactors(P: TPJ; const Cooord: TPJcoord_t): TPJFactors; overload;
 /// init geodesic
 procedure GeodesicInit(var g: TGeodesic; a, f: Double);
 /// compute geodesic polygon
@@ -329,7 +334,7 @@ const _name_prefix = {$IFDEF UNDERSCOREIMPORTNAME}'_'{$ELSE}''{$ENDIF};
 const _fltused: Integer = $9875;
 const msvcrtdll = 'msvcrt.dll';
 
-  // function atol(const __s: PAnsiChar): Integer; cdecl; external msvcrt name 'atol';
+  // function atol(const __s: PAnsiChar): Integer; cdecl; external   msvcrt name 'atol';
   // function memchr(s: Pointer; c: Integer; n: size_t): Pointer; cdecl; external msvcrt name 'memchr';
 function crtl_getenv(value: PAnsiChar): PAnsiChar; cdecl; external msvcrtdll name 'getenv';
 function {$IFDEF WIN64}strtod{$ELSE}_strtod{$ENDIF}(value: PAnsiChar; endPtr: Pointer): Double; cdecl; external msvcrtdll name 'strtod';
@@ -340,7 +345,6 @@ function {$IFDEF WIN64}localeconv{$ELSE}_localeconv{$ENDIF}: plconv; cdecl; exte
 function {$IFDEF WIN64}sprintf{$ELSE}_sprintf{$ENDIF}(buf: Pointer; format: PAnsiChar { args } ): Integer; cdecl; varargs; external msvcrtdll name 'sprintf';
 function {$IFDEF WIN64}fprintf{$ELSE}_fprintf{$ENDIF}(fHandle: Pointer; format: PAnsiChar { args } ): Integer; cdecl; varargs; external msvcrtdll name 'fprintf';
 function {$IFDEF WIN64}vsprintf{$ELSE}_vsprintf{$ENDIF}(s: PAnsiChar; const format: PAnsiChar; ap: Pointer): Integer; cdecl; external msvcrtdll name 'vsprintf';
-function {$IFDEF WIN64}putchar{$ELSE}_putchar{$ENDIF}(c: Integer): Integer; cdecl; external msvcrtdll name 'putchar';
 
 // {$ifdef WIN64}{$LINK fprintf_win64}{$else}{$LINK fprintf_win32}{$endif}
 // {$ifdef WIN64}{$LINK sprintf_win64}{$else}{$LINK sprintf_win32}{$endif}
@@ -1297,30 +1301,6 @@ begin
     Result := x - (y * System.Round(x /Result));
 end;
 
-function {$IFDEF WIN64}__get_std_stream{$ELSE}___get_std_stream{$ENDIF}(num: Cardinal): Pointer; cdecl;
-begin
-  Result := Pointer(GetStdHandle(num));
-end;
-
-function {$IFDEF WIN64}_sinh{$ELSE}__sinh{$ENDIF}(const x: Double): Double; cdecl;
-begin
-  if x.IsNan or x.IsInfinity then
-    Result := x
-  else
-    Result := System.Math.sinh(x);
-end;
-
-function {$IFDEF WIN64}_cosh{$ELSE}__cosh{$ENDIF}(const x: Double): Double; cdecl;
-begin
-  if x.IsInfinity then
-    Result := Double.PositiveInfinity
-  else
-  if x.IsNan then
-    Result := Double.NaN
-  else
-    Result := System.Math.CosH(x);
-end;
-
 
 {$IFDEF WIN64}
 
@@ -1769,7 +1749,7 @@ function pj_is_latlong(P: TPJ): Integer; cdecl; external {$IFDEF LIBPROJ_LINKSTA
 function pj_is_geocent(P: TPJ): Integer; cdecl; external {$IFDEF LIBPROJ_LINKSTATIC}name _name_prefix +{$ELSE}proj4libname name {$ENDIF}'pj_is_geocent';
 function pj_latlong_from_proj(P: TPJ): TPJ; cdecl; external {$IFDEF LIBPROJ_LINKSTATIC}name _name_prefix +{$ELSE}proj4libname name {$ENDIF}'pj_latlong_from_proj';
 procedure pj_free(P: TPJ); cdecl; external {$IFDEF LIBPROJ_LINKSTATIC}name _name_prefix +{$ELSE}proj4libname name {$ENDIF}'pj_free';
-function pj_transform(src, dst: TPJ; point_count: LongInt; point_offset: Integer; var x, y, z: Double): Integer; cdecl; external {$IFDEF LIBPROJ_LINKSTATIC}name _name_prefix +{$ELSE}proj4libname name {$ENDIF}'pj_transform';
+function pj_transform(src, dst: TPJ; point_count: LongInt; point_offset: Integer; var x, y: Double; const z: PDouble): Integer; cdecl; external {$IFDEF LIBPROJ_LINKSTATIC}name _name_prefix +{$ELSE}proj4libname name {$ENDIF}'pj_transform';
 function pj_get_def(P: TPJ; opts: Integer): MarshaledAString; cdecl; external {$IFDEF LIBPROJ_LINKSTATIC}name _name_prefix +{$ELSE}proj4libname name {$ENDIF}'pj_get_def';
 function pj_strerrno(errno: Integer): Pointer; cdecl; external {$IFDEF LIBPROJ_LINKSTATIC}name _name_prefix +{$ELSE}proj4libname name {$ENDIF}'pj_strerrno';
 function pj_get_release(): Pointer; cdecl; external {$IFDEF LIBPROJ_LINKSTATIC}name _name_prefix +{$ELSE}proj4libname name {$ENDIF}'pj_get_release';
@@ -1807,6 +1787,7 @@ function pj_todeg(angle_in_radians: Double): Double; cdecl; external{$IFDEF LIBP
 /// Basic info about the current instance of the PROJ.4 library.
 function proj_info: TPJInfo; cdecl; external{$IFDEF LIBPROJ_LINKSTATIC}name _name_prefix +{$ELSE}proj4libname name {$ENDIF}'proj_info';
 function proj_pj_info(pPJ: TPJ): TPJProjInfo; cdecl; external {$IFDEF LIBPROJ_LINKSTATIC}name _name_prefix +{$ELSE}proj4libname name {$ENDIF}'proj_pj_info';
+function proj_factors(P: TPJ;LP: TPJcoord_t): TP5factors_t; cdecl; external{$IFDEF LIBPROJ_LINKSTATIC}  name _name_prefix +{$ELSE} proj4libname name{$ENDIF}'proj_factors';
 {$endregion}
 {$ENDREGION}
 
@@ -2248,17 +2229,20 @@ begin
     Result := ReplaceTabCrLF(info.Description);
 end;
 
-function TPJhelper.GetSpheroidInfo(var a, e2: Double): Boolean;
+function TPJhelper.GetSpheroidInfo(var a, es: Double): Boolean;
 begin
   Result := Self.IsValid;
   if not Result then
     Exit;
-  pj_get_spheroid_defn(@Self, a, e2);
-  Result := not(a.IsNan or a.IsInfinity or e2.IsNan or e2.IsInfinity);
+
+  pj_get_spheroid_defn(@Self, a, es);
+  Result := not(a.IsNan or a.IsInfinity or es.IsNan or es.IsInfinity);
 end;
 
+//function TPJhelper.GetFactors(X,Y)
+
 function TPJhelper.GetToMetersFactor: Double;
-{$ifndef _proj_api_deepdive}
+{$ifndef __proj_api_deepdive}
 type
   TpjLU = record
     pjKey: string;
@@ -2313,7 +2297,7 @@ begin
   Result := 1;
   if not Self.IsValid or Self.IsGeographic then
     Exit;
-{$ifndef _proj_api_deepdive}
+{$ifndef __proj_api_deepdive}
     Result := internalGetToMetersFactor;
 {$else}
     Result := Self.to_meter;
@@ -2335,7 +2319,7 @@ begin
   if not Self.IsValid then
     Result := LongBool(-1)
   else
-{$ifndef _proj_api_deepdive}
+{$ifndef __proj_api_deepdive}
     Result := LongBool(pj_is_geocent(@Self));
 {$else}
     Result := LongBool(Self.is_geocent);
@@ -2347,7 +2331,7 @@ begin
   if not Self.IsValid then
     Result := LongBool(-1)
   else
-{$ifndef _proj_api_deepdive}
+{$ifndef __proj_api_deepdive}
     Result := LongBool(pj_is_latlong(@Self));
 {$else}
     Result := LongBool(Self.is_latlong);
@@ -2675,8 +2659,13 @@ begin
 end;
 
 procedure GeodesicInverse(const a, f: Double; const yLat1,xLon1,yLat2,xLon2: Double; var Distance, Azimuth, ForwardAzimuth: Double);
+var g: TGeodesic;
 begin
-  GeodesicInverse(a, f, yLat1,xLon1,yLat2,xLon2, Distance, Azimuth, ForwardAzimuth);
+  GeodesicInit(G, A, F);
+
+  GeodesicInverse(
+    G, YLat1, XLon1, YLat2, XLon2, Distance, Azimuth, ForwardAzimuth
+  );
 end;
 
 function PJ_is_valid(P: TPJ): Boolean;
@@ -2815,6 +2804,16 @@ begin
   end;
 end;
 
+function PJ_DegToRad(const angle_in_degrees: Double): Double;
+begin
+  Result := pj_torad(angle_in_degrees);
+end;
+
+function PJ_RadToDeg(const angle_in_radians: Double): Double;
+begin
+  Result := pj_todeg(angle_in_radians);
+end;
+
 function TransformPoints2D(src, dst: TPJ; const x, y: PDouble; count: Integer; angular: Boolean): Integer;
 {$define localcopy}
 {.$define forcecheck}
@@ -2865,8 +2864,8 @@ begin
           begin
             for i := 0 to count - 1 do
             begin
-              _x[i] := pj_torad(_x[i]); // PJ_DEG_TO_RAD * _x^;
-              _y[i] := pj_torad(_y[i]); // PJ_DEG_TO_RAD * _y^;
+              _x[i] := PJ_DegToRad(_x[i]); // PJ_DEG_TO_RAD * _x^;
+              _y[i] := PJ_DegToRad(_y[i]); // PJ_DEG_TO_RAD * _y^;
             end;
           end;
         {$else}
@@ -2876,8 +2875,8 @@ begin
             _y := y;
             for i := 0 to count - 1 do
             begin
-              _x^ := pj_torad(_x^); // PJ_DEG_TO_RAD * _x^;
-              _y^ := pj_torad(_x^); // PJ_DEG_TO_RAD * _y^;
+              _x^ := PJ_DegToRad(_x^); // PJ_DEG_TO_RAD * _x^;
+              _y^ := PJ_DegToRad(_y^); // PJ_DEG_TO_RAD * _y^;
 
               Inc(_x);
               Inc(_y);
@@ -2888,9 +2887,9 @@ begin
         z := nil;
 
         {$ifdef localcopy}
-        Result := pj_transform(src, dst, count, 1, _x[0], _y[0], z^);
+        Result := pj_transform(src, dst, count, 1, _x[0], _y[0], z);
         {$else}
-        Result := pj_transform(src, dst, count, 1, x^, y^, z^);
+        Result := pj_transform(src, dst, count, 1, x^, y^, z);
         {$endif}
 
         if Result = 0 then
@@ -2900,16 +2899,16 @@ begin
             {$ifdef localcopy}
             for i := 0 to count - 1 do
             begin
-              _x[i] := pj_todeg(_x[i]); // PJ_RAD_TO_DEG * _x^;
-              _y[i] := pj_todeg(_y[i]); // PJ_RAD_TO_DEG * _y^;
+              _x[i] := PJ_RadToDeg(_x[i]); // PJ_RAD_TO_DEG * _x^;
+              _y[i] := PJ_RadToDeg(_y[i]); // PJ_RAD_TO_DEG * _y^;
             end;
             {$else}
             _x := x;
             _y := y;
             for i := 0 to count - 1 do
             begin
-              _x^ := pj_todeg(_x^); // PJ_RAD_TO_DEG * _x^;
-              _y^ := pj_todeg(_y^); // PJ_RAD_TO_DEG * _y^;
+              _x^ := PJ_RadToDeg(_x^); // PJ_RAD_TO_DEG * _x^;
+              _y^ := PJ_RadToDeg(_y^); // PJ_RAD_TO_DEG * _y^;
 
               Inc(_x);
               Inc(_y);
@@ -2933,6 +2932,20 @@ end;
 function TransformPoint2D(src, dst: TPJ; var x, y: Double; angular: Boolean): Integer;
 begin
   Result := TransformPoints2D(src, dst, @x, @y, 1, angular);
+end;
+
+function GetPJFactors(P: TPJ; const Cooord: TPJcoord_t): TPJFactors; overload;
+begin
+  Result := proj_factors(P, Cooord);
+end;
+
+function GetPJFactors(P: TPJ; const Lon,Lat: Double): TPJFactors;
+var c: TPJcoord_t;
+begin
+  c := Default(TPJcoord_t);
+  c.lp.lam := libProj4.Api.PJ_DegToRad(Lon);
+  c.lp.phi := libProj4.Api.PJ_DegToRad(Lat);
+  Result := GetPJFactors(P, c);
 end;
 
 function SetPROJDataSearchPaths(const ANewPaths: TArray<string>): TArray<string>;
@@ -3010,25 +3023,34 @@ begin
   Result := Assigned(LatLong);
 end;
 
-function GetSpheroidInfo(const APJ: TPJ; var a, b, e2: Double): Boolean;
+function GetSpheroidInfo(const APJ: TPJ; var a, b, es: Double): Boolean;
 begin
+  a := Double.NaN;
+  b := Double.NaN;
+  es := Double.NaN;
+
   Result := Assigned(APJ);
+  if not Result then
+    Exit;
+
+{$ifdef __proj_api_deepdive}
+  a := APJ^.a;
+  b := APJ^.b;
+  es := APJ^.es;
+  Result :=
+    not a.IsNan and not a.IsInfinity and (a > 0.0) and
+    not b.IsNan and not b.IsInfinity and (b > 0.0) and
+    not es.IsNan and not es.IsInfinity and (es >= 0.0) and (es < 1.0);
+{$else}
+  Result := APJ^.GetSpheroidInfo(a, es);
   if Result then
   begin
-  {$ifdef _proj_api_deepdive}
-    a := APJ^.a;
-    e2 := APJ^.e2;
-    b := APJ^.b;
-  {$else}
-      Result := APJ^.GetSpheroidInfo(a, e2);
-      if Result then
-        b := a - e2 * a;
-  {$endif}
-  end
-  else
-    b := a.PositiveInfinity;
+    Result := (a > 0.0) and (es >= 0.0) and (es < 1.0);
+    if Result then
+      b := a * System.Sqrt(1.0 - es);
+  end;
+{$endif}
 end;
-
 {$ENDREGION} // public api
 
 {$region '  global variables'}
@@ -3066,5 +3088,4 @@ projlib_init_globals;
 finalization
 projlib_final_globals;
 end.
-
 

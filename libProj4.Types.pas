@@ -6,6 +6,9 @@ interface
 {$ENDIF}
 
 {$I 'libProj4.config.inc'}
+{$IFDEF USER_DEFINES_INC}{$I user_defines.inc}{$ENDIF}
+{$ifdef __proj4mappl}{$I ..\mappl_config.inc}{$endif}
+
 uses
 
 {$IFDEF MSWINDOWS}Windows, {$ENDIF}
@@ -15,6 +18,15 @@ uses
 
 const
   proj_api_deepdive: Boolean = {$ifndef __proj_api_deepdive}False{$else}True{$endif};
+  /// OGC standard pixel size used for nominal map scale denominators.
+  PROJ_DEFAULT_PIXEL_SIZE_MM = 0.28;
+  /// pixel size used for precise map scale denominators.
+  PROJ_DIP96_PIXEL_SIZE_MM = 25.4 / 96.0;
+  /// Default tolerance for local conformality tests, in radians of angular
+  /// distortion (Tissot omega). PROJ 5.2 computes factors numerically with a
+  /// default derivative step of 1e-5 rad, so this leaves margin for numerical
+  /// noise while still detecting meaningful angular distortion.
+  PROJ_DEFAULT_CONFORMAL_TOLERANCE_RAD = 1.0E-7;
 
   PJ_DIRECTION_FWD = 1;
   PJ_DIRECTION_IDENT = 0;
@@ -292,7 +304,7 @@ type
 
   TPJcoord_t = record
   case Integer of
-    0: (values: array [0..4] of Double);
+    0: (values: array [0..3] of Double);
     1: (xyzt: TPJxyzt_t);
     2: (uvwt: TPJuvwt_t);
     3: (lpzt: TPJlpzt_t);
@@ -352,6 +364,7 @@ type
   end;
   TPJCtx = PPJCtx_t;
 
+  PP5factors_t = ^TPJFactors;
   TP5factors_t = record
     ///meridional_scale
     h: Double;
@@ -371,6 +384,54 @@ type
     b: Double;
     dx_dlam, dx_dphi: Double;
     dy_dlam, dy_dphi: Double
+  end;
+
+  PPJFactors =^TPJFactors;
+  TPJFactors = TP5factors_t;
+
+  /// Direction/metric used to reduce a local 2D projection metric to one
+  /// scalar map scale.
+  TProjectionScaleMode = (
+    /// Scale along the map X axis.
+    psmHorizontal,
+    /// Scale along the map Y axis.
+    psmVertical,
+    /// Linear scale derived from the physical ground area of a map-unit square.
+    /// This is suitable for equal-area/non-conformal projections where X and Y
+    /// linear scales are different.
+    psmAreaEquivalent
+  );
+
+  /// Local conformality state at a particular point. PROJ 5.2 does not expose
+  /// a global conformal/non-conformal flag for projection implementations, so
+  /// projected CRS are classified from the local Tissot angular distortion.
+  TProjectionConformality = (
+    /// Factors could not be evaluated at the requested point.
+    pcUnknown,
+    /// Geographic/geocentric CRS are coordinate systems rather than planar map
+    /// projections, so cartographic conformality is not applicable here.
+    pcNotApplicable,
+    /// Locally conformal within the requested angular tolerance.
+    pcConformal,
+    /// Local angular distortion exceeds the requested tolerance.
+    pcNonConformal
+  );
+
+  /// Local physical metric of a map projection around one map point.
+  /// Values are measured on WGS84 after datum transformation, so they can be
+  /// compared between different projected coordinate systems.
+  TProjectionLocalMetric = record
+    /// Ground meters represented by one map-unit step along the map X axis.
+    MetersPerMapUnitX: Double;
+    /// Ground meters represented by one map-unit step along the map Y axis.
+    MetersPerMapUnitY: Double;
+    /// Y/X local axis-scale ratio. 1 means equal X/Y linear scale.
+    ScaleRatioYX: Double;
+    /// Physical WGS84 ground area represented by one square map unit.
+    GroundAreaPerMapUnit2: Double;
+    /// Square root of GroundAreaPerMapUnit2. This is the scalar linear factor
+    /// used by psmAreaEquivalent.
+    AreaEquivalentMetersPerMapUnit: Double;
   end;
 
   TPJregion_t = record
@@ -546,6 +607,7 @@ type
     FTell: function(pFile: Pointer { pfile_t } ): Longint; cdecl;
     FClose: procedure(pFile: Pointer); cdecl;
   end;
+
 
   PGeodesic = ^TGeodesic;
   /// The struct containing information about the ellipsoid.
