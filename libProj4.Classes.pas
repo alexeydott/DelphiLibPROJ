@@ -407,17 +407,11 @@ end;
 
 function TProjection.MapinfoDefinition: string;
 begin
-  Result := ''; // todo implementMe!!!
-
+  Result := '';
   Lock;
   try
     if FHandle.IsValid then
-    begin
-      if IsGeographic then
-        Result := 'Earth Projection 1, 104'
-      else
-        Result := 'NonEarth Units "m"';
-    end;
+      Result := LibProjDefnToMapinfoCoordSys(Self.Proj4Definition);
   finally
     Unlock;
   end;

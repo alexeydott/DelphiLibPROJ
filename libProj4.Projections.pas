@@ -10,95 +10,16 @@ interface
 {$ENDIF}
 
 {$I 'libProj4.config.inc'}
+{$IFDEF USER_DEFINES_INC}{$I user_defines.inc}{$ENDIF}
+{$ifdef __proj4mappl}{$I ..\mappl_config.inc}{$endif}
 uses
 	System.Types, System.Classes, System.SysUtils, System.Math,
   libProj4.Types;
 
-// START resource string wizard section
-resourcestring
-  rsPROJ4_GenParam_a_Caption = {$ifndef __proj_ru_explain}'Semimajor radius of the ellipsoid axis in meters'{$else}'Радиус большой полуоси (м.)'{$endif};
-  rsPROJ4_GenParam_b_Caption = {$ifndef __proj_ru_explain}'Semiminor radius of the ellipsoid axis'{$else}'Радиус малой полуоси (м.)'{$endif};
-  rsPROJ4_GenParam_k_0_Caption = {$ifndef __proj_ru_explain}'Scaling factor'{$else}'Масштабный коэффициент'{$endif};
-  rsPROJ4_GenParam_lat_0_Caption = {$ifndef __proj_ru_explain}'Latitude of origin'{$else}'Центральная параллель'{$endif};
-  rsPROJ4_GenParam_lat_1_Caption = {$ifndef __proj_ru_explain}'First standard parallel'{$else}'Стандартная псевдопараллель 1'{$endif};
-  rsPROJ4_GenParam_lat_2_Caption = {$ifndef __proj_ru_explain}'Second standard parallel'{$else}'Стандартная псевдопараллель 2'{$endif};
-  rsPROJ4_GenParam_lat_ts_Caption = {$ifndef __proj_ru_explain}'Latitude of true scale. Defines the latitude where scale is not distorted'{$else}'Широта центра'{$endif};
-  rsPROJ4_GenParam_lon_0_Caption = {$ifndef __proj_ru_explain}'Central meridian'{$else}'Центральный меридиан'{$endif};
-  rsPROJ4_GenParam_lonc_Caption = {$ifndef __proj_ru_explain}'Longitude of rotational pole point'{$else}'Долгота начальной точки'{$endif};
-  rsPROJ4_GenParam_x_0_Caption = {$ifndef __proj_ru_explain}'False easting'{$else}'Смещение по долготе'{$endif};
-  rsPROJ4_GenParam_y_0_Caption = {$ifndef __proj_ru_explain}'False northing'{$else}'Смещение по широте'{$endif};
-		// Additional Projection Parameters'
-  rsPROJ4_GenParam_alpha_Caption = {$ifndef __proj_ru_explain}'azimuth'{$else}'Азимут начальной линии'{$endif};
-  rsPROJ4_GenParam_azi_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_belgium_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_beta_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_czech_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_gamma_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_ellps_Caption = {$ifndef __proj_ru_explain} 'The name of a built-in ellipsoid definition. If not set default value is "WGS84"'{$else}'Имя встроенного определения эллипсоида. Если не задано, значение по умолчанию - "WGS84"'{$endif};
-  rsPROJ4_GenParam_datum_Caption = {$ifndef __proj_ru_explain} ''{$else}'Имя датума'{$endif};
-  rsPROJ4_GenParam_guam_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_f_Caption = {$ifndef __proj_ru_explain} ''{$else}'Сжатие (f)'{$endif};
-  rsPROJ4_GenParam_h_Caption = {$ifndef __proj_ru_explain} 'satellite_height'{$else}'Высота спутника'{$endif};
-  rsPROJ4_GenParam_lat_b_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_lat_t_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_lon_1_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_lon_2_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_lsat_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_m_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_MBig_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_n_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_no_defs_Caption = {$ifndef __proj_ru_explain} ''{$else}'Игнорировать значения по умолчанию'{$endif};
-  rsPROJ4_GenParam_no_cut_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_no_off_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_no_rot_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_ns_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_o_alpha_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_o_lat_1_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_o_lat_2_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_o_lat_c_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_o_lat_p_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_o_lon_1_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_o_lon_2_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_o_lon_c_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_o_lon_p_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_o_proj_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_proj_Caption = {$ifndef __proj_ru_explain} ''{$else}'Название проекции'{$endif};
-  rsPROJ4_GenParam_over_Caption = {$ifndef __proj_ru_explain} 'Allow longitude output outside -180 to 180 range, disables wrapping'{$else}'Не ограничивать по долготе'{$endif};
-  rsPROJ4_GenParam_p_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_path_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_q_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_R_Caption = {$ifndef __proj_ru_explain} 'Radius of the sphere, given in meters. If used in conjunction with <ellps>, param <R> takes precedence.'{$else}'Радиус сферы, заданный в метрах. Если используется в сочетании с <ellps>, параметр <R> имеет приоритет'{$endif};
-    // ellipsoid spherification paramerets
-  rsPROJ4_GenParam_R_A_Caption = {$ifndef __proj_ru_explain} 'Sphere with the same surface area as the ellipsoid'{$else}''{$endif};
-  rsPROJ4_GenParam_R_V_Caption = {$ifndef __proj_ru_explain} 'Sphere with same volume as ellipsoid'{$else}''{$endif};
-  rsPROJ4_GenParam_R_a_mean_Caption = {$ifndef __proj_ru_explain} 'R_a = (a + b)/2)'{$else}''{$endif};
-  rsPROJ4_GenParam_R_g_Caption = {$ifndef __proj_ru_explain} 'R = sqrt(a*b)'{$else}''{$endif};
-  rsPROJ4_GenParam_R_h_Caption = {$ifndef __proj_ru_explain} 'R = 2*a*b/(a+b)'{$else}''{$endif};
-  rsPROJ4_GenParam_R_lat_a_Caption = {$ifndef __proj_ru_explain} 'Arithmetic mean of of the corresponding ellipsoid at given latitude.'{$else}''{$endif};
-  rsPROJ4_GenParam_R_lat_g_Caption = {$ifndef __proj_ru_explain} 'Geometric mean of of the corresponding ellipsoid at given latitude.'{$else}''{$endif};
-    //
-  rsPROJ4_GenParam_rot_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_rf_Caption = {$ifndef __proj_ru_explain} ''{$else}'Обратное сжатие (1/f)'{$endif};
-  rsPROJ4_GenParam_s_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_sym_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_t_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-
-  rsPROJ4_GenParam_theta_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_to_meter_Caption = {$ifndef __proj_ru_explain} ''{$else}'Коэфициент перевода в метры'{$endif};
-  rsPROJ4_GenParam_vto_meter_Caption = {$ifndef __proj_ru_explain} 'Vertical plane coordinate scaling.'{$else}''{$endif}; // Internal unit
-  rsPROJ4_GenParam_towgs84_Caption = {$ifndef __proj_ru_explain} ''{$else}'Параметры перехода к WGS84'{$endif};
-  rsPROJ4_GenParam_tilt_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_units_Caption = {$ifndef __proj_ru_explain} ''{$else}'Единицы проекции'{$endif};
-  rsPROJ4_GenParam_vopt_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_W_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_westo_Caption = {$ifndef __proj_ru_explain} ''{$else}''{$endif};
-  rsPROJ4_GenParam_zone_Caption = {$ifndef __proj_ru_explain} 'Select which UTM zone to use. Can be a value between 1-60.'{$else}'Задает зону UTM. Допустимые значения в диапазоне 1-60.'{$endif};
-// END resource string wizard section
-
-
 type
 	ENotSupportedProjection = class(ENotSupportedException)end;
 
+type
   TProjectionInfo = record
     Key: string;
     Name: string;
@@ -106,6 +27,28 @@ type
     Latmax,Latmin,Lonmax,Lonmin: Single;
     Defn: string;
     Hidden: Boolean;
+  end;
+
+
+  /// <summary>Parsed MapInfo CoordSys definition.</summary>
+  TMapInfoCoordSys = record
+    IsEarth: Boolean;
+    ProjectionID: Integer;
+    DatumID: Integer;
+    EllipsoidID: Integer;
+    UnitsName: string;
+    /// <summary>
+    /// Custom datum values. ID 999: dx,dy,dz. ID 9999:
+    /// dx,dy,dz,rx,ry,rz,scale,prime-meridian.
+    /// </summary>
+    DatumParameters: TArray<Double>;
+    /// <summary>Projection parameters in native MapInfo order.</summary>
+    ProjectionParameters: TArray<Double>;
+    HasBounds: Boolean;
+    BoundsMinX: Double;
+    BoundsMinY: Double;
+    BoundsMaxX: Double;
+    BoundsMaxY: Double;
   end;
 
 const
@@ -251,9 +194,19 @@ const
 
 
 function LibProjDefnFromEpsgCode(const Code: Integer): string;
+function MIInvariantFloat(const V: Double): string; forward;
+
 function LibProjDefnToWKTProjection(const ADefn: string; PrettyWKT: Boolean): string;
 function WKTProjectionToLibProjDefn(const ADefn: string): string;
-function LibProjDefnToMapinfoCoordSys(const ADefn: string): string;
+
+function TryParseMapInfoCoordSys(const AValue: string; out ACoordSys: TMapInfoCoordSys): Boolean;
+function MapInfoCoordSysToString(const ACoordSys: TMapInfoCoordSys;
+  const IncludeCoordSysKeyword: Boolean = True): string;
+function MapInfoCoordSysToLibProjDefn(const ACoordSys: TMapInfoCoordSys): string; overload;
+function MapInfoCoordSysToLibProjDefn(const ACoordSys: string): string; overload;
+function LibProjDefnToMapinfoCoordSys(const ADefn: string;
+  out ACoordSys: TMapInfoCoordSys): Boolean; overload;
+function LibProjDefnToMapinfoCoordSys(const ADefn: string): string; overload;
 function LibProjParseParamsString(const ADefn: string; var AParams: TArray<TPJParamRec>): Integer;
 function LibProjKnownParams(var AParams: TArray<TPJParamRec>): Integer;
 function LibProjProjectionAllowedParams(const AProjID: string; var AParams: TArray<TPJParamRec>): integer;
@@ -596,35 +549,35 @@ const
 		(pjKey:'wintri'; wktName: 'Winkel_Tripel'; Description: 'Winkel Tripel'; DisplayCaption: '')
 	 );
 
- pjParamsListMax = 80;
+ pjParamsListMax = 79;
  pjParamsList: array[0..pjParamsListMax] of TpjParam =
  (
 		// General Projection Parameters'; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
-    (pjKey:'a'; wktName: ''; Description: rsPROJ4_GenParam_a_Caption; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
-    (pjKey:'b'; wktName: ''; Description: rsPROJ4_GenParam_b_Caption; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
-		(pjKey:'k_0'; wktName: 'scale_factor'; Description: rsPROJ4_GenParam_k_0_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'k'; wktName: 'scale_factor'; Description: rsPROJ4_GenParam_k_0_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL), //deprecated
-		(pjKey:'lat_0'; wktName: 'latitude_of_origin'; Description: rsPROJ4_GenParam_lat_0_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'lat_0'; wktName: 'latitude_of_center'; Description: rsPROJ4_GenParam_lon_0_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'lat_0'; wktName: 'central_parallel'; Description: rsPROJ4_GenParam_lon_0_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'lat_1'; wktName: 'standard_parallel_1'; Description: rsPROJ4_GenParam_lat_1_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'lat_2'; wktName: 'standard_parallel_2'; Description: rsPROJ4_GenParam_lat_2_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'lat_ts'; wktName: 'latitude_of_origin'; Description: rsPROJ4_GenParam_lat_ts_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'lon_0'; wktName: 'central_meridian'; Description: rsPROJ4_GenParam_lon_0_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'lon_0'; wktName: 'longitude_of_center'; Description: rsPROJ4_GenParam_lonc_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'lonc'; wktName: 'longitude_of_center'; Description: rsPROJ4_GenParam_lonc_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'x_0'; wktName: 'false_easting'; Description: rsPROJ4_GenParam_x_0_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'y_0'; wktName: 'false_northing'; Description: rsPROJ4_GenParam_y_0_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
+    (pjKey:'a'; wktName: ''; Description: 'Радиус большой полуоси (м.)'; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
+    (pjKey:'b'; wktName: ''; Description: 'Радиус малой полуоси (м.)'; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
+		(pjKey:'k_0'; wktName: 'scale_factor'; Description: 'Масштабный коэффициент'; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'k'; wktName: 'scale_factor'; Description: 'Масштабный коэффициент'; paramGroup: PJ_PARAM_GROUP_GENERAL), //deprecated
+		(pjKey:'lat_0'; wktName: 'latitude_of_origin'; Description: 'Долгота центра'; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'lat_0'; wktName: 'latitude_of_center'; Description: 'Долгота центра'; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'lat_0'; wktName: 'central_parallel'; Description: 'Центральная параллель'; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'lat_1'; wktName: 'standard_parallel_1'; Description: 'Стандартная псевдопараллель 1'; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'lat_2'; wktName: 'standard_parallel_2'; Description: 'Стандартная псевдопараллель 2'; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'lat_ts'; wktName: 'standard_parallel_1'; Description: 'Широта центра'; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'lon_0'; wktName: 'central_meridian'; Description: 'Центральный меридиан'; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'lon_0'; wktName: 'longitude_of_center'; Description: 'Долгота начальной точки'; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'lonc'; wktName: 'longitude_of_center'; Description: 'Долгота начальной точки'; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'x_0'; wktName: 'false_easting'; Description: 'Смещение по долготе'; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'y_0'; wktName: 'false_northing'; Description: 'Смещение по широте'; paramGroup: PJ_PARAM_GROUP_GENERAL),
 		// Additional Projection Parameters'; paramGroup: 0),
-		(pjKey:'alpha'; wktName: 'azimuth'; Description: rsPROJ4_GenParam_alpha_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'azi'; wktName: ''; Description: rsPROJ4_GenParam_azi_Caption; paramGroup: 0),
-		(pjKey:'belgium'; wktName: ''; Description: rsPROJ4_GenParam_belgium_Caption; paramGroup: 0),
+		(pjKey:'alpha'; wktName: 'azimuth'; Description: 'Азимут начальной линии'; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'azi'; wktName: ''; Description: ''; paramGroup: 0),
+		(pjKey:'belgium'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'beta'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'czech'; wktName: ''; Description: ''; paramGroup: 0),
-		(pjKey:'gamma'; wktName: ''; Description: ''; paramGroup: 0),
+		(pjKey:'gamma'; wktName: 'rectified_grid_angle'; Description: ''; paramGroup: 0),
 		(pjKey:'e'; wktName: ''; Description: 'Эксцентриситет'; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
 		(pjKey:'es'; wktName: ''; Description: 'Квадрат эксцентриситета'; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
-		(pjKey:'ellps'; wktName: ''; Description: rsPROJ4_GenParam_ellps_Caption; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
+		(pjKey:'ellps'; wktName: ''; Description: 'Эллипсоид'; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
 		(pjKey:'geoc'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'datum'; wktName: ''; Description: 'Имя датума'; paramGroup: PJ_PARAM_GROUP_DATUM),
 		(pjKey:'guam'; wktName: ''; Description: ''; paramGroup: 0),
@@ -638,7 +591,7 @@ const
 		(pjKey:'m'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'M'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'n'; wktName: ''; Description: ''; paramGroup: 0),
-		(pjKey:'no_defs'; wktName: ''; Description: rsPROJ4_GenParam_no_defs_Caption; paramGroup: 0),
+		(pjKey:'no_defs'; wktName: ''; Description: 'Игнорировать значения по умолчанию'; paramGroup: 0),
 		(pjKey:'no_cut'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'no_off'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'no_rot'; wktName: ''; Description: ''; paramGroup: 0),
@@ -653,37 +606,36 @@ const
 		(pjKey:'o_lon_c'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'o_lon_p'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'o_proj'; wktName: ''; Description: ''; paramGroup: 0),
-		(pjKey:'proj'; wktName: ''; Description: rsPROJ4_GenParam_proj_Caption; paramGroup: 0),
-		(pjKey:'over'; wktName: ''; Description: rsPROJ4_GenParam_over_Caption; paramGroup: 0),
+		(pjKey:'proj'; wktName: ''; Description: 'Название проекции'; paramGroup: 0),
+		(pjKey:'over'; wktName: ''; Description: 'Не ограничивать по долготе'; paramGroup: 0), // Allow longitude output outside -180 to 180 range, disables wrapping
 		(pjKey:'p'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'path'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'q'; wktName: ''; Description: ''; paramGroup: 0),
-		(pjKey:'R'; wktName: ''; Description: rsPROJ4_GenParam_R_Caption; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
+		(pjKey:'R'; wktName: ''; Description: 'Радиус сферы'; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
     // ellipsoid spherification paramerets
-		(pjKey:'R_A'; wktName: ''; Description: rsPROJ4_GenParam_R_A_Caption; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
-		(pjKey:'R_V'; wktName: ''; Description: rsPROJ4_GenParam_R_V_Caption; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
-		(pjKey:'R_a'; wktName: ''; Description: rsPROJ4_GenParam_R_a_mean_Caption; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
-		(pjKey:'R_g'; wktName: ''; Description: ''; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
-		(pjKey:'R_h'; wktName: ''; Description: ''; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
-		(pjKey:'R_lat_a'; wktName: ''; Description: rsPROJ4_GenParam_R_lat_a_Caption; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
-		(pjKey:'R_lat_g'; wktName: ''; Description: rsPROJ4_GenParam_R_lat_g_Caption; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
+		(pjKey:'R_A'; wktName: ''; Description: ''; paramGroup: PJ_PARAM_GROUP_ELLIPSOID), // Sphere with the same surface area as the ellipsoid
+		(pjKey:'R_V'; wktName: ''; Description: ''; paramGroup: PJ_PARAM_GROUP_ELLIPSOID), // Sphere with same volume as ellipsoid
+		(pjKey:'R_a'; wktName: ''; Description: ''; paramGroup: PJ_PARAM_GROUP_ELLIPSOID), //R_a = (a + b)/2)
+		(pjKey:'R_g'; wktName: ''; Description: ''; paramGroup: PJ_PARAM_GROUP_ELLIPSOID), // R = sqrt(a*b)
+		(pjKey:'R_h'; wktName: ''; Description: ''; paramGroup: PJ_PARAM_GROUP_ELLIPSOID), // R = 2*a*b/(a+b)
+		(pjKey:'R_lat_a'; wktName: ''; Description: ''; paramGroup: PJ_PARAM_GROUP_ELLIPSOID), // Arithmetic mean of of the corresponding ellipsoid at given latitude.
+		(pjKey:'R_lat_g'; wktName: ''; Description: ''; paramGroup: PJ_PARAM_GROUP_ELLIPSOID), // Geometric mean of of the corresponding ellipsoid at given latitude.
     //
 		(pjKey:'rot'; wktName: ''; Description: ''; paramGroup: 0),
-		(pjKey:'rf'; wktName: ''; Description: rsPROJ4_GenParam_rf_Caption; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
+		(pjKey:'rf'; wktName: ''; Description: 'Обратное сжатие (1/f)'; paramGroup: PJ_PARAM_GROUP_ELLIPSOID),
 		(pjKey:'s'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'sym'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'t'; wktName: ''; Description: ''; paramGroup: 0),
     (pjKey:'th'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'theta'; wktName: ''; Description: ''; paramGroup: 0),
-		(pjKey:'to_meter'; wktName: ''; Description: rsPROJ4_GenParam_to_meter_Caption; paramGroup: PJ_PARAM_GROUP_GENERAL),
-		(pjKey:'vto_meter'; wktName: ''; Description: rsPROJ4_GenParam_vto_meter_Caption), // Vertical plane coordinate scaling. Internal unit
-		(pjKey:'towgs84'; wktName: ''; Description: rsPROJ4_GenParam_towgs84_Caption; paramGroup: PJ_PARAM_GROUP_DATUM),
+		(pjKey:'to_meter'; wktName: ''; Description: 'Коэфициент перевода в метры'; paramGroup: PJ_PARAM_GROUP_GENERAL),
+		(pjKey:'vto_meter'; wktName: ''; Description: ''), // Vertical plane coordinate scaling. Internal unit
+		(pjKey:'towgs84'; wktName: ''; Description: 'Параметры перехода к WGS84'; paramGroup: PJ_PARAM_GROUP_DATUM),
 		(pjKey:'tilt'; wktName: ''; Description: ''; paramGroup: 0),
-		(pjKey:'units'; wktName: ''; Description: rsPROJ4_GenParam_units_Caption; paramGroup: 0),
+		(pjKey:'units'; wktName: ''; Description: 'Единицы проекции'; paramGroup: 0),
 		(pjKey:'vopt'; wktName: ''; Description: ''; paramGroup: 0),
 		(pjKey:'W'; wktName: ''; Description: ''; paramGroup: 0),
-		(pjKey:'westo'; wktName: ''; Description: ''; paramGroup: 0),
-    (pjKey:'zone'; wktName: ''; Description: rsPROJ4_GenParam_zone_Caption; paramGroup: 0)
+		(pjKey:'westo'; wktName: ''; Description: ''; paramGroup: 0)
 	);
 
 type
@@ -905,6 +857,116 @@ const
     (EPSGCode: -1; ID: -1; OGCName: ''; EllID: 0; dX: 0; dY: 0; dZ: 0; rX: 0; rY: 0; rZ: 0; ScaleFactor: 0; PrimeMeridian: 0) // Datum ignore
   );
 
+type
+  pjMapInfoSpheroidInfo = record
+    ID: Integer;
+    Name: string;
+    A: Double;
+    RF: Double;
+  end;
+
+const
+  pjMapInfoSpheroidInfoList: array[0..53] of pjMapInfoSpheroidInfo = (
+    (ID: 9; Name: 'Airy 1930'; A: 6377563.396; RF: 299.3249646),
+    (ID: 13; Name: 'Airy 1930 (modified for Ireland 1965'; A: 6377340.189; RF: 299.3249646),
+    (ID: 51; Name: 'ATS77 (Average Terrestrial System 1977)'; A: 6378135; RF: 298.257),
+    (ID: 2; Name: 'Australian'; A: 6378160.0; RF: 298.25),
+    (ID: 10; Name: 'Bessel 1841'; A: 6377397.155; RF: 299.1528128),
+    (ID: 35; Name: 'Bessel 1841 (modified for NGO 1948)'; A: 6377492.0176; RF: 299.15281),
+    (ID: 14; Name: 'Bessel 1841 (modified for Schwarzeck)'; A: 6377483.865; RF: 299.1528128),
+    (ID: 36; Name: 'Clarke 1858'; A: 6378293.639; RF: 294.26068),
+    (ID: 7; Name: 'Clarke 1866'; A: 6378206.4; RF: 294.9786982),
+    (ID: 8; Name: 'Clarke 1866 (modified for Michigan)'; A: 6378450.047484481; RF: 294.9786982),
+    (ID: 6; Name: 'Clarke 1880'; A: 6378249.145; RF: 293.465),
+    (ID: 15; Name: 'Clarke 1880 (modified for Arc 1950)'; A: 6378249.145326; RF: 293.4663076),
+    (ID: 30; Name: 'Clarke 1880 (modified for IGN)'; A: 6378249.2; RF: 293.4660213),
+    (ID: 37; Name: 'Clarke 1880 (modified for Jamaica)'; A: 6378249.136; RF: 293.46631),
+    (ID: 16; Name: 'Clarke 1880 (modified for Merchich)'; A: 6378249.2; RF: 293.46598),
+    (ID: 38; Name: 'Clarke 1880 (modified for Palestine)'; A: 6378300.79; RF: 293.46623),
+    (ID: 39; Name: 'Everest (Brunei and East Malaysia)'; A: 6377298.556; RF: 300.8017),
+    (ID: 11; Name: 'Everest (India 1830)'; A: 6377276.345; RF: 300.8017),
+    (ID: 40; Name: 'Everest (India 1956)'; A: 6377301.243; RF: 300.80174),
+    (ID: 50; Name: 'Everest (Pakistan)'; A: 6377309.613; RF: 300.8017),
+    (ID: 17; Name: 'Everest (W. Malaysia and Singapore 1948)'; A: 6377304.063; RF: 300.8017),
+    (ID: 48; Name: 'Everest (West Malaysia 1969)'; A: 6377304.063; RF: 300.8017),
+    (ID: 18; Name: 'Fischer 1960'; A: 6378166.0; RF: 298.3),
+    (ID: 19; Name: 'Fischer 1960 (modified for South Asia)'; A: 6378155.0; RF: 298.3),
+    (ID: 20; Name: 'Fischer 1968'; A: 6378150.0; RF: 298.3),
+    (ID: 21; Name: 'GRS 67'; A: 6378160.0; RF: 298.247167427),
+    (ID: 0; Name: 'GRS 80'; A: 6378137.0; RF: 298.257222101),
+    (ID: 5; Name: 'Hayford'; A: 6378388.0; RF: 297.0),
+    (ID: 22; Name: 'Helmert 1906'; A: 6378200.0; RF: 298.3),
+    (ID: 23; Name: 'Hough'; A: 6378270.0; RF: 297.0),
+    (ID: 31; Name: 'IAG 75'; A: 6378140.0; RF: 298.257222),
+    (ID: 41; Name: 'Indonesian'; A: 6378160.0; RF: 298.247),
+    (ID: 4; Name: 'International 1924'; A: 6378388.0; RF: 297.0),
+    (ID: 49; Name: 'Irish (WOFO)'; A: 6377542.178; RF: 299.325),
+    (ID: 3; Name: 'Krassovsky'; A: 6378245.0; RF: 298.3),
+    (ID: 32; Name: 'MERIT 83'; A: 6378137.0; RF: 298.257),
+    (ID: 33; Name: 'New International 1967'; A: 6378157.5; RF: 298.25),
+    (ID: 42; Name: 'NWL 9D'; A: 6378145.0; RF: 298.25),
+    (ID: 43; Name: 'NWL 10D'; A: 6378135.0; RF: 298.26),
+    (ID: 44; Name: 'OSU86F'; A: 6378136.2; RF: 298.25722),
+    (ID: 45; Name: 'OSU91A'; A: 6378136.3; RF: 298.25722),
+    (ID: 46; Name: 'Plessis 1817'; A: 6376523.0; RF: 308.64),
+    (ID: 52; Name: 'PZ90'; A: 6378136.0; RF: 298.257839303),
+    (ID: 24; Name: 'South American'; A: 6378160.0; RF: 298.25),
+    (ID: 12; Name: 'Sphere'; A: 6370997.0; RF: 0.0),
+    (ID: 47; Name: 'Struve 1860'; A: 6378297.0; RF: 294.73),
+    (ID: 34; Name: 'Walbeck'; A: 6376896.0; RF: 302.78),
+    (ID: 25; Name: 'War Office'; A: 6378300.583; RF: 296.0),
+    (ID: 26; Name: 'WGS 60'; A: 6378165.0; RF: 298.3),
+    (ID: 27; Name: 'WGS 66'; A: 6378145.0; RF: 298.25),
+    (ID: 1; Name: 'WGS 72'; A: 6378135.0; RF: 298.26),
+    (ID: 28; Name: 'WGS 84'; A: 6378137.0; RF: 298.257223563),
+    (ID: 29; Name: 'WGS 84 (MAPINFO Datum 0)'; A: 6378137.01; RF: 298.257223563),
+    (ID: 54; Name: 'WGS 84 (MAPINFO Datum 157)'; A: 6378137.01; RF: 298.257223563)
+  );
+
+type
+  TMapInfoUnitInfo = record
+    ID: Integer;
+    MapInfoName: string;
+    ProjName: string;
+    ToMeters: Double;
+  end;
+
+const
+  pjMapInfoUnitsList: array[0..11] of TMapInfoUnitInfo = (
+    (ID: 0;  MapInfoName: 'mi';        ProjName: 'mi';    ToMeters: 1609.344),
+    (ID: 1;  MapInfoName: 'km';        ProjName: 'km';    ToMeters: 1000.0),
+    (ID: 2;  MapInfoName: 'in';        ProjName: 'in';    ToMeters: 0.0254),
+    (ID: 3;  MapInfoName: 'ft';        ProjName: 'ft';    ToMeters: 0.3048),
+    (ID: 4;  MapInfoName: 'yd';        ProjName: 'yd';    ToMeters: 0.9144),
+    (ID: 5;  MapInfoName: 'mm';        ProjName: 'mm';    ToMeters: 0.001),
+    (ID: 6;  MapInfoName: 'cm';        ProjName: 'cm';    ToMeters: 0.01),
+    (ID: 7;  MapInfoName: 'm';         ProjName: 'm';     ToMeters: 1.0),
+    (ID: 8;  MapInfoName: 'survey ft'; ProjName: 'us-ft'; ToMeters: 0.3048006096012192),
+    (ID: 9;  MapInfoName: 'nmi';       ProjName: 'kmi';   ToMeters: 1852.0),
+    (ID: 30; MapInfoName: 'li';        ProjName: '';      ToMeters: 0.20116684023368047),
+    (ID: 31; MapInfoName: 'ch';        ProjName: '';      ToMeters: 20.116684023368047)
+  );
+
+const
+  // Keep the canonical MapInfo/GDAL 2.4 decimal spellings for units that
+  // have no equivalent PROJ 5.2 named unit.  Formatting the corresponding
+  // Double back to text may legitimately end in a neighbouring last digit
+  // (for example 0.20116684023368048), so these strings must not be rebuilt
+  // from the binary floating-point value when generating +to_meter.
+  MAPINFO_LINK_TO_METERS_TEXT  = '0.20116684023368047';
+  MAPINFO_CHAIN_TO_METERS_TEXT = '20.116684023368047';
+  MAPINFO_ROD_TO_METERS_TEXT   = '5.02921005842012';
+  MAPINFO_ROD_TO_METERS        = 5.02921005842012;
+
+  // PROJ 5.2 Krovak hard-codes its internal S0/UQ constants and ignores
+  // external pseudo-standard-parallel/alpha parameters.  GDAL 2.4 uses the
+  // following values as Krovak WKT/MapInfo metadata.  In particular, keep
+  // 30.28813972222222 exactly: it is the GDAL 2.4 legacy constant and is
+  // intentionally not the 90deg-UQ value (30.288139752778...).
+  MAPINFO_KROVAK_PSEUDO_STD_PARALLEL = 78.5;
+  MAPINFO_KROVAK_AZIMUTH              = 30.28813972222222;
+  MAPINFO_KROVAK_PARAM_TOLERANCE      = 1.0E-6;
+
 //typedef struct
 //{
 //    int         nMapInfoId;
@@ -1084,8 +1146,8 @@ begin
 	Result := EllipseInfo(pjCode,SpheroidName,AF,FF);
 	if Result then
 	begin
-		A := AF.ToString;
-		F := FF.ToString;
+		A := AF.ToString(TFormatSettings.Invariant);
+		F := FF.ToString(TFormatSettings.Invariant);
   end;
 end;
 
@@ -1137,7 +1199,7 @@ var
 begin
 	Result := PrimeInfo(AKey,PrimeName,Lon);
 
-	PrimeLon := Lon.ToString;
+	PrimeLon := Lon.ToString(TFormatSettings.Invariant);
 end;
 
 procedure UnitsInfo(const AKey: string; var wktName, toMerersFactor: string);
@@ -1149,7 +1211,7 @@ begin
 		if SameText(pjLinearUnitsList[Idx].pjKey,AKey) then
 		begin
 			wktName := pjLinearUnitsList[Idx].wktName;
-			toMerersFactor := pjLinearUnitsList[Idx].toMeters.ToString;
+			toMerersFactor := pjLinearUnitsList[Idx].toMeters.ToString(TFormatSettings.Invariant);
 			Exit;
     end;
 	end;
@@ -1164,7 +1226,7 @@ begin
 		if SameText(pjLinearUnitsList[Idx].wktName, AWktName) then
 		begin
 			pjKey := pjLinearUnitsList[Idx].pjKey;
-			toMerersFactor := pjLinearUnitsList[Idx].toMeters.ToString;
+			toMerersFactor := pjLinearUnitsList[Idx].toMeters.ToString(TFormatSettings.Invariant);
 			Exit;
     end;
 	end;
@@ -1236,13 +1298,26 @@ var
 	Index: Integer;
 begin
 	Index := Pairs.IndexOfName(PairName);
-	Result := Index > -1;
-	if Result then
+	if Index > -1 then
 	begin
 		PairValue := Pairs.ValueFromIndex[Index];
 		if PairValue = '' then
 			PairValue := DefaultValue;
+		Exit(True);
 	end;
+
+  // Boolean PROJ parameters are commonly written without '=value'
+  // (e.g. +south, +czech, +wktext, +no_defs). TStringList.IndexOfName()
+  // does not reliably treat such an item as a name, so check the raw token.
+  for Index := 0 to Pairs.Count - 1 do
+    if SameText(Trim(Pairs[Index]),PairName) then
+    begin
+      PairValue := DefaultValue;
+      Exit(True);
+    end;
+
+  PairValue := '';
+  Result := False;
 end;
 
 function LibProjDefnToWKTProjection(const ADefn: string; PrettyWKT: Boolean): string;
@@ -1268,16 +1343,35 @@ var
 
 
 	procedure FetchPrimeMeridian();
+	var
+		PmValue: string;
+		PmLon: Double;
 	begin
-		if TryFindProjPairValue(ProjPairs, 'pm', FPrimeName, 'greenwich') then
-			PrimeInfo(FPrimeName,FPrimeName,FPrimeLon)
+		if TryFindProjPairValue(ProjPairs, 'pm', PmValue, 'greenwich') then
+		begin
+			if TryStrToFloat(PmValue,PmLon,TFormatSettings.Invariant) then
+			begin
+				FPrimeName := 'unnamed';
+				FPrimeLon := FloatToStr(PmLon,TFormatSettings.Invariant);
+			end
+			else
+				PrimeInfo(PmValue,FPrimeName,FPrimeLon);
+		end
 		else
 			PrimeInfo('greenwich',FPrimeName,FPrimeLon)
 	end;
 
 	procedure FetchEllipse();
 	var
-		EA, EF: double;
+		EA, EB, EF, ES, Ecc: Double;
+		S,BaseEllps,BaseName,BaseA,BaseRF: string;
+    HaveBase,ExplicitShape,ExplicitA: Boolean;
+
+    procedure SetInvFlatteningFromF(const F: Double);
+    begin
+      if SameValue(F,0.0) then FEllipseF := '0'
+      else FEllipseF := MIInvariantFloat(1.0/F);
+    end;
 	begin
 		FEllipseName := 'unnamed';
 		FDatumName := 'unknown';
@@ -1285,74 +1379,115 @@ var
 		FEllipsePrms := '';
 		FEllipseA := '';
 		FEllipseF := '';
+    BaseEllps := '';
+    HaveBase := False;
+    ExplicitShape := False;
+    ExplicitA := False;
 
-		if TryFindProjPairValue(ProjPairs,'a',FEllipseA,DEF_ELL_A) then
+    // A datum supplies both a base ellipsoid and, when defined by the legacy
+    // table, its default datum transform. Explicit ellipsoid/shape parameters
+    // below may override only the ellipsoid part.
+    if TryFindProjPairValue(ProjPairs,'datum',S,'') and DatumInfo(S,DtmInfo) then
+    begin
+      FDatumName := DtmInfo.dName;
+      FDatumToWgs := DtmInfo.toWgs;
+      BaseEllps := DtmInfo.pjEllKey;
+    end;
+
+    if TryFindProjPairValue(ProjPairs,'ellps',S,'') then
+      BaseEllps := S;
+
+    if (BaseEllps <> '') and EllipseInfo(BaseEllps,BaseName,BaseA,BaseRF) then
+    begin
+      FEllipseName := BaseName;
+      FEllipseA := BaseA;
+      FEllipseF := BaseRF;
+      HaveBase := True;
+    end;
+
+		if TryFindProjPairValue(ProjPairs,'R',S,'') then
 		begin
-			TryFindProjPairValue(ProjPairs,'R',FEllipseA,FEllipseA); // "R" takes precedence over "a"
-
-			if not TryFindProjPairValue(ProjPairs,'f',FEllipseF, DEF_ELL_F) then
-			begin
-				if not TryFindProjPairValue(ProjPairs,'b',FEllipseF,DEF_ELL_B) then
-					FEllipseF := DEF_ELL_F
-				else
-				begin
-					if EA.TryParse(FEllipseA, EA) and EF.TryParse(FEllipseA, EF) then
-					begin
-						EF := (EA - EF) / EA;
-						if EF = 0 then
-							begin
-								FEllipseName := FEllipseName + ' sphere';
-								FGeoCSName := 'Sphere based';
-							end
-						else
-							EF := 1 / EF;
-
-						FEllipseA := EA.ToString();
-						FEllipseF := EF.ToString();
-					end
-					else
-					begin
-            FEllipseName := DEF_ELL_N;
-						FEllipseA := DEF_ELL_A;
-						FEllipseF := DEF_ELL_F;
-          end;
-				end;
-			end;
+      if TryStrToFloat(S,EA,TFormatSettings.Invariant) and (EA > 0.0) then
+      begin
+        FEllipseA := MIInvariantFloat(EA);
+        FEllipseF := '0';
+        FEllipseName := 'unnamed sphere';
+        FGeoCSName := 'Sphere based';
+      end;
 		end
-		else
-		begin
-			if TryFindProjPairValue(ProjPairs,'ellps',FEllipseName,DEF_ELL_N) then
-			begin
-				if not EllipseInfo(FEllipseName,FEllipseName,FEllipseA,FEllipseF) then
-				begin
-					FEllipseA := DEF_ELL_A;
-					FEllipseF := DEF_ELL_F;
-				end;
-			end
-			else
-			if TryFindProjPairValue(ProjPairs, 'datum', FDatumName, 'unknown') then
-			begin
-				if DatumInfo(FDatumName,DtmInfo) then
-				begin
-					FDatumName := DtmInfo.dName;
-					// if datum set then change ellipsoid
-					EllipseInfo(DtmInfo.pjEllKey,FEllipseName,FEllipseA,FEllipseF);
-					FDatumToWgs := DtmInfo.toWgs;
-				end;
-			end
-			else
-			begin
-				FEllipseName := DEF_ELL_N;
-				FDatumName := DEF_DATUM_N;
-				FEllipseA := DEF_ELL_A;
-				FEllipseF := DEF_ELL_F;
-			end;
-		end;
+    else
+    begin
+      if TryFindProjPairValue(ProjPairs,'a',S,'') and
+         TryStrToFloat(S,EA,TFormatSettings.Invariant) and (EA > 0.0) then
+      begin
+        FEllipseA := MIInvariantFloat(EA);
+        ExplicitA := True;
+        if not HaveBase then FEllipseF := '0'; // PROJ 5.2: +a alone is a sphere.
+      end;
+
+      if TryFindProjPairValue(ProjPairs,'rf',S,'') and
+         TryStrToFloat(S,EF,TFormatSettings.Invariant) then
+      begin
+        FEllipseF := MIInvariantFloat(EF);
+        ExplicitShape := True;
+      end
+      else if TryFindProjPairValue(ProjPairs,'f',S,'') and
+              TryStrToFloat(S,EF,TFormatSettings.Invariant) then
+      begin
+        SetInvFlatteningFromF(EF);
+        ExplicitShape := True;
+      end
+      else if TryFindProjPairValue(ProjPairs,'es',S,'') and
+              TryStrToFloat(S,ES,TFormatSettings.Invariant) and
+              (ES >= 0.0) and (ES < 1.0) then
+      begin
+        EF := 1.0-Sqrt(1.0-ES);
+        SetInvFlatteningFromF(EF);
+        ExplicitShape := True;
+      end
+      else if TryFindProjPairValue(ProjPairs,'e',S,'') and
+              TryStrToFloat(S,Ecc,TFormatSettings.Invariant) and
+              (Ecc >= 0.0) and (Ecc < 1.0) then
+      begin
+        ES := Ecc*Ecc;
+        EF := 1.0-Sqrt(1.0-ES);
+        SetInvFlatteningFromF(EF);
+        ExplicitShape := True;
+      end
+      else if TryFindProjPairValue(ProjPairs,'b',S,'') and
+              TryStrToFloat(FEllipseA,EA,TFormatSettings.Invariant) and
+              TryStrToFloat(S,EB,TFormatSettings.Invariant) and
+              (EA > 0.0) and (EB > 0.0) then
+      begin
+        if SameValue(EA,EB) then FEllipseF := '0'
+        else FEllipseF := MIInvariantFloat(EA/(EA-EB));
+        ExplicitShape := True;
+      end;
+
+      if (FEllipseA = '') or (FEllipseF = '') then
+      begin
+        // Preserve the historical WGS84 fallback for definitions relying on
+        // proj_def.dat defaults, but do not pretend an explicit +a is WGS84.
+        if not ExplicitA then
+        begin
+          FEllipseName := DEF_ELL_N;
+          FEllipseA := DEF_ELL_A;
+          FEllipseF := DEF_ELL_F;
+        end;
+      end;
+
+      if ExplicitA or ExplicitShape then
+        FEllipseName := 'unnamed';
+      if FEllipseF = '0' then
+      begin
+        FEllipseName := 'unnamed sphere';
+        FGeoCSName := 'Sphere based';
+      end;
+    end;
 
 		TryFindProjPairValue(ProjPairs,'towgs84',FDatumToWgs,DEF_ELL_TOWGS);
-
 		if (FEllipseA <> '') and (FEllipseF <> '') then
-			FEllipsePrms := FEllipseA + ','+FEllipseF;
+			FEllipsePrms := FEllipseA + ',' + FEllipseF;
 	end;
 
 	procedure FetchDatumUnits();
@@ -1385,8 +1520,33 @@ var
 	end;
 
 	procedure FetchProjectionName();
+  var
+    S: string;
+    V: Double;
 	begin
-		if not TranslateProjectionName(FProjID,FProjectionName) then
+    { Match the canonical OGC WKT1 methods produced by GDAL 2.4 when it
+      imports a PROJ.4 definition.  The projection table also contains
+      alternative names accepted on input, therefore simply returning the
+      first table entry is not sufficient for canonical output. }
+    if SameText(FProjID,'merc') then
+    begin
+      if TryFindProjPairValue(ProjPairs,'lat_ts',S,'') then
+      begin
+        if not TryStrToFloat(S,V,TFormatSettings.Invariant) then
+          raise EArgumentException.CreateFmt('Invalid +lat_ts value in projection: %s',[ADefn]);
+        if V < 999.0 then
+          FProjectionName := 'Mercator_2SP'
+        else
+          FProjectionName := 'Mercator_1SP';
+      end
+      else
+        FProjectionName := 'Mercator_1SP';
+    end
+    else if SameText(FProjID,'etmerc') then
+      { GDAL 2.4 serializes etmerc as a standard Transverse_Mercator WKT
+        method and preserves the exact PROJ definition in EXTENSION. }
+      FProjectionName := 'Transverse_Mercator'
+    else if not TranslateProjectionName(FProjID,FProjectionName) then
 			InvalidProjection(FProjID,ADefn);
 
 		FProjCSName := 'unnamed';
@@ -1395,15 +1555,41 @@ var
 	procedure FetchProjectionUnits();
   const
     cDefUnitsName = 'Meter';
-	begin
-		FProjUnits := cDefUnitsName;
-		FFProjUnitsFactor := '1';
+  var
+    S: string;
+    P: Integer;
+    N,D,F: Double;
+  begin
+    FProjUnits := cDefUnitsName;
+    FFProjUnitsFactor := '1';
 
-		if TryFindProjPairValue(ProjPairs,'units',FProjUnits,'m') then
-			UnitsInfo(FProjUnits,FProjUnits,FFProjUnitsFactor);
+    // PROJ 5.2 gives +units precedence over +to_meter.
+    if TryFindProjPairValue(ProjPairs,'units',S,'') then
+    begin
+      FProjUnits := S;
+      UnitsInfo(S,FProjUnits,FFProjUnitsFactor);
+      Exit;
+    end;
 
-		TryFindProjPairValue(ProjPairs,'to_meter',FFProjUnitsFactor,'1');
-	end;
+    if TryFindProjPairValue(ProjPairs,'to_meter',S,'') then
+    begin
+      // +to_meter also accepts ratios (for example 1/39.37).
+      P := Pos('/',S);
+      if P > 0 then
+      begin
+        if TryStrToFloat(Copy(S,1,P-1),N,TFormatSettings.Invariant) and
+           TryStrToFloat(Copy(S,P+1,MaxInt),D,TFormatSettings.Invariant) and
+           not SameValue(D,0.0) then
+        begin
+          F := N/D;
+          FFProjUnitsFactor := MIInvariantFloat(F);
+        end;
+      end
+      else if TryStrToFloat(S,F,TFormatSettings.Invariant) and (F > 0.0) then
+        FFProjUnitsFactor := MIInvariantFloat(F);
+      FProjUnits := 'unknown';
+    end;
+  end;
 
 	procedure FetchUtm();
 	const
@@ -1412,19 +1598,23 @@ var
 			Zone,South: string;
 			SouthHemesphere: Boolean;
 			Code: Integer;
+      UnitFactor: Double;
 			pjTmParamsValues: array[0..4] of string;
 	begin
+    UnitFactor := 1.0;
+    if not TryStrToFloat(FFProjUnitsFactor,UnitFactor,TFormatSettings.Invariant) or
+       (UnitFactor <= 0.0) then UnitFactor := 1.0;
 		if TryFindProjPairValue(ProjPairs,'zone',Zone,'') then
 		begin
 			if Code.TryParse(Zone,Code) then
 			begin
 				SouthHemesphere := TryFindProjPairValue(ProjPairs,'south',South,'1') and (South = '1');
-				if (Code > 0) and (Code < 60) then
+				if (Code > 0) and (Code <= 60) then
 				begin
 					FProjCSName := 'UTM Zone '+Zone+', ';
 					if  SouthHemesphere then
 						begin
-							pjTmParamsValues[4] := '10000000';
+							pjTmParamsValues[4] := MIInvariantFloat(10000000.0/UnitFactor);
 							FProjCSName := FProjCSName + 'Southern Hemisphere'
 						end
 					else
@@ -1435,8 +1625,8 @@ var
 
 					pjTmParamsValues[0] := '0.9996';
 					pjTmParamsValues[1] := '0';
-					pjTmParamsValues[2] := ((Code * 6) - 183).ToString;
-					pjTmParamsValues[3] := '500000';
+					pjTmParamsValues[2] := MIInvariantFloat((Code * 6) - 183);
+					pjTmParamsValues[3] := MIInvariantFloat(500000.0/UnitFactor);
 
 					for Code := 0 to Length(pjTmParams) -1 do
 					begin
@@ -1456,32 +1646,160 @@ var
 	// https://proj4.org/usage/projections.html
 	// https://github.com/OSGeo/proj.4/wiki/GenParms
 	const
-		pjGenParams: array[0..9] of string = (
-			'k','k_0','lat_0','lat_1','lat_2','lat_ts','lon_0','lonc','x_0','y_0');
+		pjGenParams: array[0..11] of string = (
+			'k','k_0','lat_0','lat_1','lat_2','lat_ts','lon_0','lonc','x_0','y_0',
+      'alpha','gamma');
 	var
-		ParamName,ParamValue: string;
+		ParamName,ParamValue,WktParamName: string;
 		Idx: Integer;
+    V,UnitFactor: Double;
+
+    function ParameterNameForWKT(const PName: string; out WName: string): Boolean;
+    begin
+      Result := True;
+      if SameText(PName,'k') or SameText(PName,'k_0') then WName := 'scale_factor'
+      else if SameText(PName,'lat_1') then WName := 'standard_parallel_1'
+      else if SameText(PName,'lat_2') then WName := 'standard_parallel_2'
+      else if SameText(PName,'lat_ts') then WName := 'standard_parallel_1'
+      else if SameText(PName,'lonc') then WName := 'longitude_of_center'
+      else if SameText(PName,'alpha') then WName := 'azimuth'
+      else if SameText(PName,'gamma') then WName := 'rectified_grid_angle'
+      else if SameText(PName,'x_0') then WName := 'false_easting'
+      else if SameText(PName,'y_0') then WName := 'false_northing'
+      else if SameText(PName,'lat_0') then
+      begin
+        if SameText(FProjID,'aea') or SameText(FProjID,'eqdc') or
+           SameText(FProjID,'laea') or SameText(FProjID,'aeqd') or
+           SameText(FProjID,'omerc') or SameText(FProjID,'krovak') then
+          WName := 'latitude_of_center'
+        else
+          WName := 'latitude_of_origin';
+      end
+      else if SameText(PName,'lon_0') then
+      begin
+        if SameText(FProjID,'aea') or SameText(FProjID,'eqdc') or
+           SameText(FProjID,'laea') or SameText(FProjID,'aeqd') or
+           SameText(FProjID,'krovak') then
+          WName := 'longitude_of_center'
+        else
+          WName := 'central_meridian';
+      end
+      else
+        Result := TranslateProjectionParam(PName,WName);
+    end;
+
+    procedure FetchMercatorParameters;
+    var
+      S: string;
+      V: Double;
+
+      procedure AddAngularOrScale(const WktName, ProjName, DefaultValue: string);
+      begin
+        if not TryFindProjPairValue(ProjPairs,ProjName,S,'') then
+          S := DefaultValue;
+        if not TryStrToFloat(S,V,TFormatSettings.Invariant) then
+          raise EArgumentException.CreateFmt('Invalid +%s value in projection: %s',[ProjName,ADefn]);
+        FProjCSParameters.Add(WktName+'='+MIInvariantFloat(V));
+      end;
+
+      procedure AddLinear(const WktName, ProjName: string);
+      begin
+        if not TryFindProjPairValue(ProjPairs,ProjName,S,'') then
+          S := '0';
+        if not TryStrToFloat(S,V,TFormatSettings.Invariant) then
+          raise EArgumentException.CreateFmt('Invalid +%s value in projection: %s',[ProjName,ADefn]);
+        FProjCSParameters.Add(WktName+'='+MIInvariantFloat(V/UnitFactor));
+      end;
+
+    begin
+      { GDAL 2.4 SetMercator()/SetMercator2SP() materialize the defaults in
+        WKT even when the corresponding PROJ parameters are omitted.  Do the
+        same so the WKT remains a complete CRS without relying on EXTENSION. }
+      if SameText(FProjectionName,'Mercator_2SP') then
+      begin
+        AddAngularOrScale('standard_parallel_1','lat_ts','0');
+        FProjCSParameters.Add('latitude_of_origin=0');
+      end
+      else
+        FProjCSParameters.Add('latitude_of_origin=0');
+
+      AddAngularOrScale('central_meridian','lon_0','0');
+
+      if SameText(FProjectionName,'Mercator_1SP') then
+      begin
+        if TryFindProjPairValue(ProjPairs,'k_0',S,'') then
+        begin
+          if not TryStrToFloat(S,V,TFormatSettings.Invariant) then
+            raise EArgumentException.CreateFmt('Invalid +k_0 value in projection: %s',[ADefn]);
+        end
+        else if TryFindProjPairValue(ProjPairs,'k',S,'') then
+        begin
+          if not TryStrToFloat(S,V,TFormatSettings.Invariant) then
+            raise EArgumentException.CreateFmt('Invalid +k value in projection: %s',[ADefn]);
+        end
+        else
+          V := 1.0;
+        FProjCSParameters.Add('scale_factor='+MIInvariantFloat(V));
+      end;
+
+      AddLinear('false_easting','x_0');
+      AddLinear('false_northing','y_0');
+    end;
 	begin
 		if FProjCSParameters = nil then
 			FProjCSParameters := TStringList.Create
 		else
 			FProjCSParameters.Clear;
 
+    UnitFactor := 1.0;
+    if not TryStrToFloat(FFProjUnitsFactor,UnitFactor,TFormatSettings.Invariant) or
+       (UnitFactor <= 0.0) then
+      UnitFactor := 1.0;
+
 		if SameText(FProjID,'utm') then
 		begin
 			FetchUtm();
 		end
+    else if SameText(FProjID,'merc') then
+    begin
+      FetchMercatorParameters();
+      FProjCSName := FProjCSName + ' ('+FProjectionName+ '/' + FGeoCSName +')';
+    end
 		else
 		begin
 			for Idx := 0 to Length(pjGenParams) -1 do
 			begin
 				ParamName := pjGenParams[Idx];
+        // k_0 supersedes the deprecated k spelling; avoid duplicate WKT
+        // scale_factor parameters when both are present.
+        if SameText(ParamName,'k') and
+           TryFindProjPairValue(ProjPairs,'k_0',ParamValue,'') then Continue;
+        // Oblique Mercator uses lonc. Its internal lon_0 is derived by the
+        // projection and must not be serialized as a second center longitude.
+        if SameText(FProjID,'omerc') and SameText(ParamName,'lon_0') and
+           TryFindProjPairValue(ProjPairs,'lonc',ParamValue,'') then Continue;
 				if TryFindProjPairValue(ProjPairs,ParamName,ParamValue,'') and
-					 TranslateProjectionParam(ParamName,ParamName) then
+           ParameterNameForWKT(ParamName,WktParamName) then
 				begin
-					FProjCSParameters.Add(ParamName+'='+ParamValue);
+          // PROJ x_0/y_0 are internal metres; WKT parameters use the
+          // projected CRS linear unit.
+          if (SameText(ParamName,'x_0') or SameText(ParamName,'y_0')) and
+             TryStrToFloat(ParamValue,V,TFormatSettings.Invariant) then
+            ParamValue := MIInvariantFloat(V/UnitFactor);
+					FProjCSParameters.Add(WktParamName+'='+ParamValue);
 				end;
 			end;
+
+      if SameText(FProjID,'krovak') then
+      begin
+        if FProjCSParameters.IndexOfName('pseudo_standard_parallel_1') < 0 then
+          FProjCSParameters.Add('pseudo_standard_parallel_1='+
+            MIInvariantFloat(MAPINFO_KROVAK_PSEUDO_STD_PARALLEL));
+        if FProjCSParameters.IndexOfName('azimuth') < 0 then
+          FProjCSParameters.Add('azimuth='+MIInvariantFloat(MAPINFO_KROVAK_AZIMUTH));
+        if FProjCSParameters.IndexOfName('scale_factor') < 0 then
+          FProjCSParameters.Add('scale_factor=0.9999');
+      end;
 
 			FProjCSName :=  FProjCSName + ' ('+FProjectionName+ '/' + FGeoCSName +')';
 		end;
@@ -1502,8 +1820,8 @@ var
 		FProjectionName := 'unknown';
 
 		FetchProjectionName();
-		FetchProjectionParameters();
 		FetchProjectionUnits();
+		FetchProjectionParameters();
 	end;
 
 begin
@@ -1671,9 +1989,31 @@ var
 
   end;
 
-  procedure ProcessGeoCS(d: TWKTGeoCRS);
+  function ProcessGeoCS(d: TWKTGeoCRS): Boolean;
   var
     s, a,b: string;
+    PMValue: Double;
+
+    function ValidateTowgs84(const Value: string): Boolean;
+    var
+      Values: TStringList;
+      I: Integer;
+      D: Double;
+    begin
+      Result := False;
+      Values := TStringList.Create;
+      try
+        Values.Delimiter := ',';
+        Values.StrictDelimiter := True;
+        Values.DelimitedText := Value;
+        if (Values.Count <> 3) and (Values.Count <> 7) then Exit;
+        for I := 0 to Values.Count - 1 do
+          if not TryStrToFloat(Trim(Values[I]),D,TFormatSettings.Invariant) then Exit;
+        Result := True;
+      finally
+        Values.Free;
+      end;
+    end;
 
     function CalcAB(const af: string): boolean;
     var
@@ -1685,12 +2025,16 @@ var
       if not Result then
         Exit;
 
-      Result := a_.TryParse(af_[0],a_) and f_.TryParse(af_[1],f_);
+      Result := TryStrToFloat(af_[0],a_,TFormatSettings.Invariant) and
+        TryStrToFloat(af_[1],f_,TFormatSettings.Invariant);
 
       if not Result then
         Exit;
 
-      b_ := a_ - f_ * a_;
+      if SameValue(f_,0.0) then
+        b_ := a_
+      else
+        b_ := a_ * (1.0 - 1.0 / f_);
 
       Result := (a_ > 0) and (b_ > 0);
 
@@ -1702,46 +2046,119 @@ var
     end;
 
   begin
+    Result := False;
     if WktEllps2ProjEllps(d.SpheroidName,s) then
       proj4Params.Add('+ellps='+s)
     else
     begin
-      if CalcAB(d.SpheroidAF) then
-      begin
-        proj4Params.Add('+a='+a);
-        proj4Params.Add('+b='+b);
-      end;
+      if not CalcAB(d.SpheroidAF) then Exit;
+      proj4Params.Add('+a='+a);
+      proj4Params.Add('+b='+b);
     end;
 
     s := d.ToWGS;
+    // Absence of TOWGS84 is meaningful. Do not invent an identity datum
+    // transformation for a WKT datum that did not specify one.
     if s <> '' then
-      s := '+towgs84='+s
-    else
-      s := '+towgs84=0,0,0';
-
-    proj4Params.Add(s);
-  end;
-
-  procedure ProcessProjCS(d: TWKTProjectedCRS);
-  var
-    i: Integer;
-    k,v, defn: string;
-  begin
-    for i := 0 to d.ProjectionParameters.Count -1 do
     begin
-      k := d.ProjectionParameters[i].AttributeName;
-      if not WKTParameterName2ProjParameterName(k, defn) then
-        Continue;
-
-      v := d.ProjectionParameters[i].AttributeValue[1];
-      proj4Params.Add('+'+defn+'='+v);
+      if not ValidateTowgs84(s) then Exit;
+      proj4Params.Add('+towgs84='+s);
     end;
 
-    k := '';
-    v := '';
-    WktUnitsInfo(d.UnitsName,k,v);
-    if (k <> '') and (v <> '') then
-      proj4Params.Add('+units'+'='+k);
+    if not SameText(d.PrimeMeridianName,'Greenwich') or
+       ((d.PrimeMeridianLon <> '') and
+        not SameText(d.PrimeMeridianLon,'0') and
+        not SameText(d.PrimeMeridianLon,'0.0')) then
+    begin
+      if not TryStrToFloat(d.PrimeMeridianLon,PMValue,TFormatSettings.Invariant) then Exit;
+      proj4Params.Add('+pm='+MIInvariantFloat(PMValue));
+    end;
+    Result := True;
+  end;
+
+  function ProcessProjCS(d: TWKTProjectedCRS): Boolean;
+  var
+    i: Integer;
+    k,v, ProjParam, ProjMethod, UnitKey, UnitFactorText: string;
+    UnitFactor,KnownUnitFactor,ParamValue: Double;
+
+    function MapParameter(const WktName: string; out ProjName: string): Boolean;
+    begin
+      Result := True;
+      if SameText(WktName,'false_easting') then ProjName := 'x_0'
+      else if SameText(WktName,'false_northing') then ProjName := 'y_0'
+      else if SameText(WktName,'scale_factor') then ProjName := 'k_0'
+      else if SameText(WktName,'standard_parallel_2') then ProjName := 'lat_2'
+      else if SameText(WktName,'standard_parallel_1') then
+      begin
+        if SameText(ProjMethod,'merc') or SameText(ProjMethod,'cea') or
+           SameText(ProjMethod,'eqc') then ProjName := 'lat_ts'
+        else ProjName := 'lat_1';
+      end
+      else if SameText(WktName,'longitude_of_center') then
+      begin
+        if SameText(ProjMethod,'omerc') then ProjName := 'lonc'
+        else ProjName := 'lon_0';
+      end
+      else if SameText(WktName,'central_meridian') then ProjName := 'lon_0'
+      else if SameText(WktName,'latitude_of_origin') or
+              SameText(WktName,'latitude_of_center') then ProjName := 'lat_0'
+      else if SameText(WktName,'azimuth') then ProjName := 'alpha'
+      else if SameText(WktName,'rectified_grid_angle') then ProjName := 'gamma'
+      else if SameText(WktName,'pseudo_standard_parallel_1') and
+              SameText(ProjMethod,'krovak') then
+      begin
+        // PROJ 5.2 Krovak hard-codes 78.5 degrees and has no parameter for it.
+        ProjName := '';
+      end
+      else
+        Result := WKTParameterName2ProjParameterName(WktName,ProjName);
+    end;
+
+  begin
+    Result := False;
+    if not WKTProjectionName2ProjName(d.ProjectionName,ProjMethod) then Exit;
+
+    if not TryStrToFloat(d.UnitsToMeters,UnitFactor,TFormatSettings.Invariant) or
+       (UnitFactor <= 0.0) then Exit;
+
+    for i := 0 to d.ProjectionParameters.Count - 1 do
+    begin
+      k := d.ProjectionParameters[i].AttributeName;
+      v := d.ProjectionParameters[i].AttributeValue[1];
+      if not TryStrToFloat(v,ParamValue,TFormatSettings.Invariant) then Exit;
+
+      if SameText(k,'pseudo_standard_parallel_1') and SameText(ProjMethod,'krovak') then
+      begin
+        if not SameValue(ParamValue,MAPINFO_KROVAK_PSEUDO_STD_PARALLEL,
+                         MAPINFO_KROVAK_PARAM_TOLERANCE) then Exit;
+        Continue;
+      end;
+
+      if not MapParameter(k,ProjParam) then
+        Exit;
+      if ProjParam = '' then
+        Continue;
+
+      // WKT false easting/northing are expressed in the projected CRS unit,
+      // while PROJ 5.2 +x_0/+y_0 are stored internally in metres.
+      if SameText(ProjParam,'x_0') or SameText(ProjParam,'y_0') then
+        ParamValue := ParamValue*UnitFactor;
+      proj4Params.Add('+'+ProjParam+'='+MIInvariantFloat(ParamValue));
+    end;
+
+    UnitKey := '';
+    UnitFactorText := '';
+    WktUnitsInfo(d.UnitsName,UnitKey,UnitFactorText);
+    KnownUnitFactor := 0.0;
+    if (UnitKey <> '') and
+       TryStrToFloat(UnitFactorText,KnownUnitFactor,TFormatSettings.Invariant) and
+       SameValue(KnownUnitFactor,UnitFactor,1E-12) then
+      proj4Params.Add('+units='+UnitKey)
+    else
+      proj4Params.Add('+to_meter='+MIInvariantFloat(UnitFactor));
+
+    Result := True;
   end;
 
 begin
@@ -1768,14 +2185,14 @@ begin
           Exit;
 
         proj4Params.Add('+proj='+defn);
-        ProcessGeoCS((crs as TWKTProjectedCRS).GeoCS);
-        ProcessProjCS((crs as TWKTProjectedCRS));
+        if not ProcessGeoCS((crs as TWKTProjectedCRS).GeoCS) then Exit;
+        if not ProcessProjCS((crs as TWKTProjectedCRS)) then Exit;
       end
       else
       if SameText(crs.Keyword,'GEOGCS') then
       begin
         proj4Params.Add('+proj=longlat');
-        ProcessGeoCS(crs as TWKTGeoCRS);
+        if not ProcessGeoCS(crs as TWKTGeoCRS) then Exit;
       end;
 
       proj4Params.Add('+no_defs');
@@ -1790,9 +2207,1295 @@ begin
   end;
 end;
 
-function LibProjDefnToMapinfoCoordSys(const ADefn: string): string;
+function MIInvariantFloat(const V: Double): string;
+begin
+  Result := FloatToStrF(V,ffGeneral,17,0,TFormatSettings.Invariant);
+end;
+
+function MITryFloat(const S: string; out V: Double): Boolean;
+begin
+  Result := TryStrToFloat(Trim(S),V,TFormatSettings.Invariant);
+end;
+
+function MITryProjFactor(const S: string; out V: Double): Boolean;
+var
+  P: Integer;
+  N,D: Double;
+  T: string;
+begin
+  T := Trim(S);
+  P := Pos('/',T);
+  if P <= 0 then
+    Exit(MITryFloat(T,V));
+
+  Result := MITryFloat(Copy(T,1,P-1),N) and
+            MITryFloat(Copy(T,P+1,MaxInt),D) and not SameValue(D,0.0);
+  if Result then V := N/D;
+end;
+
+function MIQuote(const S: string): string;
+begin
+  Result := '"' + StringReplace(S,'"','""',[rfReplaceAll]) + '"';
+end;
+
+function MIUnquoteToken(const S: string): string;
+var
+  T: string;
+begin
+  T := Trim(S);
+  if (Length(T) >= 2) and (T[1] = '"') and (T[Length(T)] = '"') then
+  begin
+    T := Copy(T,2,Length(T)-2);
+    T := StringReplace(T,'""','"',[rfReplaceAll]);
+  end;
+  Result := T;
+end;
+
+function MIUnitInfoByName(const AName: string; out AProjName: string;
+  out AToMeters: Double): Boolean;
+var
+  I: Integer;
+begin
+  for I := Low(pjMapInfoUnitsList) to High(pjMapInfoUnitsList) do
+    if SameText(AName,pjMapInfoUnitsList[I].MapInfoName) or
+       SameText(AName,pjMapInfoUnitsList[I].ProjName) or
+       ((pjMapInfoUnitsList[I].ID = 8) and SameText(AName,'survey foot')) then
+    begin
+      AProjName := pjMapInfoUnitsList[I].ProjName;
+      AToMeters := pjMapInfoUnitsList[I].ToMeters;
+      Exit(True);
+    end;
+
+  if SameText(AName,'rd') then
+  begin
+    AProjName := '';
+    AToMeters := MAPINFO_ROD_TO_METERS;
+    Exit(True);
+  end;
+
+  AProjName := '';
+  AToMeters := 1.0;
+  Result := False;
+end;
+
+function MIUnitFactorText(const AMapInfoName: string;
+  const AToMeters: Double): string;
+begin
+  // MapInfo li/ch/rd are based on US-survey-foot-derived values.  They do
+  // not match PROJ 5.2 named units link/ch, so emit +to_meter using the
+  // exact legacy GDAL 2.4 decimal constants instead of re-formatting a
+  // Double and changing the last decimal digit.
+  if SameText(AMapInfoName,'li') then
+    Exit(MAPINFO_LINK_TO_METERS_TEXT);
+  if SameText(AMapInfoName,'ch') then
+    Exit(MAPINFO_CHAIN_TO_METERS_TEXT);
+  if SameText(AMapInfoName,'rd') then
+    Exit(MAPINFO_ROD_TO_METERS_TEXT);
+  Result := MIInvariantFloat(AToMeters);
+end;
+
+function MIUnitInfoByProj(const AProjName: string; const AToMeters: Double;
+  out AMapInfoName: string; out AFactor: Double): Boolean;
+var
+  I: Integer;
+begin
+  for I := Low(pjMapInfoUnitsList) to High(pjMapInfoUnitsList) do
+    if ((AProjName <> '') and SameText(AProjName,pjMapInfoUnitsList[I].ProjName)) or
+       ((AProjName = '') and SameValue(AToMeters,pjMapInfoUnitsList[I].ToMeters,1E-12)) then
+    begin
+      AMapInfoName := pjMapInfoUnitsList[I].MapInfoName;
+      AFactor := pjMapInfoUnitsList[I].ToMeters;
+      Exit(True);
+    end;
+
+  if (AProjName = '') and SameValue(AToMeters,MAPINFO_ROD_TO_METERS,1E-12) then
+  begin
+    AMapInfoName := 'rd';
+    AFactor := MAPINFO_ROD_TO_METERS;
+    Exit(True);
+  end;
+
+  AMapInfoName := '';
+  AFactor := 1.0;
+  Result := False;
+end;
+
+function MIMapInfoSpheroidByID(const AID: Integer;
+  out AInfo: pjMapInfoSpheroidInfo): Boolean;
+var
+  I: Integer;
+begin
+  for I := Low(pjMapInfoSpheroidInfoList) to High(pjMapInfoSpheroidInfoList) do
+    if pjMapInfoSpheroidInfoList[I].ID = AID then
+    begin
+      AInfo := pjMapInfoSpheroidInfoList[I];
+      Exit(True);
+    end;
+  AInfo := Default(pjMapInfoSpheroidInfo);
+  Result := False;
+end;
+
+function MIMapInfoSpheroidByARF(const A,RF: Double;
+  out AInfo: pjMapInfoSpheroidInfo): Boolean;
+var
+  I: Integer;
+begin
+  for I := Low(pjMapInfoSpheroidInfoList) to High(pjMapInfoSpheroidInfoList) do
+    if SameValue(A,pjMapInfoSpheroidInfoList[I].A,1E-7) and
+       SameValue(RF,pjMapInfoSpheroidInfoList[I].RF,1E-9) then
+    begin
+      AInfo := pjMapInfoSpheroidInfoList[I];
+      Exit(True);
+    end;
+  AInfo := Default(pjMapInfoSpheroidInfo);
+  Result := False;
+end;
+
+function MIMapInfoDatumByID(const AID: Integer;
+  out AInfo: pjMapInfoDatumInfo): Boolean;
+var
+  I: Integer;
+begin
+  for I := Low(pjMapInfoDatumInfoList) to High(pjMapInfoDatumInfoList) do
+    if pjMapInfoDatumInfoList[I].ID = AID then
+    begin
+      AInfo := pjMapInfoDatumInfoList[I];
+      Exit(True);
+    end;
+  AInfo := Default(pjMapInfoDatumInfo);
+  Result := False;
+end;
+
+function MIDoubleArrayValue(const AValues: TArray<Double>;
+  const AIndex: Integer; const ADefault: Double = 0.0): Double;
+begin
+  if (AIndex >= 0) and (AIndex < Length(AValues)) then
+    Result := AValues[AIndex]
+  else
+    Result := ADefault;
+end;
+
+function MIFindKeywordOutsideQuotes(const S,Keyword: string): Integer;
+var
+  I,L: Integer;
+  InQuotes: Boolean;
+begin
+  Result := 0;
+  InQuotes := False;
+  L := Length(Keyword);
+  I := 1;
+  while I <= Length(S) - L + 1 do
+  begin
+    if S[I] = '"' then
+    begin
+      // In a quoted MapInfo token two consecutive quote characters encode
+      // one literal quote and do not terminate the quoted field.
+      if InQuotes and (I < Length(S)) and (S[I+1] = '"') then
+      begin
+        Inc(I,2);
+        Continue;
+      end;
+      InQuotes := not InQuotes;
+    end
+    else if not InQuotes and SameText(Copy(S,I,L),Keyword) then
+    begin
+      Result := I;
+      Exit;
+    end;
+    Inc(I);
+  end;
+end;
+
+function MIParseBounds(const S: string; out MinX,MinY,MaxX,MaxY: Double): Boolean;
+var
+  T: string;
+  L: TStringList;
+  V: array[0..3] of Double;
+  I,N: Integer;
+begin
+  Result := False;
+  T := StringReplace(S,'(', ' ',[rfReplaceAll]);
+  T := StringReplace(T,')', ' ',[rfReplaceAll]);
+  T := StringReplace(T,',', ' ',[rfReplaceAll]);
+  L := TStringList.Create;
+  try
+    L.Delimiter := ' ';
+    L.StrictDelimiter := True;
+    L.DelimitedText := Trim(T);
+    N := 0;
+    for I := 0 to L.Count - 1 do
+      if Trim(L[I]) <> '' then
+      begin
+        if N > High(V) then Exit;
+        if not MITryFloat(L[I],V[N]) then Exit;
+        Inc(N);
+      end;
+    if N <> 4 then Exit;
+    MinX := V[0]; MinY := V[1]; MaxX := V[2]; MaxY := V[3];
+    Result := True;
+  finally
+    L.Free;
+  end;
+end;
+
+function TryParseMapInfoCoordSys(const AValue: string;
+  out ACoordSys: TMapInfoCoordSys): Boolean;
+var
+  S,MainPart,BoundsPart: string;
+  P,I,Index,DatumCount: Integer;
+  Tokens: TStringList;
+  V: Double;
+begin
+  ACoordSys := Default(TMapInfoCoordSys);
+  ACoordSys.EllipsoidID := -1;
+  Result := False;
+  S := Trim(AValue);
+  if S = '' then Exit;
+
+  if SameText(Copy(S,1,9),'CoordSys ') then
+    S := Trim(Copy(S,10,MaxInt));
+
+  if SameText(Copy(S,1,16),'Earth Projection') then
+  begin
+    ACoordSys.IsEarth := True;
+    S := Trim(Copy(S,17,MaxInt));
+  end
+  else if SameText(Copy(S,1,14),'NonEarth Units') then
+  begin
+    ACoordSys.IsEarth := False;
+    ACoordSys.ProjectionID := 0;
+    ACoordSys.DatumID := 0;
+    S := Trim(Copy(S,15,MaxInt));
+  end
+  else Exit;
+
+  P := MIFindKeywordOutsideQuotes(S,' Bounds ');
+  if P > 0 then
+  begin
+    MainPart := Trim(Copy(S,1,P-1));
+    BoundsPart := Trim(Copy(S,P+8,MaxInt));
+    if not MIParseBounds(BoundsPart,ACoordSys.BoundsMinX,ACoordSys.BoundsMinY,
+      ACoordSys.BoundsMaxX,ACoordSys.BoundsMaxY) then Exit;
+    ACoordSys.HasBounds := True;
+  end
+  else MainPart := S;
+
+  Tokens := TStringList.Create;
+  try
+    Tokens.Delimiter := ',';
+    Tokens.StrictDelimiter := True;
+    Tokens.QuoteChar := '"';
+    Tokens.DelimitedText := MainPart;
+    // TStringList only recognizes QuoteChar when it is the first character
+    // of a field. MapInfo normally writes a space after each comma, e.g.
+    // `..., 104, "m", ...`, so trim and dequote explicitly.
+    for I := 0 to Tokens.Count - 1 do
+      Tokens[I] := MIUnquoteToken(Tokens[I]);
+
+    if not ACoordSys.IsEarth then
+    begin
+      if Tokens.Count < 1 then Exit;
+      ACoordSys.UnitsName := Tokens[0];
+      Result := ACoordSys.UnitsName <> '';
+      Exit;
+    end;
+
+    if Tokens.Count < 2 then Exit;
+    if not TryStrToInt(Tokens[0],ACoordSys.ProjectionID) then Exit;
+    // Legacy MITAB accepts 1000/2000/3000-prefixed projection numbers and
+    // normalizes them to the base MapInfo projection method.
+    if ACoordSys.ProjectionID >= 3000 then
+      Dec(ACoordSys.ProjectionID,3000)
+    else if ACoordSys.ProjectionID >= 2000 then
+      Dec(ACoordSys.ProjectionID,2000)
+    else if ACoordSys.ProjectionID >= 1000 then
+      Dec(ACoordSys.ProjectionID,1000);
+    if not TryStrToInt(Tokens[1],ACoordSys.DatumID) then Exit;
+    Index := 2;
+
+    DatumCount := 0;
+    if (ACoordSys.DatumID = 999) or (ACoordSys.DatumID = 9999) then
+    begin
+      // A custom datum is not valid without its ellipsoid and the complete
+      // 3- or 8-value parameter set.  Do not let a malformed datum shift the
+      // units/projection fields and accidentally parse as another CoordSys.
+      if (Index >= Tokens.Count) or
+         not TryStrToInt(Tokens[Index],ACoordSys.EllipsoidID) then Exit;
+      Inc(Index);
+      if ACoordSys.DatumID = 999 then DatumCount := 3 else DatumCount := 8;
+      SetLength(ACoordSys.DatumParameters,DatumCount);
+      for I := 0 to DatumCount - 1 do
+      begin
+        if (Index >= Tokens.Count) or
+           not MITryFloat(Tokens[Index],ACoordSys.DatumParameters[I]) then Exit;
+        Inc(Index);
+      end;
+    end;
+
+    if ACoordSys.ProjectionID <> 1 then
+    begin
+      if Index >= Tokens.Count then Exit;
+      ACoordSys.UnitsName := Tokens[Index];
+      Inc(Index);
+      if ACoordSys.UnitsName = '' then Exit;
+    end;
+
+    SetLength(ACoordSys.ProjectionParameters,Tokens.Count-Index);
+    I := 0;
+    while Index < Tokens.Count do
+    begin
+      if not MITryFloat(Tokens[Index],V) then Exit;
+      ACoordSys.ProjectionParameters[I] := V;
+      Inc(I);
+      Inc(Index);
+    end;
+    Result := True;
+  finally
+    Tokens.Free;
+  end;
+end;
+
+function MapInfoCoordSysToString(const ACoordSys: TMapInfoCoordSys;
+  const IncludeCoordSysKeyword: Boolean): string;
+var
+  I: Integer;
+begin
+  if not ACoordSys.IsEarth then
+  begin
+    Result := 'NonEarth Units ' + MIQuote(ACoordSys.UnitsName);
+    if ACoordSys.HasBounds then
+      Result := Result + ' Bounds (' + MIInvariantFloat(ACoordSys.BoundsMinX) + ', ' +
+        MIInvariantFloat(ACoordSys.BoundsMinY) + ') (' +
+        MIInvariantFloat(ACoordSys.BoundsMaxX) + ', ' +
+        MIInvariantFloat(ACoordSys.BoundsMaxY) + ')';
+    if IncludeCoordSysKeyword then Result := 'CoordSys ' + Result;
+    Exit;
+  end;
+
+  Result := Format('Earth Projection %d, %d',[ACoordSys.ProjectionID,ACoordSys.DatumID]);
+  if ((ACoordSys.DatumID = 999) or (ACoordSys.DatumID = 9999)) and
+     (ACoordSys.EllipsoidID >= 0) then
+  begin
+    Result := Result + ', ' + IntToStr(ACoordSys.EllipsoidID);
+    for I := 0 to Length(ACoordSys.DatumParameters)-1 do
+      Result := Result + ', ' + MIInvariantFloat(ACoordSys.DatumParameters[I]);
+  end;
+
+  if ACoordSys.ProjectionID <> 1 then
+    Result := Result + ', ' + MIQuote(ACoordSys.UnitsName);
+  for I := 0 to Length(ACoordSys.ProjectionParameters)-1 do
+    Result := Result + ', ' + MIInvariantFloat(ACoordSys.ProjectionParameters[I]);
+
+  if ACoordSys.HasBounds then
+    Result := Result + ' Bounds (' + MIInvariantFloat(ACoordSys.BoundsMinX) + ', ' +
+      MIInvariantFloat(ACoordSys.BoundsMinY) + ') (' +
+      MIInvariantFloat(ACoordSys.BoundsMaxX) + ', ' +
+      MIInvariantFloat(ACoordSys.BoundsMaxY) + ')';
+  if IncludeCoordSysKeyword then Result := 'CoordSys ' + Result;
+end;
+
+procedure MIAddProjParam(AList: TStrings; const AName: string; const AValue: Double);
+begin
+  AList.Add('+'+AName+'='+MIInvariantFloat(AValue));
+end;
+
+function MIProjectionParamCount(const ProjectionID: Integer): Integer;
+begin
+  // Canonical parameter counts produced by legacy MITAB/GDAL 2.4.
+  case ProjectionID of
+    1: Result := 0;
+    2: Result := 2;
+    3,6,9,19,32: Result := 6;
+    4,5,28,29: Result := 3;
+    7: Result := 6;
+    8,20,21,22,23,24,31,34: Result := 5;
+    10,11,12,13,14,15,16,17: Result := 1;
+    18,25,27,30,33: Result := 4;
+    26: Result := 2;
+    35: Result := 7;
+  else
+    Result := -1;
+  end;
+end;
+
+function MIProjectionParamsValid(const ProjectionID, ParamCount: Integer): Boolean;
+begin
+  // Some old MIF writers include optional values that legacy GDAL can read
+  // although it does not emit them itself.  Accept those variants while
+  // keeping a single canonical representation on output.
+  case ProjectionID of
+    2:
+      Result := (ParamCount = 2) or (ParamCount = 4);
+    4,5,28,29:
+      Result := (ParamCount = 2) or (ParamCount = 3);
+  else
+    Result := (MIProjectionParamCount(ProjectionID) >= 0) and
+              (ParamCount = MIProjectionParamCount(ProjectionID));
+  end;
+end;
+
+function MIProjectionToProj(const C: TMapInfoCoordSys; AList: TStrings;
+  const UnitToMeters: Double): Boolean;
+var
+  P: TArray<Double>;
+  F: Double;
+begin
+  Result := False;
+  P := C.ProjectionParameters;
+  if not MIProjectionParamsValid(C.ProjectionID,Length(P)) then Exit;
+  Result := True;
+  F := UnitToMeters;
+  if F <= 0 then F := 1.0;
+  case C.ProjectionID of
+    1: AList.Add('+proj=longlat');
+    2: begin
+      AList.Add('+proj=cea');
+      MIAddProjParam(AList,'lon_0',MIDoubleArrayValue(P,0));
+      MIAddProjParam(AList,'lat_ts',MIDoubleArrayValue(P,1));
+      if Length(P) = 4 then
+      begin
+        MIAddProjParam(AList,'x_0',P[2]*F);
+        MIAddProjParam(AList,'y_0',P[3]*F);
+      end;
+    end;
+    3,19: begin AList.Add('+proj=lcc'); MIAddProjParam(AList,'lon_0',MIDoubleArrayValue(P,0)); MIAddProjParam(AList,'lat_0',MIDoubleArrayValue(P,1)); MIAddProjParam(AList,'lat_1',MIDoubleArrayValue(P,2)); MIAddProjParam(AList,'lat_2',MIDoubleArrayValue(P,3)); MIAddProjParam(AList,'x_0',MIDoubleArrayValue(P,4)*F); MIAddProjParam(AList,'y_0',MIDoubleArrayValue(P,5)*F); end;
+    4,29: begin
+      if (Length(P) = 3) and not SameValue(P[2],90.0,1E-10) then Exit(False);
+      AList.Add('+proj=laea');
+      MIAddProjParam(AList,'lon_0',MIDoubleArrayValue(P,0));
+      MIAddProjParam(AList,'lat_0',MIDoubleArrayValue(P,1));
+    end;
+    5,28: begin
+      if (Length(P) = 3) and not SameValue(P[2],90.0,1E-10) then Exit(False);
+      AList.Add('+proj=aeqd');
+      MIAddProjParam(AList,'lon_0',MIDoubleArrayValue(P,0));
+      MIAddProjParam(AList,'lat_0',MIDoubleArrayValue(P,1));
+    end;
+    6: begin AList.Add('+proj=eqdc'); MIAddProjParam(AList,'lon_0',MIDoubleArrayValue(P,0)); MIAddProjParam(AList,'lat_0',MIDoubleArrayValue(P,1)); MIAddProjParam(AList,'lat_1',MIDoubleArrayValue(P,2)); MIAddProjParam(AList,'lat_2',MIDoubleArrayValue(P,3)); MIAddProjParam(AList,'x_0',MIDoubleArrayValue(P,4)*F); MIAddProjParam(AList,'y_0',MIDoubleArrayValue(P,5)*F); end;
+    7,35: begin
+      AList.Add('+proj=omerc'); MIAddProjParam(AList,'lonc',MIDoubleArrayValue(P,0)); MIAddProjParam(AList,'lat_0',MIDoubleArrayValue(P,1)); MIAddProjParam(AList,'alpha',MIDoubleArrayValue(P,2));
+      if C.ProjectionID=35 then begin MIAddProjParam(AList,'gamma',MIDoubleArrayValue(P,3)); MIAddProjParam(AList,'k_0',MIDoubleArrayValue(P,4,1)); MIAddProjParam(AList,'x_0',MIDoubleArrayValue(P,5)*F); MIAddProjParam(AList,'y_0',MIDoubleArrayValue(P,6)*F); end
+      else begin MIAddProjParam(AList,'gamma',90); MIAddProjParam(AList,'k_0',MIDoubleArrayValue(P,3,1)); MIAddProjParam(AList,'x_0',MIDoubleArrayValue(P,4)*F); MIAddProjParam(AList,'y_0',MIDoubleArrayValue(P,5)*F); end;
+    end;
+    8,21,22,23,24,34: begin if C.ProjectionID=34 then AList.Add('+proj=etmerc') else AList.Add('+proj=tmerc'); MIAddProjParam(AList,'lon_0',MIDoubleArrayValue(P,0)); MIAddProjParam(AList,'lat_0',MIDoubleArrayValue(P,1)); MIAddProjParam(AList,'k_0',MIDoubleArrayValue(P,2,1)); MIAddProjParam(AList,'x_0',MIDoubleArrayValue(P,3)*F); MIAddProjParam(AList,'y_0',MIDoubleArrayValue(P,4)*F); end;
+    9: begin AList.Add('+proj=aea'); MIAddProjParam(AList,'lon_0',MIDoubleArrayValue(P,0)); MIAddProjParam(AList,'lat_0',MIDoubleArrayValue(P,1)); MIAddProjParam(AList,'lat_1',MIDoubleArrayValue(P,2)); MIAddProjParam(AList,'lat_2',MIDoubleArrayValue(P,3)); MIAddProjParam(AList,'x_0',MIDoubleArrayValue(P,4)*F); MIAddProjParam(AList,'y_0',MIDoubleArrayValue(P,5)*F); end;
+    10,26: begin AList.Add('+proj=merc'); MIAddProjParam(AList,'lon_0',MIDoubleArrayValue(P,0)); if C.ProjectionID=26 then MIAddProjParam(AList,'lat_ts',MIDoubleArrayValue(P,1)) else begin MIAddProjParam(AList,'lat_0',0); MIAddProjParam(AList,'k_0',1); end; end;
+    11: begin AList.Add('+proj=mill'); MIAddProjParam(AList,'lon_0',MIDoubleArrayValue(P,0)); end;
+    12: begin AList.Add('+proj=robin'); MIAddProjParam(AList,'lon_0',MIDoubleArrayValue(P,0)); end;
+    13: begin AList.Add('+proj=moll'); MIAddProjParam(AList,'lon_0',MIDoubleArrayValue(P,0)); end;
+    14: begin AList.Add('+proj=eck4'); MIAddProjParam(AList,'lon_0',MIDoubleArrayValue(P,0)); end;
+    15: begin AList.Add('+proj=eck6'); MIAddProjParam(AList,'lon_0',MIDoubleArrayValue(P,0)); end;
+    16: begin AList.Add('+proj=sinu'); MIAddProjParam(AList,'lon_0',MIDoubleArrayValue(P,0)); end;
+    17: begin AList.Add('+proj=gall'); MIAddProjParam(AList,'lon_0',MIDoubleArrayValue(P,0)); end;
+    18: begin AList.Add('+proj=nzmg'); MIAddProjParam(AList,'lon_0',MIDoubleArrayValue(P,0)); MIAddProjParam(AList,'lat_0',MIDoubleArrayValue(P,1)); MIAddProjParam(AList,'x_0',MIDoubleArrayValue(P,2)*F); MIAddProjParam(AList,'y_0',MIDoubleArrayValue(P,3)*F); end;
+    20,31: begin if C.ProjectionID=31 then AList.Add('+proj=sterea') else AList.Add('+proj=stere'); MIAddProjParam(AList,'lon_0',MIDoubleArrayValue(P,0)); MIAddProjParam(AList,'lat_0',MIDoubleArrayValue(P,1)); MIAddProjParam(AList,'k_0',MIDoubleArrayValue(P,2,1)); MIAddProjParam(AList,'x_0',MIDoubleArrayValue(P,3)*F); MIAddProjParam(AList,'y_0',MIDoubleArrayValue(P,4)*F); end;
+    25: begin AList.Add('+proj=somerc'); MIAddProjParam(AList,'lon_0',MIDoubleArrayValue(P,0)); MIAddProjParam(AList,'lat_0',MIDoubleArrayValue(P,1)); MIAddProjParam(AList,'x_0',MIDoubleArrayValue(P,2)*F); MIAddProjParam(AList,'y_0',MIDoubleArrayValue(P,3)*F); end;
+    27: begin AList.Add('+proj=poly'); MIAddProjParam(AList,'lon_0',MIDoubleArrayValue(P,0)); MIAddProjParam(AList,'lat_0',MIDoubleArrayValue(P,1)); MIAddProjParam(AList,'x_0',MIDoubleArrayValue(P,2)*F); MIAddProjParam(AList,'y_0',MIDoubleArrayValue(P,3)*F); end;
+    30: begin AList.Add('+proj=cass'); MIAddProjParam(AList,'lon_0',MIDoubleArrayValue(P,0)); MIAddProjParam(AList,'lat_0',MIDoubleArrayValue(P,1)); MIAddProjParam(AList,'x_0',MIDoubleArrayValue(P,2)*F); MIAddProjParam(AList,'y_0',MIDoubleArrayValue(P,3)*F); end;
+    32: begin
+      // PROJ 5.2 Krovak cannot vary these MapInfo metadata parameters.
+      // Accept only values compatible with the GDAL 2.4 legacy Krovak form.
+      if not SameValue(P[2],MAPINFO_KROVAK_PSEUDO_STD_PARALLEL,
+                       MAPINFO_KROVAK_PARAM_TOLERANCE) or
+         not SameValue(P[3],MAPINFO_KROVAK_AZIMUTH,
+                       MAPINFO_KROVAK_PARAM_TOLERANCE) then Exit(False);
+      AList.Add('+proj=krovak');
+      MIAddProjParam(AList,'lon_0',P[0]);
+      MIAddProjParam(AList,'lat_0',P[1]);
+      // Alpha is retained as WKT/round-trip metadata. PROJ 5.2 ignores it.
+      MIAddProjParam(AList,'alpha',MAPINFO_KROVAK_AZIMUTH);
+      // MapInfo/GDAL 2.4 projection 32 uses scale 1.0.  Explicitly set it
+      // because bare PROJ 5.2 Krovak defaults to 0.9999.
+      MIAddProjParam(AList,'k_0',1);
+      MIAddProjParam(AList,'x_0',P[4]*F);
+      MIAddProjParam(AList,'y_0',P[5]*F);
+    end;
+    33: begin
+      AList.Add('+proj=eqc');
+      MIAddProjParam(AList,'lon_0',MIDoubleArrayValue(P,0));
+      MIAddProjParam(AList,'lat_0',MIDoubleArrayValue(P,1));
+      MIAddProjParam(AList,'lat_ts',0);
+      MIAddProjParam(AList,'x_0',MIDoubleArrayValue(P,2)*F);
+      MIAddProjParam(AList,'y_0',MIDoubleArrayValue(P,3)*F);
+    end;
+  else Result := False;
+  end;
+end;
+
+function MIAddDatumToProj(const C: TMapInfoCoordSys; AList: TStrings): Boolean;
+var
+  D: pjMapInfoDatumInfo;
+  E: pjMapInfoSpheroidInfo;
+  P: TArray<Double>;
+  Towgs: string;
+begin
+  Result := False;
+
+  // MapInfo datum 157 is the historical Google/Pseudo-Mercator special
+  // case. The projection uses the WGS84 semi-major radius as a sphere; the
+  // regular MapInfo spheroid 54 values must not be emitted here.
+  if (C.ProjectionID = 10) and (C.DatumID = 157) then
+  begin
+    AList.Add('+lat_ts=0');
+    AList.Add('+a=6378137');
+    AList.Add('+b=6378137');
+    AList.Add('+nadgrids=@null');
+    AList.Add('+wktext');
+    Exit(True);
+  end;
+
+  if C.DatumID = 104 then
+  begin
+    AList.Add('+datum=WGS84');
+    Exit(True);
+  end;
+
+  if (C.DatumID=999) or (C.DatumID=9999) then
+  begin
+    if (C.EllipsoidID < 0) or not MIMapInfoSpheroidByID(C.EllipsoidID,E) then Exit;
+    if ((C.DatumID=999) and (Length(C.DatumParameters)<>3)) or
+       ((C.DatumID=9999) and (Length(C.DatumParameters)<>8)) then Exit;
+
+    AList.Add('+a='+MIInvariantFloat(E.A));
+    if SameValue(E.RF,0.0) then
+      AList.Add('+b='+MIInvariantFloat(E.A))
+    else
+      AList.Add('+rf='+MIInvariantFloat(E.RF));
+
+    P := C.DatumParameters;
+    Towgs := MIInvariantFloat(P[0])+','+MIInvariantFloat(P[1])+','+MIInvariantFloat(P[2]);
+    if C.DatumID=9999 then
+      Towgs := Towgs+','+MIInvariantFloat(-P[3])+','+MIInvariantFloat(-P[4])+','+
+        MIInvariantFloat(-P[5])+','+MIInvariantFloat(P[6]);
+    AList.Add('+towgs84='+Towgs);
+    if (C.DatumID=9999) and not SameValue(P[7],0.0) then
+      AList.Add('+pm='+MIInvariantFloat(P[7]));
+    Exit(True);
+  end;
+
+  if not MIMapInfoDatumByID(C.DatumID,D) then Exit;
+  if not MIMapInfoSpheroidByID(D.EllID,E) then Exit;
+
+  AList.Add('+a='+MIInvariantFloat(E.A));
+  if SameValue(E.RF,0.0) then
+    AList.Add('+b='+MIInvariantFloat(E.A))
+  else
+    AList.Add('+rf='+MIInvariantFloat(E.RF));
+
+  Towgs := MIInvariantFloat(D.dX)+','+MIInvariantFloat(D.dY)+','+MIInvariantFloat(D.dZ);
+  if not SameValue(D.rX,0.0) or not SameValue(D.rY,0.0) or
+     not SameValue(D.rZ,0.0) or not SameValue(D.ScaleFactor,0.0) then
+    Towgs := Towgs+','+MIInvariantFloat(-D.rX)+','+MIInvariantFloat(-D.rY)+','+
+      MIInvariantFloat(-D.rZ)+','+MIInvariantFloat(D.ScaleFactor);
+  AList.Add('+towgs84='+Towgs);
+  if not SameValue(D.PrimeMeridian,0.0) then
+    AList.Add('+pm='+MIInvariantFloat(D.PrimeMeridian));
+  Result := True;
+end;
+
+function MapInfoCoordSysToLibProjDefn(const ACoordSys: TMapInfoCoordSys): string;
+var
+  L: TStringList;
+  ProjUnit: string;
+  UnitToMeters: Double;
 begin
   Result := '';
+  if not ACoordSys.IsEarth then Exit;
+  ProjUnit := ''; UnitToMeters := 1.0;
+  if (ACoordSys.ProjectionID<>1) and not MIUnitInfoByName(ACoordSys.UnitsName,ProjUnit,UnitToMeters) then Exit;
+  L := TStringList.Create;
+  try
+    if not MIProjectionToProj(ACoordSys,L,UnitToMeters) then Exit;
+    if not MIAddDatumToProj(ACoordSys,L) then Exit;
+    if ACoordSys.ProjectionID<>1 then
+      if ProjUnit<>'' then L.Add('+units='+ProjUnit) else L.Add('+to_meter='+MIUnitFactorText(ACoordSys.UnitsName,UnitToMeters));
+    L.Add('+no_defs');
+    L.LineBreak := ' ';
+    Result := Trim(L.Text);
+  finally
+    L.Free;
+  end;
+end;
+
+function MapInfoCoordSysToLibProjDefn(const ACoordSys: string): string;
+var C: TMapInfoCoordSys;
+begin
+  if TryParseMapInfoCoordSys(ACoordSys,C) then Result := MapInfoCoordSysToLibProjDefn(C) else Result := '';
+end;
+
+function MIProjPairDouble(Pairs: TStrings; const Name: string; const Default: Double = 0.0): Double;
+var S: string;
+begin
+  Result := Default;
+  if TryFindProjPairValue(Pairs,Name,S,'') then MITryFloat(S,Result);
+end;
+
+function MIProjScale(Pairs: TStrings; const Default: Double = 1.0): Double;
+var
+  S: string;
+begin
+  Result := Default;
+  if TryFindProjPairValue(Pairs,'k_0',S,'') then
+    MITryFloat(S,Result)
+  else if TryFindProjPairValue(Pairs,'k',S,'') then
+    MITryFloat(S,Result);
+end;
+
+function MIResolveProjEllipsoid(Pairs: TStrings; out A,RF: Double): Boolean;
+var
+  S,Name,EllName,EA,ERF: string;
+  B,F,ES,Ecc: Double;
+  DInfo: PpjDatum;
+  HaveBaseShape: Boolean;
+  I: Integer;
+const
+  SpherificationKeys: array[0..6] of string =
+    ('R_A','R_V','R_a','R_g','R_h','R_lat_a','R_lat_g');
+begin
+  Result := False;
+  A := 0.0;
+  RF := 0.0;
+  HaveBaseShape := False;
+
+  // +R has absolute precedence in PROJ 5.2 and turns the definition into a
+  // sphere regardless of ellps/datum/shape parameters.
+  if TryFindProjPairValue(Pairs,'R',S,'') then
+  begin
+    Result := MITryFloat(S,A) and (A > 0.0);
+    if Result then RF := 0.0;
+    Exit;
+  end;
+
+  // Spherification parameters alter the effective radius using formulas in
+  // pj_ell_set.c.  They cannot be represented by a MapInfo datum/ellipsoid
+  // without evaluating the exact PROJ operation, so reject instead of
+  // silently exporting the original ellipsoid.
+  for I := Low(SpherificationKeys) to High(SpherificationKeys) do
+    if TryFindProjPairValue(Pairs,SpherificationKeys[I],S,'') then
+      Exit(False);
+
+  // Establish the inherited size/shape from an explicit ellipsoid first,
+  // otherwise from the named datum. Explicit +a and shape parameters below
+  // are allowed to override that base, matching PROJ 5.2 pj_ellipsoid().
+  if TryFindProjPairValue(Pairs,'ellps',Name,'') then
+  begin
+    if not EllipseInfo(Name,EllName,EA,ERF) or
+       not MITryFloat(EA,A) or not MITryFloat(ERF,RF) then Exit(False);
+    HaveBaseShape := True;
+  end
+  else if TryFindProjPairValue(Pairs,'datum',Name,'') then
+  begin
+    if not DatumInfo(Name,DInfo) or
+       not EllipseInfo(DInfo.pjEllKey,EllName,EA,ERF) or
+       not MITryFloat(EA,A) or not MITryFloat(ERF,RF) then Exit(False);
+    HaveBaseShape := True;
+  end;
+
+  if TryFindProjPairValue(Pairs,'a',S,'') then
+  begin
+    if not MITryFloat(S,A) or (A <= 0.0) then Exit(False);
+    // +a alone defines a sphere unless shape was inherited from ellps/datum.
+    if not HaveBaseShape then RF := 0.0;
+  end
+  else if A <= 0.0 then
+    Exit(False);
+
+  // PROJ 5.2 shape-parameter precedence: rf, f, es, e, b.
+  if TryFindProjPairValue(Pairs,'rf',S,'') then
+  begin
+    if not MITryFloat(S,RF) or (RF <= 0.0) then Exit(False);
+  end
+  else if TryFindProjPairValue(Pairs,'f',S,'') then
+  begin
+    if not MITryFloat(S,F) or (F <= 0.0) or (F >= 1.0) then Exit(False);
+    RF := 1.0/F;
+  end
+  else if TryFindProjPairValue(Pairs,'es',S,'') then
+  begin
+    if not MITryFloat(S,ES) or (ES < 0.0) or (ES >= 1.0) then Exit(False);
+    if SameValue(ES,0.0) then RF := 0.0
+    else
+    begin
+      F := 1.0-Sqrt(1.0-ES);
+      if F <= 0.0 then RF := 0.0 else RF := 1.0/F;
+    end;
+  end
+  else if TryFindProjPairValue(Pairs,'e',S,'') then
+  begin
+    if not MITryFloat(S,Ecc) or (Ecc < 0.0) or (Ecc >= 1.0) then Exit(False);
+    ES := Ecc*Ecc;
+    if SameValue(ES,0.0) then RF := 0.0
+    else
+    begin
+      F := 1.0-Sqrt(1.0-ES);
+      if F <= 0.0 then RF := 0.0 else RF := 1.0/F;
+    end;
+  end
+  else if TryFindProjPairValue(Pairs,'b',S,'') then
+  begin
+    if not MITryFloat(S,B) or (B <= 0.0) or (B > A) then Exit(False);
+    if SameValue(A,B) then RF := 0.0 else RF := A/(A-B);
+  end;
+
+  Result := (A > 0.0) and (RF >= 0.0);
+end;
+
+function MIParseDoubleList(const S: string; out V: TArray<Double>): Boolean;
+var
+  L: TStringList;
+  I: Integer;
+begin
+  SetLength(V,0);
+  L := TStringList.Create;
+  try
+    L.Delimiter := ',';
+    L.StrictDelimiter := True;
+    L.DelimitedText := S;
+    if (L.Count<>3) and (L.Count<>7) then Exit(False);
+    SetLength(V,L.Count);
+    for I := 0 to L.Count-1 do
+      if not MITryFloat(L[I],V[I]) then
+      begin
+        SetLength(V,0);
+        Exit(False);
+      end;
+    Result := True;
+  finally
+    L.Free;
+  end;
+end;
+
+function MIParseTowgs(Pairs: TStrings; out V: TArray<Double>): Boolean;
+var
+  S: string;
+begin
+  SetLength(V,0);
+  Result := TryFindProjPairValue(Pairs,'towgs84',S,'') and MIParseDoubleList(S,V);
+end;
+
+function MIDatumMatches(const D: pjMapInfoDatumInfo; const EID: Integer; const Towgs: TArray<Double>; const PM: Double): Boolean;
+begin
+  Result := (D.EllID=EID) and SameValue(D.dX,MIDoubleArrayValue(Towgs,0),1E-8) and SameValue(D.dY,MIDoubleArrayValue(Towgs,1),1E-8) and SameValue(D.dZ,MIDoubleArrayValue(Towgs,2),1E-8) and SameValue(-D.rX,MIDoubleArrayValue(Towgs,3),1E-8) and SameValue(-D.rY,MIDoubleArrayValue(Towgs,4),1E-8) and SameValue(-D.rZ,MIDoubleArrayValue(Towgs,5),1E-8) and SameValue(D.ScaleFactor,MIDoubleArrayValue(Towgs,6),1E-8) and SameValue(D.PrimeMeridian,PM,1E-8);
+end;
+
+procedure MIProjDatumToMapInfo(Pairs: TStrings; var C: TMapInfoCoordSys);
+var
+  S,PMName: string;
+  A,RF,PM: Double;
+  E: pjMapInfoSpheroidInfo;
+  Towgs: TArray<Double>;
+  I: Integer;
+  DInfo: PpjDatum;
+  HasNamedDatum,HasTowgs: Boolean;
+  function IsZeroTowgs: Boolean;
+  var J: Integer;
+  begin
+    Result := True;
+    for J := 0 to Length(Towgs)-1 do
+      if not SameValue(Towgs[J],0.0,1E-12) then
+        Exit(False);
+  end;
+begin
+  C.DatumID := -1;
+  C.EllipsoidID := -1;
+  SetLength(C.DatumParameters,0);
+
+  DInfo := nil;
+  HasNamedDatum := TryFindProjPairValue(Pairs,'datum',S,'');
+  if HasNamedDatum and not DatumInfo(S,DInfo) then
+    Exit;
+
+  if not MIResolveProjEllipsoid(Pairs,A,RF) then
+    Exit;
+
+  PM := 0.0;
+  if TryFindProjPairValue(Pairs,'pm',S,'') then
+  begin
+    if not MITryFloat(S,PM) then
+    begin
+      PMName := '';
+      if not PrimeInfo(S,PMName,PM) then Exit;
+    end;
+  end;
+
+  HasTowgs := TryFindProjPairValue(Pairs,'towgs84',S,'');
+  if HasTowgs then
+  begin
+    // A present but malformed +towgs84 is an error, not an absent transform.
+    if not MIParseDoubleList(S,Towgs) then Exit;
+  end
+  else if HasNamedDatum and Assigned(DInfo) and (DInfo.toWgs <> '') then
+  begin
+    if not MIParseDoubleList(DInfo.toWgs,Towgs) then Exit;
+  end
+  else
+  begin
+    SetLength(Towgs,7);
+    for I := 0 to 6 do Towgs[I] := 0.0;
+  end;
+
+  // MapInfo datum 157 is a special Google/Pseudo-Mercator case. Its table
+  // ellipsoid (54) is not the actual projection sphere: legacy GDAL exports
+  // it as a=b=6378137. Detect the effective PROJ definition before generic
+  // MapInfo spheroid matching.
+  if (C.ProjectionID = 10) and
+     SameValue(A,6378137.0,1E-7) and SameValue(RF,0.0,1E-12) and
+     SameValue(PM,0.0,1E-12) and IsZeroTowgs then
+  begin
+    C.DatumID := 157;
+    C.EllipsoidID := 54;
+    Exit;
+  end;
+
+  if not MIMapInfoSpheroidByARF(A,RF,E) then
+    Exit;
+
+  for I := Low(pjMapInfoDatumInfoList) to High(pjMapInfoDatumInfoList) do
+    if (pjMapInfoDatumInfoList[I].ID >= 0) and
+       (pjMapInfoDatumInfoList[I].ID <> 999) and
+       (pjMapInfoDatumInfoList[I].ID <> 9999) and
+       MIDatumMatches(pjMapInfoDatumInfoList[I],E.ID,Towgs,PM) then
+    begin
+      C.DatumID := pjMapInfoDatumInfoList[I].ID;
+      C.EllipsoidID := E.ID;
+      Exit;
+    end;
+
+  C.EllipsoidID := E.ID;
+  if not SameValue(MIDoubleArrayValue(Towgs,3),0.0) or
+     not SameValue(MIDoubleArrayValue(Towgs,4),0.0) or
+     not SameValue(MIDoubleArrayValue(Towgs,5),0.0) or
+     not SameValue(MIDoubleArrayValue(Towgs,6),0.0) or
+     not SameValue(PM,0.0) then
+  begin
+    C.DatumID := 9999;
+    SetLength(C.DatumParameters,8);
+    C.DatumParameters[0] := MIDoubleArrayValue(Towgs,0);
+    C.DatumParameters[1] := MIDoubleArrayValue(Towgs,1);
+    C.DatumParameters[2] := MIDoubleArrayValue(Towgs,2);
+    C.DatumParameters[3] := -MIDoubleArrayValue(Towgs,3);
+    C.DatumParameters[4] := -MIDoubleArrayValue(Towgs,4);
+    C.DatumParameters[5] := -MIDoubleArrayValue(Towgs,5);
+    C.DatumParameters[6] := MIDoubleArrayValue(Towgs,6);
+    C.DatumParameters[7] := PM;
+  end
+  else
+  begin
+    C.DatumID := 999;
+    SetLength(C.DatumParameters,3);
+    C.DatumParameters[0] := MIDoubleArrayValue(Towgs,0);
+    C.DatumParameters[1] := MIDoubleArrayValue(Towgs,1);
+    C.DatumParameters[2] := MIDoubleArrayValue(Towgs,2);
+  end;
+end;
+
+function MIValidateProjNumericParams(Pairs: TStrings): Boolean;
+const
+  NumericKeys: array[0..20] of string =
+    ('lon_0','lat_0','lat_1','lat_2','lat_ts','x_0','y_0','k','k_0',
+     'lonc','alpha','gamma','a','b','rf','f','e','es','R','to_meter','zone');
+var
+  I,J: Integer;
+  S: string;
+  V: Double;
+begin
+  Result := False;
+  for I := Low(NumericKeys) to High(NumericKeys) do
+    if TryFindProjPairValue(Pairs,NumericKeys[I],S,'') then
+    begin
+      if SameText(NumericKeys[I],'zone') then
+      begin
+        if not TryStrToInt(S,J) then Exit;
+      end
+      else if not MITryProjFactor(S,V) then
+        Exit;
+    end;
+  Result := True;
+end;
+
+function LibProjDefnToMapinfoCoordSys(const ADefn: string; out ACoordSys: TMapInfoCoordSys): Boolean;
+var
+  Pairs: TStringList;
+  Proj,Units,S: string;
+  ToMeters,XFactor,Gamma,Alpha,Lat0,K: Double;
+  Zone: Integer;
+  IsWebMerc: Boolean;
+
+  procedure SetParams(const Values: array of Double);
+  var
+    J: Integer;
+  begin
+    SetLength(ACoordSys.ProjectionParameters,Length(Values));
+    for J := 0 to High(Values) do
+      ACoordSys.ProjectionParameters[J] := Values[J];
+  end;
+
+  function ReadDouble(const Name: string; const Default: Double;
+    out V: Double): Boolean;
+  var
+    T: string;
+  begin
+    V := Default;
+    if not TryFindProjPairValue(Pairs,Name,T,'') then Exit(True);
+    Result := MITryFloat(T,V);
+  end;
+
+  function ReadRequiredDouble(const Name: string; out V: Double): Boolean;
+  var
+    T: string;
+  begin
+    Result := TryFindProjPairValue(Pairs,Name,T,'') and MITryFloat(T,V);
+  end;
+
+  function ReadScale(const Default: Double; out V: Double;
+    out WasSpecified: Boolean): Boolean;
+  var
+    T: string;
+  begin
+    V := Default;
+    WasSpecified := False;
+    if TryFindProjPairValue(Pairs,'k_0',T,'') then
+    begin
+      WasSpecified := True;
+      Exit(MITryFloat(T,V));
+    end;
+    if TryFindProjPairValue(Pairs,'k',T,'') then
+    begin
+      WasSpecified := True;
+      Exit(MITryFloat(T,V));
+    end;
+    Result := True;
+  end;
+
+  function IsZeroParam(const Name: string): Boolean;
+  var
+    V: Double;
+  begin
+    Result := ReadDouble(Name,0.0,V) and SameValue(V,0.0,1E-12);
+  end;
+
+  function HasFlag(const Name: string): Boolean;
+  var
+    Dummy: string;
+  begin
+    Result := TryFindProjPairValue(Pairs,Name,Dummy,'1');
+  end;
+
+  function X(const Name: string): Double;
+  var
+    V: Double;
+  begin
+    V := 0.0;
+    ReadDouble(Name,0.0,V);
+    Result := V/XFactor;
+  end;
+
+  function ValidateCommonNumericParams: Boolean;
+  const
+    Names: array[0..18] of string =
+      ('lon_0','lat_0','lat_1','lat_2','lat_ts','lonc','alpha','gamma',
+       'k','k_0','x_0','y_0','a','b','rf','f','es','e','R');
+  var
+    J: Integer;
+    T: string;
+    V: Double;
+  begin
+    for J := Low(Names) to High(Names) do
+      if TryFindProjPairValue(Pairs,Names[J],T,'') and not MITryFloat(T,V) then
+        Exit(False);
+    Result := True;
+  end;
+
+var
+  ScaleSpecified: Boolean;
+begin
+  ACoordSys := Default(TMapInfoCoordSys);
+  ACoordSys.IsEarth := True;
+  ACoordSys.EllipsoidID := -1;
+  Result := False;
+  if Trim(ADefn) = '' then Exit;
+
+  Pairs := TStringList.Create;
+  try
+    Pairs.NameValueSeparator := PROJ_PAIR_DELIMETER;
+    if FetchProjPairs(ADefn,Pairs) = 0 then Exit;
+    if not TryFindProjPairValue(Pairs,'proj',Proj,'') then Exit;
+    if not MIValidateProjNumericParams(Pairs) then Exit;
+    if not ValidateCommonNumericParams then Exit;
+
+    // PROJ 5.2 gives +units precedence over +to_meter. Mirror that here.
+    Units := 'm';
+    ToMeters := 1.0;
+    if TryFindProjPairValue(Pairs,'units',S,'') then
+    begin
+      if not MIUnitInfoByProj(S,0,Units,ToMeters) then Exit;
+    end
+    else if TryFindProjPairValue(Pairs,'to_meter',S,'') then
+    begin
+      if not MITryProjFactor(S,ToMeters) or (ToMeters <= 0.0) then Exit;
+      if not MIUnitInfoByProj('',ToMeters,Units,XFactor) then Exit;
+    end;
+    XFactor := ToMeters;
+    if XFactor <= 0.0 then Exit;
+    ACoordSys.UnitsName := Units;
+    IsWebMerc := False;
+
+    if SameText(Proj,'longlat') or SameText(Proj,'latlong') or
+       SameText(Proj,'lonlat') or SameText(Proj,'latlon') then
+    begin
+      ACoordSys.ProjectionID := 1;
+      ACoordSys.UnitsName := '';
+      SetLength(ACoordSys.ProjectionParameters,0);
+    end
+    else if SameText(Proj,'cea') then
+    begin
+      ACoordSys.ProjectionID := 2;
+      if IsZeroParam('x_0') and IsZeroParam('y_0') then
+        SetParams([MIProjPairDouble(Pairs,'lon_0'),MIProjPairDouble(Pairs,'lat_ts')])
+      else
+        SetParams([MIProjPairDouble(Pairs,'lon_0'),MIProjPairDouble(Pairs,'lat_ts'),
+                   X('x_0'),X('y_0')]);
+    end
+    else if SameText(Proj,'lcc') then
+    begin
+      ACoordSys.ProjectionID := 3;
+      SetParams([MIProjPairDouble(Pairs,'lon_0'),MIProjPairDouble(Pairs,'lat_0'),
+                 MIProjPairDouble(Pairs,'lat_1'),MIProjPairDouble(Pairs,'lat_2'),
+                 X('x_0'),X('y_0')]);
+    end
+    else if SameText(Proj,'laea') then
+    begin
+      if not IsZeroParam('x_0') or not IsZeroParam('y_0') then Exit;
+      Lat0 := MIProjPairDouble(Pairs,'lat_0');
+      if Abs(Abs(Lat0)-90.0) <= 0.001 then ACoordSys.ProjectionID := 4
+      else ACoordSys.ProjectionID := 29;
+      SetParams([MIProjPairDouble(Pairs,'lon_0'),Lat0,90.0]);
+    end
+    else if SameText(Proj,'aeqd') then
+    begin
+      if not IsZeroParam('x_0') or not IsZeroParam('y_0') then Exit;
+      Lat0 := MIProjPairDouble(Pairs,'lat_0');
+      if Abs(Abs(Lat0)-90.0) <= 0.001 then ACoordSys.ProjectionID := 5
+      else ACoordSys.ProjectionID := 28;
+      SetParams([MIProjPairDouble(Pairs,'lon_0'),Lat0,90.0]);
+    end
+    else if SameText(Proj,'eqdc') then
+    begin
+      ACoordSys.ProjectionID := 6;
+      SetParams([MIProjPairDouble(Pairs,'lon_0'),MIProjPairDouble(Pairs,'lat_0'),
+                 MIProjPairDouble(Pairs,'lat_1'),MIProjPairDouble(Pairs,'lat_2'),
+                 X('x_0'),X('y_0')]);
+    end
+    else if SameText(Proj,'omerc') then
+    begin
+      // MapInfo 7/35 represent the azimuth-center form only.
+      if HasFlag('no_off') or HasFlag('no_uoff') or HasFlag('no_rot') then Exit;
+      if not ReadRequiredDouble('lonc',Lat0) then Exit;
+      if not ReadRequiredDouble('alpha',Alpha) then Exit;
+      if not ReadScale(1.0,K,ScaleSpecified) then Exit;
+      if TryFindProjPairValue(Pairs,'gamma',S,'') then
+      begin
+        if not MITryFloat(S,Gamma) then Exit;
+      end
+      else
+        // PJ_omerc.c: when alpha is supplied without gamma, gamma := alpha.
+        Gamma := Alpha;
+
+      if SameValue(Gamma,90.0,1E-10) then
+      begin
+        ACoordSys.ProjectionID := 7;
+        SetParams([Lat0,MIProjPairDouble(Pairs,'lat_0'),Alpha,K,X('x_0'),X('y_0')]);
+      end
+      else
+      begin
+        ACoordSys.ProjectionID := 35;
+        SetParams([Lat0,MIProjPairDouble(Pairs,'lat_0'),Alpha,Gamma,K,
+                   X('x_0'),X('y_0')]);
+      end;
+    end
+    else if SameText(Proj,'tmerc') then
+    begin
+      ACoordSys.ProjectionID := 8;
+      SetParams([MIProjPairDouble(Pairs,'lon_0'),MIProjPairDouble(Pairs,'lat_0'),
+                 MIProjScale(Pairs,1),X('x_0'),X('y_0')]);
+    end
+    else if SameText(Proj,'etmerc') then
+    begin
+      ACoordSys.ProjectionID := 34;
+      SetParams([MIProjPairDouble(Pairs,'lon_0'),MIProjPairDouble(Pairs,'lat_0'),
+                 MIProjScale(Pairs,1),X('x_0'),X('y_0')]);
+    end
+    else if SameText(Proj,'utm') then
+    begin
+      if not TryFindProjPairValue(Pairs,'zone',S,'') or
+         not TryStrToInt(S,Zone) or (Zone < 1) or (Zone > 60) then Exit;
+      ACoordSys.ProjectionID := 8;
+      if HasFlag('south') then
+        SetParams([(Zone*6)-183,0,0.9996,500000/XFactor,10000000/XFactor])
+      else
+        SetParams([(Zone*6)-183,0,0.9996,500000/XFactor,0]);
+    end
+    else if SameText(Proj,'aea') then
+    begin
+      ACoordSys.ProjectionID := 9;
+      SetParams([MIProjPairDouble(Pairs,'lon_0'),MIProjPairDouble(Pairs,'lat_0'),
+                 MIProjPairDouble(Pairs,'lat_1'),MIProjPairDouble(Pairs,'lat_2'),
+                 X('x_0'),X('y_0')]);
+    end
+    else if SameText(Proj,'merc') then
+    begin
+      // MapInfo 10/26 do not carry false offsets or a non-zero latitude of
+      // origin. Refuse a lossy conversion.
+      if not IsZeroParam('x_0') or not IsZeroParam('y_0') or
+         not IsZeroParam('lat_0') then Exit;
+      if TryFindProjPairValue(Pairs,'lat_ts',S,'') then
+      begin
+        if not MITryFloat(S,Lat0) then Exit;
+        if SameValue(Lat0,0.0,1E-12) then
+        begin
+          ACoordSys.ProjectionID := 10;
+          SetParams([MIProjPairDouble(Pairs,'lon_0')]);
+        end
+        else
+        begin
+          ACoordSys.ProjectionID := 26;
+          SetParams([MIProjPairDouble(Pairs,'lon_0'),Lat0]);
+        end;
+      end
+      else
+      begin
+        if not ReadScale(1.0,K,ScaleSpecified) or not SameValue(K,1.0,1E-12) then Exit;
+        ACoordSys.ProjectionID := 10;
+        SetParams([MIProjPairDouble(Pairs,'lon_0')]);
+      end;
+    end
+    else if SameText(Proj,'webmerc') then
+    begin
+      // PROJ 5.2 webmerc uses the spherical Mercator formula and forces k0=1.
+      if not IsZeroParam('x_0') or not IsZeroParam('y_0') or
+         not IsZeroParam('lat_0') then Exit;
+      ACoordSys.ProjectionID := 10;
+      SetParams([MIProjPairDouble(Pairs,'lon_0')]);
+      IsWebMerc := True;
+    end
+    else if SameText(Proj,'mill') or SameText(Proj,'robin') or
+            SameText(Proj,'moll') or SameText(Proj,'eck4') or
+            SameText(Proj,'eck6') or SameText(Proj,'sinu') or
+            SameText(Proj,'gall') then
+    begin
+      if not IsZeroParam('x_0') or not IsZeroParam('y_0') then Exit;
+      if SameText(Proj,'mill') then ACoordSys.ProjectionID := 11
+      else if SameText(Proj,'robin') then ACoordSys.ProjectionID := 12
+      else if SameText(Proj,'moll') then ACoordSys.ProjectionID := 13
+      else if SameText(Proj,'eck4') then ACoordSys.ProjectionID := 14
+      else if SameText(Proj,'eck6') then ACoordSys.ProjectionID := 15
+      else if SameText(Proj,'sinu') then ACoordSys.ProjectionID := 16
+      else ACoordSys.ProjectionID := 17;
+      SetParams([MIProjPairDouble(Pairs,'lon_0')]);
+    end
+    else if SameText(Proj,'nzmg') then
+    begin
+      ACoordSys.ProjectionID := 18;
+      SetParams([MIProjPairDouble(Pairs,'lon_0'),MIProjPairDouble(Pairs,'lat_0'),
+                 X('x_0'),X('y_0')]);
+    end
+    else if SameText(Proj,'stere') then
+    begin
+      ACoordSys.ProjectionID := 20;
+      SetParams([MIProjPairDouble(Pairs,'lon_0'),MIProjPairDouble(Pairs,'lat_0'),
+                 MIProjScale(Pairs,1),X('x_0'),X('y_0')]);
+    end
+    else if SameText(Proj,'somerc') then
+    begin
+      ACoordSys.ProjectionID := 25;
+      SetParams([MIProjPairDouble(Pairs,'lon_0'),MIProjPairDouble(Pairs,'lat_0'),
+                 X('x_0'),X('y_0')]);
+    end
+    else if SameText(Proj,'poly') then
+    begin
+      ACoordSys.ProjectionID := 27;
+      SetParams([MIProjPairDouble(Pairs,'lon_0'),MIProjPairDouble(Pairs,'lat_0'),
+                 X('x_0'),X('y_0')]);
+    end
+    else if SameText(Proj,'cass') then
+    begin
+      ACoordSys.ProjectionID := 30;
+      SetParams([MIProjPairDouble(Pairs,'lon_0'),MIProjPairDouble(Pairs,'lat_0'),
+                 X('x_0'),X('y_0')]);
+    end
+    else if SameText(Proj,'sterea') then
+    begin
+      ACoordSys.ProjectionID := 31;
+      SetParams([MIProjPairDouble(Pairs,'lon_0'),MIProjPairDouble(Pairs,'lat_0'),
+                 MIProjScale(Pairs,1),X('x_0'),X('y_0')]);
+    end
+    else if SameText(Proj,'krovak') then
+    begin
+      if HasFlag('czech') then Exit;
+      if TryFindProjPairValue(Pairs,'lat_ts',S,'') then
+      begin
+        if not MITryFloat(S,Lat0) or
+           not SameValue(Lat0,MAPINFO_KROVAK_PSEUDO_STD_PARALLEL,
+                         MAPINFO_KROVAK_PARAM_TOLERANCE) then Exit;
+      end;
+      if TryFindProjPairValue(Pairs,'alpha',S,'') then
+      begin
+        if not MITryFloat(S,Alpha) or
+           not SameValue(Alpha,MAPINFO_KROVAK_AZIMUTH,
+                         MAPINFO_KROVAK_PARAM_TOLERANCE) then Exit;
+      end;
+      if not ReadScale(0.9999,K,ScaleSpecified) or not ScaleSpecified or
+         not SameValue(K,1.0,1E-12) then Exit;
+      ACoordSys.ProjectionID := 32;
+      SetParams([MIProjPairDouble(Pairs,'lon_0'),MIProjPairDouble(Pairs,'lat_0'),
+                 MAPINFO_KROVAK_PSEUDO_STD_PARALLEL,MAPINFO_KROVAK_AZIMUTH,
+                 X('x_0'),X('y_0')]);
+    end
+    else if SameText(Proj,'eqc') then
+    begin
+      if not ReadDouble('lat_ts',0.0,Lat0) or not SameValue(Lat0,0.0,1E-12) then Exit;
+      ACoordSys.ProjectionID := 33;
+      SetParams([MIProjPairDouble(Pairs,'lon_0'),MIProjPairDouble(Pairs,'lat_0'),
+                 X('x_0'),X('y_0')]);
+    end
+    else
+      Exit;
+
+    if IsWebMerc then
+    begin
+      // webmerc's ellipsoidal shape is ignored by the projection itself. It
+      // represents the same MapInfo special datum 157 when based on WGS84's
+      // semi-major radius and no non-Greenwich datum shift is requested.
+      if TryFindProjPairValue(Pairs,'pm',S,'') and not SameText(S,'greenwich') and
+         not SameText(S,'0') and not SameText(S,'0.0') then Exit;
+      if TryFindProjPairValue(Pairs,'towgs84',S,'') then
+      begin
+        // Let the generic datum path validate non-zero/invalid transforms.
+        MIProjDatumToMapInfo(Pairs,ACoordSys);
+        if ACoordSys.DatumID <> 157 then Exit;
+      end
+      else
+      begin
+        ACoordSys.DatumID := 157;
+        ACoordSys.EllipsoidID := 54;
+      end;
+    end
+    else
+    begin
+      MIProjDatumToMapInfo(Pairs,ACoordSys);
+      if ACoordSys.DatumID < 0 then Exit;
+    end;
+
+    Result := True;
+  finally
+    Pairs.Free;
+  end;
+end;
+
+function LibProjDefnToMapinfoCoordSys(const ADefn: string): string;
+var C: TMapInfoCoordSys;
+begin
+  if LibProjDefnToMapinfoCoordSys(ADefn,C) then Result := MapInfoCoordSysToString(C,True) else Result := '';
 end;
 
 function LibProjKnownParams(var AParams: TArray<TPJParamRec>): Integer;
@@ -1811,7 +3514,7 @@ begin
 
 
     AParams[Result].Name := pjParamsList[i].pjKey;
-    AParams[Result].DisplayName := AParams[Result].Name;
+    AParams[Result].DisplayName := pjParamsList[i].Description;
     if AParams[Result].DisplayName = '' then
       AParams[Result].DisplayName := AParams[Result].Name;
 
@@ -1935,22 +3638,24 @@ initialization
     'Cassini_Soldner=cass' + sLineBreak + 'Cylindrical_Equal_Area=cea' + sLineBreak +
     'Eckert_IV=eck4' + sLineBreak + 'Eckert_VI=eck6' + sLineBreak + 'Equidistant_Conic=eqdc' + sLineBreak +
     'Equirectangular=eqc' + sLineBreak + 'Plate Caree=eqc' + sLineBreak +
+    'Extended_Transverse_Mercator=etmerc' + sLineBreak +
     'Transverse_Mercator=tmerc' + sLineBreak + 'Gauss_Kruger=tmerc' + sLineBreak + 'Gauss-Kruger=tmerc' + sLineBreak + 'Gauss Kruger=tmerc' +sLineBreak +
     'Gall_Stereographic=gall' + sLineBreak + 'GEOS=geos' + sLineBreak + 'Gnomonic=gnom' + sLineBreak +
-    'hotine_oblique_mercator' + sLineBreak + 'Krovak=krovak' + sLineBreak + 'Lambert_Azimuthal_Equal_Area=laea' + sLineBreak +
+    'hotine_oblique_mercator=omerc' + sLineBreak + 'Krovak=krovak' + sLineBreak + 'Lambert_Azimuthal_Equal_Area=laea' + sLineBreak +
     'Lambert_Conformal_Conic=lcc'+ sLineBreak + 'Lambert_Conformal_Conic_1SP=lcc'+ sLineBreak +'Lambert_Conformal_Conic_2SP=lcc' + sLineBreak +
     'Miller_Cylindrical=mill' + sLineBreak + 'Mollweide=moll' + sLineBreak + 'Mercator_1SP=merc' + sLineBreak +
     'Mercator_2SP=merc' + sLineBreak +'Mercator_Auxiliary_Sphere=merc' + sLineBreak + 'New_Zealand_Map_Grid=nzmg' + sLineBreak +
     'ObliqueMercator_Hotine=omerc'+ sLineBreak+'ObliqueMercator=omerc' + sLineBreak + 'Oblique_Stereographic=sterea' + sLineBreak +
     'Orthographic=ortho' + sLineBreak + 'Polar_Stereographic=stere' + sLineBreak + 'Stereographic=stere' + sLineBreak +
-    'Polyconic=stere' + sLineBreak + 'Robinson=robin' + sLineBreak + 'Sinusoidal=sinu' + sLineBreak +
+    'Polyconic=poly' + sLineBreak + 'Robinson=robin' + sLineBreak + 'Sinusoidal=sinu' + sLineBreak +
     'Transverse_Mercator_South_Orientated=tmerc' + sLineBreak + 'VanDerGrinten=vandg';
 
   FWktParamName2Proj := TStringList.Create;
   FWktParamName2Proj.Text := 'false_easting=x_0' + sLineBreak + 'false_northing=y_0' + sLineBreak +
     'scale_factor=k_0' + sLineBreak + 'standard_parallel_1=lat_1' + sLineBreak + 'standard_parallel_2=lat_2' + sLineBreak +
     'longitude_of_center=lon_0' + sLineBreak + 'central_meridian=lon_0' + sLineBreak + 'latitude_of_origin=lat_0' + sLineBreak +
-    'latitude_of_center=lat_0';
+    'latitude_of_center=lat_0' + sLineBreak + 'azimuth=alpha' + sLineBreak +
+    'rectified_grid_angle=gamma';
 
   FWktEll2Proj := TStringList.Create();
   FWktEll2Proj.Text := 'MERIT 1983=MERIT' + sLineBreak + 'Soviet Geodetic System 85=SGS85' + sLineBreak +
@@ -1962,10 +3667,11 @@ initialization
     'Bessel1841=bessel' + sLineBreak + 'Bessel 1841 (Namibia)=bess_nam' + sLineBreak + 'Clarke 1866=clrk66' + sLineBreak +
     'Clarke 1880 mod=clrk80' + sLineBreak + 'Comm. des Poids et Mesures 1799=CPM' + sLineBreak +
     'Delambre 1810=delmbr' + sLineBreak + 'Engelis 1985=engelis' + sLineBreak + 'Everest 1830=evrst30' + sLineBreak +
-    'Everest 1948=evrst48' + sLineBreak + 'Everest 1956=evrst56' + sLineBreak + 'Everest 196=evrst69' + sLineBreak +
+    'Everest 1948=evrst48' + sLineBreak + 'Everest 1956=evrst56' + sLineBreak + 'Everest 1969=evrst69' + sLineBreak +
     'Everest (Sabah & Sarawak)=evrstSS' + sLineBreak + 'Fischer (Mercury Datum) 1960=fschr60' + sLineBreak +
     'Modified Fischer 1960=fschr60m' + sLineBreak + 'Fischer 1968=fschr68' + sLineBreak +
     'Helmert 1906=helmert' + sLineBreak + 'Hough=hough' + sLineBreak + 'International 1909 (Hayford)=intl' + sLineBreak +
+    'Krassovsky=krass' + sLineBreak +
     'Krassovsky, 1942=krass' + sLineBreak + 'Krassovsky_1942=krass' + sLineBreak +
     'Krassovsky 1942=krass' + sLineBreak + 'Kaula 1961=kaula' + sLineBreak + 'Lerch 1979=lerch' + sLineBreak +
     'Maupertius 1738=mprts' + sLineBreak + 'New International 1967=new_intl' + sLineBreak +
@@ -1998,12 +3704,12 @@ initialization
     'qsc=lon_0,lat_0,ellps,x_0,y_0,a,rf,axis'+sLineBreak+
     'rhealpix=lon_0,ellps,x_0,y_0,a,rf,axis'+sLineBreak+
     'tmerc=lon_0,lat_0,ellps,R,k_0,x_0,y_0,a,rf,axis'+sLineBreak+
+    'etmerc=lon_0,lat_0,ellps,R,k_0,x_0,y_0,a,rf,axis'+sLineBreak+
     'tpers=azi,tilt,h,lon_0,lat_0,R,x_0,y_0,axis'+sLineBreak+
     'utm=zone,k_0,lon_0,lat_0,x_0,y_0,R,a,rf,axis'+sLineBreak+
     'webmerc=R,x_0,y_0,axis';
 
   FProjParamExplain := TStringList.Create(dupAccept,False,True);
-  FProjParamExplain.StrictDelimiter := True;
   FProjParamExplain.Text :=
 {$ifndef __proj_ru_explain}
     'lat_1=First standard parallel.'+sLinebreak+
@@ -2040,11 +3746,11 @@ initialization
     'south=Sets the second standard parallel to 90°S. When the flag is off the secondstandard parallel is set to 90°N.'+sLinebreak+
     'lsat=Landsat satellite used for the projection. Value between 1 and 5.'+sLinebreak+
     'path=Selected path of satellite. Value between 1 and 253 when param +lsat isset to 1,2 or 3, otherwise valid input is between 1 and 233.'+sLinebreak+
-    '"o_proj="Oblique projection. In addition to specifying an oblique projection, how to rotate the projection should be specified.'+sLineBreak+
+    'o_proj="Oblique projection. In addition to specifying an oblique projection, how to rotate the projection should be specified.'+sLineBreak+
       'This is done in one of three ways:'+sLineBreak+
       ' - Define a new pole;'+sLineBreak+
       ' - Rotate the projection about a given point'+sLineBreak+
-      ' - Define a new "equator" spanned by two points on the sphere.""'+sLinebreak+
+      ' - Define a new "equator" spanned by two points on the sphere."'+sLinebreak+
     'o_lat_p=Latitude of the North pole of the unrotated source CRS, expressed in the rotated geographic CRS.'+sLinebreak+
     'o_lon_p=Longitude of the North pole of the unrotated source CRS, expressed in the rotated geographic CRS.Rotate about point'+sLinebreak+
     'o_alpha=Angle to rotate the projection with.'+sLinebreak+

@@ -12,6 +12,8 @@ interface
 {$ENDIF}
 
 {$I 'libProj4.config.inc'}
+{$IFDEF USER_DEFINES_INC}{$I user_defines.inc}{$ENDIF}
+{$ifdef __proj4mappl}{$I ..\mappl_config.inc}{$endif}
 uses
 	System.Classes, System.Types, System.SysUtils, System.Contnrs;
 
@@ -21,11 +23,12 @@ type
 	TWKTCRSDefinition = class;
   EWKTError = class(EArgumentException);
 
+  TListIndex={$IF (CompilerVersion > 36) or Declared(RTLVersion122)}NativeInt{$else}Integer{$ifend};
 
 	TWktNodeList = class(TObjectList)
 	private
-		function DoGetItem(Index: Integer): TWktNode;
-		procedure DoSetItem(Index: Integer; AObject: TWktNode);
+		function DoGetItem(Index: TListIndex): TWktNode;
+		procedure DoSetItem(Index: TListIndex; AObject: TWktNode);
 	protected
 	public
 		/// <param name="AKey">
@@ -55,7 +58,7 @@ type
 		/// </returns>
 		function FindByAttributeName(const AKey, AAtributeName: string; out Dest: TWktNode): Boolean; virtual;
     function ItemsByKey(const AKey: string; Dest: TList): Integer;
-	 	property Items[Index: Integer]: TWktNode read DoGetItem write DoSetItem; default;
+	 	property Items[Index: TListIndex]: TWktNode read DoGetItem write DoSetItem; default;
 	end;
 
 	TWktNode = class(TWktNodeList)
@@ -118,6 +121,8 @@ type
 	TWKTCRSDefinition = class(TWktNode)
 	private
 		function GetEmpty: Boolean;
+	protected
+		procedure ResetCache; virtual;
 	public
 		procedure LoadFromFile(const AFilename: string);
 		procedure LoadFromStream(Stream: TStream);
@@ -163,6 +168,7 @@ type
 		function GetUnitNode: TWktNode;
 	protected
 		procedure InitDefaults(); override;
+		procedure ResetCache; override;
 		function Validate: Boolean; override;
 	public
 
@@ -211,6 +217,7 @@ type
 		function GetUnitsNode(): TWktNode; virtual;
 
 		procedure InitDefaults(); override;
+		procedure ResetCache; override;
 		function Validate: Boolean; override;
 	public
         destructor Destroy; override;
@@ -328,7 +335,7 @@ const
 	WKT_ALT_KWD_ENGR_CRS = 'ENGINEERINGCRS';
 	WKT_ALT_KWD_GEOD_CRS = 'GEODETICCRS';
 	WKT_ALT_KWD_PARAM_CRS = 'PARAMETRICCRS';
-	WKT_ALT_KWD_PROJ_CRS = 'PROJECTEDCCRS';
+	WKT_ALT_KWD_PROJ_CRS = 'PROJECTEDCRS';
 	WKT_ALT_KWD_VERT_CRS = 'VERTICALCRS';
 	WKT_ALT_KWD_METHOD = 'PROJECTION';
 	WKT_ALT_KWD_ELLIPSOID = 'SPHEROID';
@@ -378,11 +385,22 @@ begin
 		if (AValue[1] = WKT_QUOTE_CHAR) and (AValue[Length(AValue)] = WKT_QUOTE_CHAR) then
 		begin
 			Result := Copy(AValue, 2, Length(AValue) - 2);
+      // WKT escapes an embedded quote by doubling it. Return the logical
+      // attribute value rather than the serialized representation.
+      Result := StringReplace(Result,WKT_QUOTE_CHAR+WKT_QUOTE_CHAR,
+        WKT_QUOTE_CHAR,[rfReplaceAll]);
 			Exit;
 		end;
 	end;
 
 	Result := AValue;
+end;
+
+function QuoteWKTString(const AValue: string): string;
+begin
+	Result := WKT_QUOTE_CHAR +
+		StringReplace(StripQuotes(AValue),WKT_QUOTE_CHAR,WKT_QUOTE_CHAR+WKT_QUOTE_CHAR,[rfReplaceAll]) +
+		WKT_QUOTE_CHAR;
 end;
 
 function StripEscapedChars(const AValue: string): string;
@@ -503,7 +521,8 @@ procedure TWktNode.ParseStream(Source: TStream);
 var
 	CurrentChar: AnsiChar;
 	TempValue: RawByteString;
-	BracketOpened, QuoteOpened: Boolean;
+	BracketOpened: Boolean;
+	QuoteClosed: Boolean;
 	LastCommaPos, CommaCount: Integer;
 	Child: TWktNode;
 begin
@@ -512,8 +531,15 @@ begin
 			(Source.Position = Source.Size) then
 		Exit;
 
+	{ A typed CRS node has default keyword/name values after construction.
+	  Parsing replaces the node, so defaults and previous content must not
+	  leak into the parsed attribute list. This is also required for typed
+	  GEOGCS children created recursively below. }
+	Clear;
+	Attributes.Clear;
+	Keyword := '';
+
 	BracketOpened := False;
-	QuoteOpened := False;
 	CommaCount := 0;
 	LastCommaPos := Source.Position;
 	TempValue := '';
@@ -575,20 +601,37 @@ begin
 
 			WKT_QUOTE_CHAR:
 				begin
-					QuoteOpened := not QuoteOpened;
-					if QuoteOpened then
+					{ Read the complete quoted token. WKT escapes a quote inside a
+					  quoted string by doubling it (""). Do not terminate the token
+					  on the first quote of such a pair. }
+					QuoteClosed := False;
+					TempValue := TempValue + CurrentChar;
+					while Source.Read(CurrentChar, SizeOf(AnsiChar)) = SizeOf(AnsiChar) do
 					begin
-						TempValue := CurrentChar;
-						while (Source.Read(CurrentChar, 1) = 1) do
+						TempValue := TempValue + CurrentChar;
+						if CurrentChar = WKT_QUOTE_CHAR then
 						begin
-							TempValue := TempValue + CurrentChar;
-							if CurrentChar = WKT_QUOTE_CHAR then
+							if Source.Position < Source.Size then
 							begin
-								QuoteOpened := False;
-								Break;
+								Source.Read(CurrentChar, SizeOf(AnsiChar));
+								if CurrentChar = WKT_QUOTE_CHAR then
+								begin
+									TempValue := TempValue + CurrentChar;
+									Continue;
+								end;
+
+								{ The character after the closing quote belongs to the outer
+								  parser. Put it back into the stream. }
+								Source.Seek(-SizeOf(AnsiChar), soFromCurrent);
 							end;
+
+							QuoteClosed := True;
+							Break;
 						end;
 					end;
+
+					if not QuoteClosed then
+						raise EWKTError.Create('Unterminated quoted WKT value');
 				end;
 		else
 			TempValue := TempValue + CurrentChar;
@@ -637,12 +680,12 @@ begin
   Result := Count > 0;
 end;
 
-function TWktNodeList.DoGetItem(Index: Integer): TWktNode;
+function TWktNodeList.DoGetItem(Index: TListIndex): TWktNode;
 begin
 	Result := TWktNode(GetItem(Index));
 end;
 //
-procedure TWktNodeList.DoSetItem(Index: Integer; AObject: TWktNode);
+procedure TWktNodeList.DoSetItem(Index: TListIndex; AObject: TWktNode);
 begin
 	SetItem(Index, AObject);
 end;
@@ -718,6 +761,11 @@ begin
 	Result := (Count = 0);
 end;
 
+procedure TWKTCRSDefinition.ResetCache;
+begin
+	// Base class has no cached child pointers.
+end;
+
 procedure TWKTCRSDefinition.LoadFromFile(const AFilename: string);
 var
 	S: TStream;
@@ -738,10 +786,9 @@ end;
 
 procedure TWKTCRSDefinition.LoadFromStream(Stream: TStream);
 begin
-	if not Empty then
-		Clear;
-
+	ResetCache;
 	ParseStream(Stream);
+	ResetCache;
 end;
 
 procedure TWKTCRSDefinition.LoadFromString(const AString: string);
@@ -760,10 +807,12 @@ class function TWKTCRSDefinition.NewFromString(const ADefn: string): TWKTCRSDefi
 begin
   Result := nil;
 
-  if ADefn.Trim.StartsWith(WKT_KWD_PROJCS+WKT_BRACKET_OPEN) then
+  if SameText(Copy(ADefn.Trim,1,Length(WKT_KWD_PROJCS+WKT_BRACKET_OPEN)),
+      WKT_KWD_PROJCS+WKT_BRACKET_OPEN) then
     Result := TWKTProjectedCRS.Create(nil)
   else
-  if ADefn.Trim.StartsWith(WKT_KWD_GEOGCS+WKT_BRACKET_OPEN) then
+  if SameText(Copy(ADefn.Trim,1,Length(WKT_KWD_GEOGCS+WKT_BRACKET_OPEN)),
+      WKT_KWD_GEOGCS+WKT_BRACKET_OPEN) then
     Result := TWKTGeoCRS.Create(nil);
 
   if Assigned(Result) then
@@ -794,7 +843,8 @@ begin
 	Result := AStream.Position;
 	S := TStringStream.Create(SaveToString(False));
 	try
-		AStream.CopyFrom(S, Self.Count);
+		S.Position := 0;
+		AStream.CopyFrom(S, 0);
 
 		Result := AStream.Position - Result;
 	finally
@@ -844,7 +894,7 @@ begin
 	if FProjection = nil then
 	begin
 		if not Find(WKT_ALT_KWD_METHOD,FProjection) then
-			FProjection := AddChild(WKT_ALT_KWD_METHOD,WKT_KWD_UNKNOWN,'');
+			FProjection := AddChild(WKT_ALT_KWD_METHOD,QuoteWKTString(WKT_KWD_UNKNOWN),'');
 	end;
 
 	Result := FProjection;
@@ -876,7 +926,7 @@ begin
 	if FUnits = nil then
 	begin
 		if not Find(WKT_KWD_UNIT,FUnits) then
-			FUnits := AddChild(WKT_KWD_UNIT,WKT_CRS_KWD_UNKNOWN,'1')
+			FUnits := AddChild(WKT_KWD_UNIT,QuoteWKTString(WKT_CRS_KWD_UNKNOWN),'1')
 	end;
 
 	Result := FUnits;
@@ -884,7 +934,7 @@ end;
 
 function TWKTProjectedCRS.GetQualifiedName: string;
 begin
-	Result := Name + WKT_REVERSE_SOLIDUS + FGeoCS.QualifiedName;
+	Result := Name + WKT_REVERSE_SOLIDUS + GeoCS.QualifiedName;
 end;
 
 function TWKTProjectedCRS.GetUnitsName: string;
@@ -897,6 +947,14 @@ begin
 	Result := UnitsNode.AttributeValue[1];
 end;
 
+procedure TWKTProjectedCRS.ResetCache;
+begin
+	FGeoCS := nil;
+	FProjection := nil;
+	FUnits := nil;
+	FreeAndNil(FParameters);
+end;
+
 procedure TWKTProjectedCRS.InitDefaults;
 begin
 	inherited;
@@ -907,15 +965,15 @@ end;
 
 procedure TWKTProjectedCRS.SetName(const Value: string);
 begin
-	AttributeValue[0] := Value;
+	AttributeValue[0] := QuoteWKTString(Value);
 end;
 
 procedure TWKTProjectedCRS.SetProjectionName(const Value: string);
 begin
 	if Value.IsNullOrEmpty(Value) then
-		ProjectionNode.AttributeValue[0] := WKT_CRS_KWD_UNKNOWN
+		ProjectionNode.AttributeValue[0] := QuoteWKTString(WKT_CRS_KWD_UNKNOWN)
 	else
-		ProjectionNode.AttributeValue[0] := Value;
+		ProjectionNode.AttributeValue[0] := QuoteWKTString(Value);
 end;
 
 procedure TWKTProjectedCRS.SetProjectionParameter(const AName, AValue: string);
@@ -929,14 +987,16 @@ begin
 	end
 	else
 		ParameterNode[AName, AValue].AttributeValue[1] := AValue;
+
+	FreeAndNil(FParameters);
 end;
 
 procedure TWKTProjectedCRS.SetUnitsName(const Value: string);
 begin
 	if Value.IsNullOrEmpty(Value) then
-		UnitsNode.AttributeValue[0] := WKT_KWD_UNKNOWN
+		UnitsNode.AttributeValue[0] := QuoteWKTString(WKT_KWD_UNKNOWN)
 	else
-		UnitsNode.AttributeValue[0] := Value;
+		UnitsNode.AttributeValue[0] := QuoteWKTString(Value);
 end;
 
 procedure TWKTProjectedCRS.SetUnitsToMeters(const Value: string);
@@ -951,7 +1011,7 @@ function TWKTProjectedCRS.GetParameterNode(const AName, AValue: string): TWktNod
 begin
 	if not FindByAttributeName(WKT_KWD_PARAMETER,AName,Result) then
 	begin
-		Result := AddChild(WKT_KWD_PARAMETER,AName,AValue)
+		Result := AddChild(WKT_KWD_PARAMETER,QuoteWKTString(AName),AValue)
 	end
 end;
 
@@ -1008,7 +1068,7 @@ begin
 	if FPrimem = nil then
 	begin
 		if not Find(WKT_KWD_PRIMEM,FPrimem) then
-			FPrimem := AddChild(WKT_KWD_PRIMEM,'Greenwich','0.0'); // silenty set to default
+			FPrimem := AddChild(WKT_KWD_PRIMEM,QuoteWKTString('Greenwich'),'0.0'); // silenty set to default
 	end;
 
 	Result := FPrimem;
@@ -1022,6 +1082,8 @@ end;
 function TWKTGeoCRS.GetSpheroidAF: string;
 begin
 	Result := SpheroidNode.AttributeValue[1];
+	if SpheroidNode.AttributesCount > 2 then
+		Result := Result + WKT_VALUE_SEPARATOR + SpheroidNode.AttributeValue[2];
 end;
 
 function TWKTGeoCRS.GetSpheroidName: string;
@@ -1041,16 +1103,19 @@ begin
 end;
 
 function TWKTGeoCRS.GetToWGS: string;
+var
+	I: Integer;
 begin
+	Result := '';
 	if FToWGS = nil then
-	begin
 		if not DatumNode.Find(WKT_KWD_TOWGS84,FToWGS) then
-			Exit('')
-		else
-			Result:= FToWGS.Attributes.CommaText
-	end
-	else
-		Result:= FToWGS.AttributeValue[0]
+			Exit;
+
+	for I := 0 to FToWGS.AttributesCount - 1 do
+	begin
+		if Result <> '' then Result := Result + ',';
+		Result := Result + FToWGS.AttributeValue[I];
+	end;
 end;
 
 function TWKTGeoCRS.GetUnitNode: TWktNode;
@@ -1059,42 +1124,54 @@ begin
 	begin
 		if not Find(WKT_KWD_UNIT,FUnit) then
 		begin
-			FUnit:= AddChild(WKT_KWD_UNIT,WKT_KWD_CRS_KWD_DEGREE,'0.0174532925199433');  // silently set to defalult
+			FUnit:= AddChild(WKT_KWD_UNIT,QuoteWKTString(WKT_KWD_CRS_KWD_DEGREE),'0.0174532925199433');  // silently set to defalult
 		end;
 	end;
 	Result := FUnit;
+end;
+
+procedure TWKTGeoCRS.ResetCache;
+begin
+	FDatum := nil;
+	FSpheroid := nil;
+	FPrimem := nil;
+	FUnit := nil;
+	FToWGS := nil;
 end;
 
 procedure TWKTGeoCRS.InitDefaults;
 begin
 	inherited;
 
-	Keyword := WKT_KWD_GEOCCS;
+	{ TWKTGeoCRS represents an OGC WKT1 geographic CRS.  GEOCCS is the
+	  geocentric keyword and must never be used for the GEOGCS child of a
+	  projected CRS. }
+	Keyword := WKT_KWD_GEOGCS;
   Name := WKT_CRS_KWD_UNNNAMED;
 
 	if not Empty then
 	begin
 		if not Find(WKT_KWD_GEOD_DATUM,FDatum) then
-			FDatum := AddChild(WKT_KWD_GEOD_DATUM,WKT_KWD_DATUM_WGS84,'');
+			FDatum := AddChild(WKT_KWD_GEOD_DATUM,QuoteWKTString(WKT_KWD_DATUM_WGS84),'');
 
 		if not FDatum.Find(WKT_ALT_KWD_ELLIPSOID,FSpheroid) then
-			FSpheroid := FDatum.AddChild(WKT_ALT_KWD_ELLIPSOID,WKT_KWD_ELLIPSOID_WGS84,WKT_KWD_ELLIPSOID_WGS84_AF);
+			FSpheroid := FDatum.AddChild(WKT_ALT_KWD_ELLIPSOID,QuoteWKTString(WKT_KWD_ELLIPSOID_WGS84),WKT_KWD_ELLIPSOID_WGS84_AF);
 
 		FDatum.Find(WKT_KWD_TOWGS84,FToWGS);
 
 		if not Find(WKT_KWD_PRIMEM,FPrimem) then
-			FPrimem := AddChild(WKT_KWD_PRIMEM,'Greenwich','0.0');
+			FPrimem := AddChild(WKT_KWD_PRIMEM,QuoteWKTString('Greenwich'),'0.0');
 
 		if not Find(WKT_KWD_UNIT,FUnit) then
-			FUnit:= AddChild(WKT_KWD_UNIT,WKT_KWD_CRS_KWD_DEGREE,'0.0174532925199433');
+			FUnit:= AddChild(WKT_KWD_UNIT,QuoteWKTString(WKT_KWD_CRS_KWD_DEGREE),'0.0174532925199433');
 	end
 	else
 	begin
-//		FDatum := AddChild(WKT_KWD_GEOD_DATUM,WKT_KWD_DATUM_WGS84,'');
-//		FSpheroid := FDatum.AddChild(WKT_ALT_KWD_ELLIPSOID,WKT_KWD_ELLIPSOID_WGS84,WKT_KWD_ELLIPSOID_WGS84_AF);
+//		FDatum := AddChild(WKT_KWD_GEOD_DATUM,QuoteWKTString(WKT_KWD_DATUM_WGS84),'');
+//		FSpheroid := FDatum.AddChild(WKT_ALT_KWD_ELLIPSOID,QuoteWKTString(WKT_KWD_ELLIPSOID_WGS84),WKT_KWD_ELLIPSOID_WGS84_AF);
 //    FToWGS := nil;
-//		FPrimem := AddChild(WKT_KWD_PRIMEM,'Greenwich','0.0');
-//		FUnit := AddChild(WKT_KWD_UNIT,WKT_KWD_CRS_KWD_DEGREE,'0.0174532925199433');
+//		FPrimem := AddChild(WKT_KWD_PRIMEM,QuoteWKTString('Greenwich'),'0.0');
+//		FUnit := AddChild(WKT_KWD_UNIT,QuoteWKTString(WKT_KWD_CRS_KWD_DEGREE),'0.0174532925199433');
 
 		FDatum := nil;
 		FSpheroid := nil;
@@ -1105,13 +1182,25 @@ begin
 end;
 
 procedure TWKTGeoCRS.SetSpheroidAF(const Value: string);
+var
+	P: Integer;
+	A, RF: string;
 begin
-  TrySpheroidNode.AttributeValue[1] := Value;
+	P := Pos(WKT_VALUE_SEPARATOR,Value);
+	if P > 0 then
+	begin
+		A := Trim(Copy(Value,1,P-1));
+		RF := Trim(Copy(Value,P+Length(WKT_VALUE_SEPARATOR),MaxInt));
+		TrySpheroidNode.AttributeValue[1] := A;
+		TrySpheroidNode.AttributeValue[2] := RF;
+	end
+	else
+		TrySpheroidNode.AttributeValue[1] := Value;
 end;
 
 procedure TWKTGeoCRS.SetAngularUnits(const Value: string);
 begin
-	UnitNode.AttributeValue[0] := Value;
+	UnitNode.AttributeValue[0] := QuoteWKTString(Value);
 end;
 
 procedure TWKTGeoCRS.SetUnitsConversionFactor(const Value: string);
@@ -1125,7 +1214,7 @@ begin
 	begin
 		if not Find(WKT_KWD_GEOD_DATUM,FDatum) then
 		begin
-			FDatum := AddChild(WKT_KWD_GEOD_DATUM,WKT_KWD_DATUM_WGS84,'');
+			FDatum := AddChild(WKT_KWD_GEOD_DATUM,QuoteWKTString(WKT_KWD_DATUM_WGS84),'');
 		end;
 	end;
 	Result := FDatum;
@@ -1137,7 +1226,7 @@ begin
 	begin
 		if not TryGetDatumNode.Find(WKT_ALT_KWD_ELLIPSOID,FSpheroid) then
 		begin
-			FSpheroid := TryGetDatumNode.AddChild(WKT_ALT_KWD_ELLIPSOID, WKT_KWD_ELLIPSOID_WGS84,WKT_KWD_ELLIPSOID_WGS84_AF);
+			FSpheroid := TryGetDatumNode.AddChild(WKT_ALT_KWD_ELLIPSOID, QuoteWKTString(WKT_KWD_ELLIPSOID_WGS84),WKT_KWD_ELLIPSOID_WGS84_AF);
 		end;
 	end;
 
@@ -1146,12 +1235,12 @@ end;
 
 procedure TWKTGeoCRS.SetDatumName(const Value: string);
 begin
-	TryGetDatumNode.AttributeValue[0] := Value;
+	TryGetDatumNode.AttributeValue[0] := QuoteWKTString(Value);
 end;
 
 procedure TWKTGeoCRS.SetName(const Value: string);
 begin
-	AttributeValue[0] := Value;
+	AttributeValue[0] := QuoteWKTString(Value);
 end;
 
 procedure TWKTGeoCRS.SetPrimeMeridianLon(const Value: string);
@@ -1161,42 +1250,64 @@ end;
 
 procedure TWKTGeoCRS.SetPrimeMeridianName(const Value: string);
 begin
-	PrimemNode.AttributeValue[0] := Value;
+	PrimemNode.AttributeValue[0] := QuoteWKTString(Value);
 end;
 
 procedure TWKTGeoCRS.SetSpheroidName(const Value: string);
 begin
-  TrySpheroidNode.AttributeValue[0] := Value;
+  TrySpheroidNode.AttributeValue[0] := QuoteWKTString(Value);
 end;
 
 procedure TWKTGeoCRS.SetToWGS(const Value: string);
-
+var
+	Values: TStringList;
+	I: Integer;
 begin
 	if Value.IsNullOrEmpty(Value) then
 	begin
 		if FToWGS <> nil then
 		begin
-//			FToWGS.AttributeValue[0] := '0,0,0,0,0,0,0';
-			Remove(FToWGS);
-      FToWGS := nil;
+			DatumNode.Remove(FToWGS);
+			FToWGS := nil;
 		end;
-	end
-	else
+		Exit;
+	end;
+
+	if FToWGS = nil then
 	begin
-		if FToWGS = nil then
+		if not DatumNode.Find(WKT_KWD_TOWGS84,FToWGS) then
 		begin
-			if not DatumNode.Find(WKT_KWD_TOWGS84,FToWGS) then
-				FToWGS := DatumNode.AddChild(WKT_KWD_TOWGS84,Value,'');
-		end
-		else
-			FToWGS.AttributeValue[0] := Value;
+			FToWGS := TWktNode.Create(DatumNode);
+			FToWGS.Keyword := WKT_KWD_TOWGS84;
+			DatumNode.Add(FToWGS);
+		end;
+	end;
+
+	FToWGS.Attributes.Clear;
+	Values := TStringList.Create;
+	try
+		Values.Delimiter := ',';
+		Values.StrictDelimiter := True;
+		Values.DelimitedText := Value;
+		for I := 0 to Values.Count - 1 do
+			FToWGS.AddAttribute(Trim(Values[I]));
+	finally
+		Values.Free;
 	end;
 end;
 
 function TWKTGeoCRS.Validate: Boolean;
+var
+	Datum, Spheroid, PrimeMeridian, UnitNode: TWktNode;
 begin
-	Result := Assigned(FDatum) and Assigned(FSpheroid) and
-		Assigned(FPrimem) and Assigned(FUnit);
+	Datum := nil;
+	Spheroid := nil;
+	PrimeMeridian := nil;
+	UnitNode := nil;
+	if not Find(WKT_KWD_GEOD_DATUM,Datum) then Exit(False);
+	if not Datum.Find(WKT_ALT_KWD_ELLIPSOID,Spheroid) then Exit(False);
+	if not Find(WKT_KWD_PRIMEM,PrimeMeridian) then Exit(False);
+	Result := Find(WKT_KWD_UNIT,UnitNode);
 end;
 
 end.
