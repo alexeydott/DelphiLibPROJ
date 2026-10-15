@@ -60,8 +60,8 @@ type
     /// Convert map-units/pixel to physical ground meters/pixel along X and Y.
     function GetGroundResolution(const X,Y,MapUnitsPerPixel: Double; out GroundMetersPerPixelX,GroundMetersPerPixelY: Double): Boolean; overload;
     /// Convert map-units/pixel to one scalar physical ground resolution selected
-    /// by Mode.
-    function GetGroundResolution(const X,Y,MapUnitsPerPixel: Double; out GroundMetersPerPixel: Double; const Mode: TProjectionScaleMode): Boolean; overload;
+    /// by Mode (psmHorizontal by default). Returns zero on failure.
+    function GetGroundResolution(const X,Y,MapUnitsPerPixel: Double; out GroundMetersPerPixel: Double; const Mode: TProjectionScaleMode = psmHorizontal): Boolean; overload;
     /// Backward-compatible nominal 1:N scale denominator. Uses psmHorizontal.
     function GetScaleDenominator(const X,Y,MapUnitsPerPixel: Double; out ScaleDenominator: Double; const PixelSizeMM: Double = PROJ_DEFAULT_PIXEL_SIZE_MM): Boolean; overload;
     /// Nominal 1:N scale denominator using the requested local scale mode.

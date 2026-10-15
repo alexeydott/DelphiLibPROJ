@@ -66,7 +66,7 @@ type
     function GetConformalityAt(const X,Y: Double; const AngularToleranceRad: Double = PROJ_DEFAULT_CONFORMAL_TOLERANCE_RAD): TProjectionConformality;
     function GetLocalMetric(const X,Y: Double; out Metric: TProjectionLocalMetric): Boolean;
     function GetGroundResolution(const X,Y,MapUnitsPerPixel: Double; out GroundMetersPerPixelX,GroundMetersPerPixelY: Double): Boolean; overload;
-    function GetGroundResolution(const X,Y,MapUnitsPerPixel: Double; out GroundMetersPerPixel: Double; const Mode: TProjectionScaleMode): Boolean; overload;
+    function GetGroundResolution(const X,Y,MapUnitsPerPixel: Double; out GroundMetersPerPixel: Double; const Mode: TProjectionScaleMode = psmHorizontal): Boolean; overload;
     function GetScaleDenominator(const X,Y,MapUnitsPerPixel: Double; out ScaleDenominator: Double; const PixelSizeMM: Double = PROJ_DEFAULT_PIXEL_SIZE_MM): Boolean; overload;
     function GetScaleDenominator(const X,Y,MapUnitsPerPixel: Double; out ScaleDenominator: Double; const PixelSizeMM: Double; const Mode: TProjectionScaleMode): Boolean; overload;
     function GetMapUnitsPerPixelForScale(const X,Y,ScaleDenominator: Double; out MapUnitsPerPixel: Double; const PixelSizeMM: Double = PROJ_DEFAULT_PIXEL_SIZE_MM): Boolean; overload;
@@ -716,7 +716,7 @@ end;
 function TProjection.GetGroundResolution(const X,Y,MapUnitsPerPixel: Double; out GroundMetersPerPixel: Double; const Mode: TProjectionScaleMode): Boolean;
 var
   Metric: TProjectionLocalMetric;
-  MetersPerMapUnit: Double;
+  MetersPerMapUnit,Resolution: Double;
 begin
   GroundMetersPerPixel := 0.0;
 
@@ -734,10 +734,15 @@ begin
   if not Result then
     Exit;
 
-  GroundMetersPerPixel := MapUnitsPerPixel * MetersPerMapUnit;
-  Result :=
-    not GroundMetersPerPixel.IsNan and not GroundMetersPerPixel.IsInfinity and
-    (GroundMetersPerPixel > 0.0);
+  // Reject overflow before multiplying, including when FP exceptions are enabled.
+  if (MetersPerMapUnit > 1.0) and
+     (MapUnitsPerPixel > Double.MaxValue / MetersPerMapUnit) then
+    Exit(False);
+
+  Resolution := MapUnitsPerPixel * MetersPerMapUnit;
+  Result := not Resolution.IsNan and not Resolution.IsInfinity and (Resolution > 0.0);
+  if Result then
+    GroundMetersPerPixel := Resolution;
 end;
 
 function TProjection.GetScaleDenominator(const X,Y,MapUnitsPerPixel: Double; out ScaleDenominator: Double; const PixelSizeMM: Double): Boolean;

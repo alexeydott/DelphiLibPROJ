@@ -399,6 +399,11 @@ type
     /// Linear scale derived from the physical ground area of a map-unit square.
     /// This is suitable for equal-area/non-conformal projections where X and Y
     /// linear scales are different.
+    /// Do not compute this as Sqrt(RX * RY): RX and RY measure lengths along
+    /// the map axes, whose ground directions need not be orthogonal. Their
+    /// product omits the sine of the angle between those directions and thus
+    /// does not generally represent ground area. Sqrt(RX * RY) is equivalent
+    /// only in the locally orthogonal case (within sampling accuracy).
     psmAreaEquivalent
   );
 
